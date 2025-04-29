@@ -1,15 +1,20 @@
+import constants
 import gleam/string
 import lustre/effect
 import lustre_http
 import plinth/browser/window
 import types
 
-const dev = False
+const dev = True
 
 fn base_url() -> String {
-  case dev {
-    False -> window.location() <> "api"
-    True -> "http://127.0.0.1:9899/api"
+  case constants.public {
+    False ->
+      case dev {
+        False -> window.location() <> "api"
+        True -> "http://127.0.0.1:9899/api"
+      }
+    True -> "https://api.github.com"
   }
 }
 
@@ -21,6 +26,10 @@ pub fn fetch_initial_config() -> effect.Effect(types.Msg) {
     )
 
   lustre_http.get(base_url() <> "/config", expect)
+}
+
+pub fn fetch_repos_for_public_version() -> effect.Effect(types.Msg) {
+  fetch_repos("dhth", types.User)
 }
 
 pub fn fetch_repos(

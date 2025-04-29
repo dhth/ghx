@@ -544,6 +544,22 @@ video {
   --tw-backdrop-sepia:  ;
 }
 
+.absolute {
+  position: absolute;
+}
+
+.relative {
+  position: relative;
+}
+
+.left-1\/2 {
+  left: 50%;
+}
+
+.top-full {
+  top: 100%;
+}
+
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -599,6 +615,10 @@ video {
   display: flex;
 }
 
+.hidden {
+  display: none;
+}
+
 .h-8 {
   height: 2rem;
 }
@@ -613,6 +633,15 @@ video {
 
 .w-4\/5 {
   width: 80%;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.-translate-x-1\/2 {
+  --tw-translate-x: -50%;
+  transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
 
 .flex-wrap {
@@ -748,13 +777,19 @@ video {
   background-color: rgb(205 193 255 / var(--tw-bg-opacity));
 }
 
+.bg-\[\#e5d9f2\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(229 217 242 / var(--tw-bg-opacity));
+}
+
 .bg-\[\#ff9fb2\] {
   --tw-bg-opacity: 1;
   background-color: rgb(255 159 178 / var(--tw-bg-opacity));
 }
 
-.bg-\[fbf1c7\] {
-  background-color: fbf1c7;
+.bg-\[\#ffffff\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity));
 }
 
 .p-1 {
@@ -793,6 +828,10 @@ video {
   padding-left: 0.5rem;
 }
 
+.text-center {
+  text-align: center;
+}
+
 .text-4xl {
   font-size: 2.25rem;
   line-height: 2.5rem;
@@ -806,6 +845,11 @@ video {
 .text-xl {
   font-size: 1.25rem;
   line-height: 1.75rem;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
 }
 
 .font-semibold {
@@ -891,6 +935,11 @@ video {
   color: rgb(255 149 0 / var(--tw-text-opacity));
 }
 
+.text-\[\#ffffff\] {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
 .placeholder-\[\#232634\]::-moz-placeholder {
   --tw-placeholder-opacity: 1;
   color: rgb(35 38 52 / var(--tw-placeholder-opacity));
@@ -948,6 +997,10 @@ video {
 .disabled\:text-\[\#282828\]:disabled {
   --tw-text-opacity: 1;
   color: rgb(40 40 40 / var(--tw-text-opacity));
+}
+
+.group:hover .group-hover\:block {
+  display: block;
 }
 
 @media not all and (min-width: 640px) {

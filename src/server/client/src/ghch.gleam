@@ -1,4 +1,5 @@
-import effects.{fetch_initial_config}
+import constants
+import effects
 import lustre
 import lustre/effect
 import types.{type Model, type Msg, init_model}
@@ -11,5 +12,9 @@ pub fn main() {
 }
 
 fn init(_) -> #(Model, effect.Effect(Msg)) {
-  #(init_model(), fetch_initial_config())
+  let init_effect = case constants.public {
+    False -> effects.fetch_initial_config()
+    True -> effects.fetch_repos_for_public_version()
+  }
+  #(init_model(), init_effect)
 }

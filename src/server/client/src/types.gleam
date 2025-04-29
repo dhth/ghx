@@ -1,3 +1,4 @@
+import constants
 import gleam/bool
 import gleam/dynamic/decode
 import gleam/int
@@ -242,7 +243,19 @@ pub type Model {
 }
 
 pub fn init_model() -> Model {
-  Model(config: Config(theme: Dark), state: Initial, debug: False)
+  case constants.public {
+    False -> Model(config: Config(theme: Dark), state: Initial, debug: False)
+    True ->
+      Model(
+        config: Config(theme: Dark),
+        state: ConfigLoaded(
+          user_name: "dhth" |> option.Some,
+          owner_type: User,
+          fetching_repos: True,
+        ),
+        debug: False,
+      )
+  }
 }
 
 pub type Msg {

@@ -3529,6 +3529,9 @@ function start2(app, selector, flags) {
   );
 }
 
+// build/dev/javascript/ghch/constants.mjs
+var public$ = false;
+
 // build/dev/javascript/gleam_stdlib/gleam/uri.mjs
 var Uri = class extends CustomType {
   constructor(scheme, userinfo, host, port, path, query, fragment) {
@@ -5342,7 +5345,23 @@ function owner_type_to_string(owner_type) {
   }
 }
 function init_model() {
-  return new Model2(new Config(new Dark()), new Initial(), false);
+  let $ = public$;
+  if (!$) {
+    return new Model2(new Config(new Dark()), new Initial(), false);
+  } else {
+    return new Model2(
+      new Config(new Dark()),
+      new ConfigLoaded(
+        (() => {
+          let _pipe = "dhth";
+          return new Some(_pipe);
+        })(),
+        new User(),
+        true
+      ),
+      false
+    );
+  }
 }
 function display_config(config) {
   return "- theme: " + (() => {
@@ -5596,13 +5615,18 @@ function display_model(model) {
 }
 
 // build/dev/javascript/ghch/effects.mjs
-var dev = false;
+var dev = true;
 function base_url() {
-  let $ = dev;
+  let $ = public$;
   if (!$) {
-    return location() + "api";
+    let $1 = dev;
+    if (!$1) {
+      return location() + "api";
+    } else {
+      return "http://127.0.0.1:9899/api";
+    }
   } else {
-    return "http://127.0.0.1:9899/api";
+    return "https://api.github.com";
   }
 }
 function fetch_initial_config() {
@@ -5643,6 +5667,9 @@ function fetch_repos(user_name, owner_type) {
     })(),
     expect
   );
+}
+function fetch_repos_for_public_version() {
+  return fetch_repos("dhth", new User());
 }
 function tags_endpoint(user_name, repo) {
   let _pipe = toList([base_url(), "repos", user_name, repo, "tags"]);
@@ -7097,9 +7124,6 @@ function update(model, msg) {
 function text2(content) {
   return text(content);
 }
-function h1(attrs, children2) {
-  return element("h1", attrs, children2);
-}
 function div(attrs, children2) {
   return element("div", attrs, children2);
 }
@@ -7173,7 +7197,7 @@ function main_div_class(theme) {
   if (theme instanceof Dark) {
     return "bg-[#282828] text-[#fbf1c7]";
   } else {
-    return "bg-[fbf1c7] text-[#282828]";
+    return "bg-[#ffffff] text-[#282828]";
   }
 }
 function debug_section(model) {
@@ -7230,19 +7254,60 @@ function heading(theme) {
   } else {
     _block = "text-[#564592]";
   }
-  let class$2 = _block;
+  let heading_class = _block;
+  let _block$1;
+  if (theme instanceof Dark) {
+    _block$1 = "bg-[#e5d9f2] text-[#282828]";
+  } else {
+    _block$1 = "bg-[#282828] text-[#ffffff]";
+  }
+  let tooltip_class = _block$1;
   return div(
-    toList([]),
+    toList([class$("flex gap-4 items-center")]),
     toList([
-      h1(
-        toList([class$("text-4xl font-semibold " + class$2)]),
+      p(
+        toList([class$("text-4xl font-semibold " + heading_class)]),
         toList([
           (() => {
             let _pipe = "ghch";
             return text(_pipe);
           })()
         ])
-      )
+      ),
+      (() => {
+        let $ = public$;
+        if (!$) {
+          return none2();
+        } else {
+          return div(
+            toList([class$("relative group")]),
+            toList([
+              p(
+                toList([class$("text-md " + heading_class)]),
+                toList([
+                  (() => {
+                    let _pipe = "(unauthenticated public version)";
+                    return text(_pipe);
+                  })()
+                ])
+              ),
+              div(
+                toList([
+                  class$(
+                    "absolute left-1/2 -translate-x-1/2 top-full mt-2 hidden w-full group-hover:block text-xs px-2 py-1 text-center " + tooltip_class
+                  )
+                ]),
+                toList([
+                  (() => {
+                    let _pipe = "(use the command line version of ghch to make authenticated calls to Github)";
+                    return text(_pipe);
+                  })()
+                ])
+              )
+            ])
+          );
+        }
+      })()
     ])
   );
 }
@@ -8274,7 +8339,15 @@ function view(model) {
 
 // build/dev/javascript/ghch/ghch.mjs
 function init2(_) {
-  return [init_model(), fetch_initial_config()];
+  let _block;
+  let $ = public$;
+  if (!$) {
+    _block = fetch_initial_config();
+  } else {
+    _block = fetch_repos_for_public_version();
+  }
+  let init_effect = _block;
+  return [init_model(), init_effect];
 }
 function main() {
   let app = application(init2, update, view);
@@ -8283,7 +8356,7 @@ function main() {
     throw makeError(
       "let_assert",
       "ghch",
-      10,
+      11,
       "main",
       "Pattern match failed, no pattern matched the value.",
       { value: $ }

@@ -1,3 +1,4 @@
+import constants
 import gleam/list
 import gleam/option
 import gleam/result
@@ -28,7 +29,7 @@ pub fn view(model: Model) -> element.Element(Msg) {
 fn main_div_class(theme: Theme) -> String {
   case theme {
     types.Dark -> "bg-[#282828] text-[#fbf1c7]"
-    types.Light -> "bg-[fbf1c7] text-[#282828]"
+    types.Light -> "bg-[#ffffff] text-[#282828]"
   }
 }
 
@@ -236,14 +237,41 @@ fn main_section(model: Model) -> element.Element(Msg) {
 }
 
 fn heading(theme: Theme) -> element.Element(Msg) {
-  let class = case theme {
+  let heading_class = case theme {
     types.Dark -> "text-[#e5d9f2]"
     types.Light -> "text-[#564592]"
   }
-  html.div([], [
-    html.h1([attribute.class("text-4xl font-semibold " <> class)], [
+
+  let tooltip_class = case theme {
+    types.Dark -> "bg-[#e5d9f2] text-[#282828]"
+    types.Light -> "bg-[#282828] text-[#ffffff]"
+  }
+
+  html.div([attribute.class("flex gap-4 items-center")], [
+    html.p([attribute.class("text-4xl font-semibold " <> heading_class)], [
       "ghch" |> element.text,
     ]),
+    case constants.public {
+      False -> element.none()
+      True ->
+        html.div([attribute.class("relative group")], [
+          html.p([attribute.class("text-md " <> heading_class)], [
+            "(unauthenticated public version)" |> element.text,
+          ]),
+          html.div(
+            [
+              attribute.class(
+                "absolute left-1/2 -translate-x-1/2 top-full mt-2 hidden w-full group-hover:block text-xs px-2 py-1 text-center "
+                <> tooltip_class,
+              ),
+            ],
+            [
+              "(use the command line version of ghch to make authenticated calls to Github)"
+              |> element.text,
+            ],
+          ),
+        ])
+    },
   ])
 }
 
