@@ -11,6 +11,10 @@ for GitHub repositories.
 ![image](https://github.com/user-attachments/assets/7b00958f-7023-4e34-bb8a-f996cbe7c0f4)
 ![image](https://github.com/user-attachments/assets/cb337200-6f4e-46e2-9397-408c1960b4ce)
 
+> [!NOTE]
+> An unauthenticated public version of `ghch`'s web interface is running
+> at [https://ghch-public.tools.dhruvs.space](https://ghch-public.tools.dhruvs.space).
+
 ⚡️ Usage
 ---
 

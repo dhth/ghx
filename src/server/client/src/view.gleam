@@ -266,7 +266,7 @@ fn heading(theme: Theme) -> element.Element(Msg) {
               ),
             ],
             [
-              "(use the command line version of ghch to make authenticated calls to Github)"
+              "Github might rate limit you after a while; use the command line version of ghch to make authenticated calls or to fetch non-public data"
               |> element.text,
             ],
           ),

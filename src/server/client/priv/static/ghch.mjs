@@ -7299,7 +7299,7 @@ function heading(theme) {
                 ]),
                 toList([
                   (() => {
-                    let _pipe = "(use the command line version of ghch to make authenticated calls to Github)";
+                    let _pipe = "Github might rate limit you after a while; use the command line version of ghch to make authenticated calls or to fetch non-public data";
                     return text(_pipe);
                   })()
                 ])
