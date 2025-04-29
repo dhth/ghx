@@ -1,0 +1,6 @@
+*.beam
+*.ez
+/build
+erl_crash.dump
+priv/static/ghch.min.css
+priv/static/ghch.min.mjs

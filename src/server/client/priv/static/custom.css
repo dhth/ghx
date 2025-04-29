@@ -1,0 +1,28 @@
+body {
+    font-family: "Open Sans", sans-serif;
+}
+
+#debug-section {
+  font-family: "Fira Mono", monospace;
+}
+
+#changes-section {
+  font-family: "Fira Mono", monospace;
+}
+
+body::-webkit-scrollbar {
+    width: 8px;
+}
+
+body::-webkit-scrollbar-track {
+    background: #232634;
+}
+
+body::-webkit-scrollbar-thumb {
+    background: #444857;
+    border-radius: 4px;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+    background: #5a5e6e;
+}
