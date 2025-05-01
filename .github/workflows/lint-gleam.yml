@@ -5,7 +5,7 @@ on:
     branches: ["main"]
   pull_request:
     paths:
-      - "src/server/client"
+      - "src/server/client/**"
       - ".github/workflows/lint-gleam.yml"
 
 env:
