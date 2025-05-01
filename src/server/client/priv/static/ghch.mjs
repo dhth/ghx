@@ -59,18 +59,18 @@ var ListIterator = class {
     if (this.#current instanceof Empty) {
       return { done: true };
     } else {
-      let { head, tail } = this.#current;
+      let { head: head2, tail } = this.#current;
       this.#current = tail;
-      return { value: head, done: false };
+      return { value: head2, done: false };
     }
   }
 };
 var Empty = class extends List {
 };
 var NonEmpty = class extends List {
-  constructor(head, tail) {
+  constructor(head2, tail) {
     super();
-    this.head = head;
+    this.head = head2;
     this.tail = tail;
   }
 };
@@ -414,6 +414,13 @@ function map(option2, fun) {
     return new Some(fun(x));
   } else {
     return new None();
+  }
+}
+function or(first3, second) {
+  if (first3 instanceof Some) {
+    return first3;
+  } else {
+    return second;
   }
 }
 
@@ -1425,8 +1432,8 @@ function inspectObject(v) {
     props.push(`${inspect(k)}: ${inspect(v[k])}`);
   }
   const body2 = props.length ? " " + props.join(", ") + " " : "";
-  const head = name2 === "Object" ? "" : name2 + " ";
-  return `//js(${head}{${body2}})`;
+  const head2 = name2 === "Object" ? "" : name2 + " ";
+  return `//js(${head2}{${body2}})`;
 }
 function inspectCustomType(record) {
   const props = Object.keys(record).map((label2) => {
@@ -2803,6 +2810,9 @@ function checked(is_checked) {
 function placeholder(text3) {
   return attribute("placeholder", text3);
 }
+function selected(is_selected) {
+  return property("selected", is_selected);
+}
 function autocomplete(name2) {
   return attribute("autocomplete", name2);
 }
@@ -3531,6 +3541,7 @@ function start2(app, selector, flags) {
 
 // build/dev/javascript/ghch/constants.mjs
 var public$ = false;
+var head = "HEAD";
 
 // build/dev/javascript/gleam_stdlib/gleam/uri.mjs
 var Uri = class extends CustomType {
@@ -6789,7 +6800,16 @@ function update(model, msg) {
                   return new Some(_pipe);
                 }
               })(),
-              end_tag,
+              (() => {
+                let _pipe = end_tag;
+                return or(
+                  _pipe,
+                  (() => {
+                    let _pipe$1 = head;
+                    return new Some(_pipe$1);
+                  })()
+                );
+              })(),
               false
             ),
             _record.debug
@@ -7193,6 +7213,10 @@ function on_check(msg) {
 }
 
 // build/dev/javascript/ghch/view.mjs
+var Start = class extends CustomType {
+};
+var End = class extends CustomType {
+};
 function main_div_class(theme) {
   if (theme instanceof Dark) {
     return "bg-[#282828] text-[#fbf1c7]";
@@ -7552,7 +7576,7 @@ function repos_error_section(error, owner_type, theme) {
     ])
   );
 }
-function repo_select_button(repo, selected, theme) {
+function repo_select_button(repo, selected2, theme) {
   let _block;
   if (theme instanceof Dark) {
     _block = "text-[#8caaee] disabled:bg-[#8caaee] disabled:text-[#282828] hover:text-[#282828] hover:bg-[#c6d0f5]";
@@ -7566,7 +7590,7 @@ function repo_select_button(repo, selected, theme) {
       class$(
         "text-sm font-semibold mr-2 px-2 py-1 my-1 text-[#232634] " + class$2
       ),
-      disabled(selected),
+      disabled(selected2),
       on_click(new RepoChosen(repo.name))
     ]),
     toList([text(repo.name)])
@@ -7733,10 +7757,26 @@ function tags_error_section(error, theme) {
     ])
   );
 }
-function tag_option(tag) {
-  return option(toList([value(tag.name)]), tag.name);
+function tag_option(value4, label2, selected_value) {
+  let _block;
+  let _pipe = selected_value;
+  let _pipe$1 = map(_pipe, (s) => {
+    return s === value4;
+  });
+  _block = unwrap(_pipe$1, false);
+  let is_selected = _block;
+  return option(
+    toList([
+      value(value4),
+      (() => {
+        let _pipe$2 = is_selected;
+        return selected(_pipe$2);
+      })()
+    ]),
+    label2
+  );
 }
-function start_tag_select(tags, theme) {
+function tag_select(tags, tag_type, selected2, theme) {
   let _block;
   if (theme instanceof Dark) {
     _block = "bg-[#788bff] text-[#282828]";
@@ -7748,46 +7788,45 @@ function start_tag_select(tags, theme) {
     toList([
       class$("py-1 px-2 font-semibold " + select_class),
       name("tags"),
-      on_input((var0) => {
-        return new StartTagChosen(var0);
-      })
+      on_input(
+        (() => {
+          if (tag_type instanceof End) {
+            return (var0) => {
+              return new EndTagChosen(var0);
+            };
+          } else {
+            return (var0) => {
+              return new StartTagChosen(var0);
+            };
+          }
+        })()
+      )
     ]),
     (() => {
       let _pipe = tags;
-      let _pipe$1 = map2(_pipe, tag_option);
-      return prepend2(
-        _pipe$1,
-        option(toList([value("")]), "-- choose start tag --")
+      let _pipe$1 = map2(
+        _pipe,
+        (t) => {
+          return tag_option(t.name, t.name, selected2);
+        }
       );
-    })()
-  );
-}
-function end_tag_select(tags, theme) {
-  let _block;
-  if (theme instanceof Dark) {
-    _block = "bg-[#6678ff] text-[#282828]";
-  } else {
-    _block = "bg-[#8a9eff] text-[#282828]";
-  }
-  let select_class = _block;
-  return select(
-    toList([
-      class$("py-1 px-2 font-semibold " + select_class),
-      name("tags"),
-      on_input((var0) => {
-        return new EndTagChosen(var0);
-      })
-    ]),
-    (() => {
-      let _pipe = tags;
-      let _pipe$1 = map2(_pipe, tag_option);
       let _pipe$2 = prepend2(
         _pipe$1,
-        option(toList([value("HEAD")]), "HEAD")
+        tag_option(head, head, selected2)
       );
       return prepend2(
         _pipe$2,
-        option(toList([value("")]), "-- choose end tag --")
+        tag_option(
+          "",
+          (() => {
+            if (tag_type instanceof End) {
+              return "-- choose end tag --";
+            } else {
+              return "-- choose start tag --";
+            }
+          })(),
+          selected2
+        )
       );
     })()
   );
@@ -7838,18 +7877,18 @@ function tags_select_section(tags, start_tag, end_tag, fetching_changelog, theme
               return toList([
                 (() => {
                   let _pipe = tags;
-                  return start_tag_select(_pipe, theme);
+                  return tag_select(_pipe, new Start(), start_tag, theme);
                 })()
               ]);
             } else if (start_tag instanceof Some && end_tag instanceof None) {
               return toList([
                 (() => {
                   let _pipe = tags;
-                  return start_tag_select(_pipe, theme);
+                  return tag_select(_pipe, new Start(), start_tag, theme);
                 })(),
                 (() => {
                   let _pipe = tags;
-                  return end_tag_select(_pipe, theme);
+                  return tag_select(_pipe, new End(), end_tag, theme);
                 })()
               ]);
             } else {
@@ -7863,11 +7902,11 @@ function tags_select_section(tags, start_tag, end_tag, fetching_changelog, theme
               return toList([
                 (() => {
                   let _pipe = tags;
-                  return start_tag_select(_pipe, theme);
+                  return tag_select(_pipe, new Start(), start_tag, theme);
                 })(),
                 (() => {
                   let _pipe = tags;
-                  return end_tag_select(_pipe, theme);
+                  return tag_select(_pipe, new End(), end_tag, theme);
                 })(),
                 button(
                   toList([
@@ -8321,7 +8360,7 @@ function view(model) {
     ]),
     toList([
       div(
-        toList([class$("py-10 w-4/5 max-sm:w-5/6 mx-auto")]),
+        toList([class$("pt-10 py-20 w-4/5 max-sm:w-5/6 mx-auto")]),
         toList([
           (() => {
             let _pipe = model;

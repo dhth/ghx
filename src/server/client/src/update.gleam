@@ -1,3 +1,4 @@
+import constants
 import effects.{fetch_changes, fetch_repos, fetch_tags}
 import gleam/option
 import gleam/string
@@ -379,7 +380,7 @@ pub fn update(model: Model, msg: Msg) -> #(Model, effect.Effect(Msg)) {
                 0 -> option.None
                 _ -> tag |> option.Some
               },
-              end_tag: end_tag,
+              end_tag: end_tag |> option.or(constants.head |> option.Some),
               fetching_changes: False,
             ),
           ),

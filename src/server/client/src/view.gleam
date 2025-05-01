@@ -14,11 +14,16 @@ import types.{
 }
 import utils.{http_error_to_string}
 
+type TagType {
+  Start
+  End
+}
+
 pub fn view(model: Model) -> element.Element(Msg) {
   html.div(
     [attribute.class("min-h-screen " <> model.config.theme |> main_div_class)],
     [
-      html.div([attribute.class("py-10 w-4/5 max-sm:w-5/6 mx-auto")], [
+      html.div([attribute.class("pt-10 py-20 w-4/5 max-sm:w-5/6 mx-auto")], [
         model |> main_section,
         model |> debug_section,
       ]),
@@ -587,11 +592,14 @@ fn tags_select_section(
           html.div(
             [attribute.class("mt-4 flex flex-wrap gap-2 items-center")],
             case start_tag, end_tag {
-              option.None, _ -> [tags |> start_tag_select(theme)]
-              option.Some(_), option.None -> [
-                tags |> start_tag_select(theme),
+              option.None, _ -> [
                 tags
-                  |> end_tag_select(theme),
+                |> tag_select(Start, start_tag, theme),
+              ]
+              option.Some(_), option.None -> [
+                tags |> tag_select(Start, start_tag, theme),
+                tags
+                  |> tag_select(End, end_tag, theme),
               ]
               option.Some(_), option.Some(_) -> {
                 let button_class = case theme {
@@ -599,9 +607,10 @@ fn tags_select_section(
                   types.Light -> "bg-[#a4f3b3] text-[#282828]"
                 }
                 [
-                  tags |> start_tag_select(theme),
                   tags
-                    |> end_tag_select(theme),
+                    |> tag_select(Start, start_tag, theme),
+                  tags
+                    |> tag_select(End, end_tag, theme),
                   html.button(
                     [
                       attribute.id("fetch-changes"),
@@ -623,7 +632,12 @@ fn tags_select_section(
   }
 }
 
-fn start_tag_select(tags: List(Tag), theme: Theme) -> element.Element(Msg) {
+fn tag_select(
+  tags: List(Tag),
+  tag_type: TagType,
+  selected: option.Option(String),
+  theme: Theme,
+) -> element.Element(Msg) {
   let select_class = case theme {
     types.Dark -> "bg-[#788bff] text-[#282828]"
     types.Light -> "bg-[#9bb1ff] text-[#282828]"
@@ -633,38 +647,39 @@ fn start_tag_select(tags: List(Tag), theme: Theme) -> element.Element(Msg) {
     [
       attribute.class("py-1 px-2 font-semibold " <> select_class),
       attribute.name("tags"),
-      event.on_input(types.StartTagChosen),
+      event.on_input(case tag_type {
+        End -> types.EndTagChosen
+        Start -> types.StartTagChosen
+      }),
     ],
     tags
-      |> list.map(tag_option)
-      |> list.prepend(html.option(
-        [attribute.value("")],
-        "-- choose start tag --",
+      |> list.map(fn(t) { tag_option(t.name, t.name, selected) })
+      |> list.prepend(tag_option(constants.head, constants.head, selected))
+      |> list.prepend(tag_option(
+        "",
+        case tag_type {
+          End -> "-- choose end tag --"
+          Start -> "-- choose start tag --"
+        },
+        selected,
       )),
   )
 }
 
-fn end_tag_select(tags: List(Tag), theme: Theme) -> element.Element(Msg) {
-  let select_class = case theme {
-    types.Dark -> "bg-[#6678ff] text-[#282828]"
-    types.Light -> "bg-[#8a9eff] text-[#282828]"
-  }
+fn tag_option(
+  value: String,
+  label: String,
+  selected_value: option.Option(String),
+) -> element.Element(Msg) {
+  let is_selected =
+    selected_value
+    |> option.map(fn(s) { s == value })
+    |> option.unwrap(False)
 
-  html.select(
-    [
-      attribute.class("py-1 px-2 font-semibold " <> select_class),
-      attribute.name("tags"),
-      event.on_input(types.EndTagChosen),
-    ],
-    tags
-      |> list.map(tag_option)
-      |> list.prepend(html.option([attribute.value("HEAD")], "HEAD"))
-      |> list.prepend(html.option([attribute.value("")], "-- choose end tag --")),
+  html.option(
+    [attribute.value(value), is_selected |> attribute.selected],
+    label,
   )
-}
-
-fn tag_option(tag: Tag) -> element.Element(Msg) {
-  html.option([attribute.value(tag.name)], tag.name)
 }
 
 fn changes_error_section(
