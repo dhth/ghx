@@ -10,10 +10,7 @@ import lustre/element
 import lustre/element/html
 import lustre/event
 import lustre_http
-import types.{
-  type ChangesResponse, type Model, type Msg, type Tag, type Theme,
-  display_model,
-}
+import types.{type Model, type Msg, type Tag, type Theme, display_model}
 import utils.{http_error_to_string}
 
 type TagType {
@@ -238,8 +235,8 @@ fn main_section(model: Model) -> element.Element(Msg) {
         False,
         theme,
       ),
-      changes
-        |> changes_section(
+      changes.commits
+        |> commits_section(
           start_tag,
           end_tag,
           case theme {
@@ -248,6 +245,8 @@ fn main_section(model: Model) -> element.Element(Msg) {
           },
           theme,
         ),
+      changes.files
+        |> files_section(theme),
     ]
   })
 }
@@ -729,8 +728,8 @@ fn changes_error_section(
   )
 }
 
-fn changes_section(
-  changes: ChangesResponse,
+fn commits_section(
+  commits: List(types.ChangelogCommit),
   start_tag: String,
   end_tag: String,
   author_color_class_store: types.AuthorColorClassStore,
@@ -740,13 +739,17 @@ fn changes_section(
     [
       attribute.class(
         "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50
-        border-dotted",
+        border-dotted overflow-y-scroll max-h-screen",
       ),
-      attribute.id("changes-section"),
+      attribute.style([
+        #("scrollbar-color", theme |> scrollbar_color),
+        #("scrollbar-width", "thin"),
+      ]),
+      attribute.id("commits-section"),
     ],
     [
       html.p([attribute.class("text-xl")], [
-        { "changes " <> start_tag <> "..." <> end_tag } |> element.text,
+        { "commits " <> start_tag <> "..." <> end_tag } |> element.text,
       ]),
       html.div(
         [
@@ -755,9 +758,8 @@ fn changes_section(
             #("scrollbar-color", theme |> scrollbar_color),
             #("scrollbar-width", "thin"),
           ]),
-          attribute.id("changes-section"),
         ],
-        changes.commits
+        commits
           |> list.map(fn(commit) {
             commit_details(commit, author_color_class_store, theme)
           }),
@@ -800,7 +802,7 @@ fn commit_details(
       html.span([attribute.class(sha_class)], [commit_hash |> element.text]),
     ]),
     html.span([], [commit_message_heading |> element.text]),
-    html.span([attribute.class("font-semibold " <> author_class)], [
+    html.span([attribute.class(author_class)], [
       commit.details.author.name |> element.text,
     ]),
   ])
@@ -823,4 +825,132 @@ fn scrollbar_color(theme: Theme) -> String {
     types.Dark -> "#a594f940 #282828"
     types.Light -> "#a594f940 #ffffff"
   }
+}
+
+fn files_section(
+  maybe_files: option.Option(List(types.ChangesFileItem)),
+  theme: Theme,
+) -> element.Element(Msg) {
+  case maybe_files {
+    option.None -> element.none()
+    option.Some([]) -> element.none()
+    option.Some(files) -> {
+      html.div(
+        [
+          attribute.class(
+            "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted overflow-y-scroll max-h-screen",
+          ),
+          attribute.style([
+            #("scrollbar-color", theme |> scrollbar_color),
+            #("scrollbar-width", "thin"),
+          ]),
+          attribute.id("files-section"),
+        ],
+        [
+          html.p([attribute.class("text-xl")], ["files" |> element.text]),
+          html.div(
+            [
+              attribute.class("mt-4 overflow-x-auto"),
+              attribute.style([
+                #("scrollbar-color", theme |> scrollbar_color),
+                #("scrollbar-width", "thin"),
+              ]),
+            ],
+            files
+              |> list.map(fn(file) { file_details(file, theme) }),
+          ),
+        ],
+      )
+    }
+  }
+}
+
+fn file_details(
+  file: types.ChangesFileItem,
+  theme: Theme,
+) -> element.Element(Msg) {
+  html.p([attribute.class("flex gap-4 items-center whitespace-nowrap mt-2")], [
+    file.status |> file_status(theme),
+    file_change_stats(file.additions, file.deletions, theme),
+    html.a([attribute.href(file.blob_url), attribute.target("_blank")], [
+      html.span([], [file.file_name |> element.text]),
+    ]),
+  ])
+}
+
+fn file_status(
+  status: types.ChangesFileStatus,
+  theme: Theme,
+) -> element.Element(Msg) {
+  let class = case theme {
+    types.Dark ->
+      case status {
+        types.Added -> "bg-[#7cea9c]"
+        types.Changed -> "bg-[#fdb3ae]"
+        types.Copied -> "bg-[#d0f4de]"
+        types.Modified -> "bg-[#ffc300]"
+        types.Removed -> "bg-[#ff4365]"
+        types.Renamed -> "bg-[#dfa8a9]"
+        types.Unchanged -> "bg-[#e5d9f2]"
+      }
+    types.Light ->
+      case status {
+        types.Added -> "bg-[#a3f0b9]"
+        types.Changed -> "bg-[#fdc9c6]"
+        types.Copied -> "bg-[#def7e7]"
+        types.Modified -> "bg-[#ffe17f]"
+        types.Removed -> "bg-[#ff8ea2]"
+        types.Renamed -> "bg-[#ebcacb]"
+        types.Unchanged -> "bg-[#efe8f7]"
+      }
+  }
+
+  html.span(
+    [
+      attribute.class(
+        "px-2 py-1 text-[#282828] text-xs font-semibold " <> class,
+      ),
+    ],
+    [status |> types.file_status_to_string |> element.text],
+  )
+}
+
+fn file_change_stats(
+  additions: Int,
+  deletions: Int,
+  theme: Theme,
+) -> element.Element(Msg) {
+  let additions_text = case additions {
+    0 -> ""
+    n -> "+" <> { n |> int.to_string }
+  }
+
+  let deletions_text = case deletions {
+    0 -> ""
+    n -> "-" <> { n |> int.to_string }
+  }
+
+  let #(additions_class, deletions_class) = case theme {
+    types.Dark -> #("text-[#affc41]", "text-[#ff4365]")
+    types.Light -> #("text-[#068360]", "text-[#cc3550]")
+  }
+
+  html.div([attribute.class("flex gap-2")], [
+    html.span(
+      [
+        attribute.class(
+          "px-2 py-1 text-sm font-semibold w-16 " <> additions_class,
+        ),
+      ],
+      [additions_text |> element.text],
+    ),
+    html.span(
+      [
+        attribute.class(
+          "px-2 py-1 text-sm font-semibold w-16 " <> deletions_class,
+        ),
+      ],
+      [deletions_text |> element.text],
+    ),
+  ])
 }

@@ -74,7 +74,7 @@ pub fn fetch_changes(
   end_tag: String,
 ) -> effect.Effect(types.Msg) {
   let expect =
-    lustre_http.expect_json(types.changelog_response_decoder(), fn(result) {
+    lustre_http.expect_json(types.changes_response_decoder(), fn(result) {
       types.ChangesFetched(#(start_tag, end_tag, result))
     })
 

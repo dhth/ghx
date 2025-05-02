@@ -7,7 +7,11 @@ body {
   font-family: "Fira Mono", monospace;
 }
 
-#changes-section {
+#commits-section {
+  font-family: "Fira Mono", monospace;
+}
+
+#files-section {
   font-family: "Fira Mono", monospace;
 }
 
