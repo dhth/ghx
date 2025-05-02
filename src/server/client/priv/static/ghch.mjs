@@ -8020,6 +8020,30 @@ function repos_error_section(error, owner_type, theme) {
     ])
   );
 }
+function fetching_repos_section(fetching_repos) {
+  if (!fetching_repos) {
+    return none2();
+  } else {
+    return div(
+      toList([
+        class$(
+          "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted"
+        )
+      ]),
+      toList([
+        p(
+          toList([class$("text-xl")]),
+          toList([
+            (() => {
+              let _pipe = "fetching repos ...";
+              return text(_pipe);
+            })()
+          ])
+        )
+      ])
+    );
+  }
+}
 function repo_select_button(repo, selected2, theme) {
   let _block;
   if (theme instanceof Dark) {
@@ -8040,17 +8064,26 @@ function repo_select_button(repo, selected2, theme) {
     toList([text(repo.name)])
   );
 }
-function fetching_tags_message(fetching_tags) {
+function fetching_tags_section(fetching_tags) {
   if (!fetching_tags) {
     return none2();
   } else {
-    return p(
-      toList([class$("mt-6")]),
+    return div(
       toList([
-        (() => {
-          let _pipe = "fetching tags";
-          return text(_pipe);
-        })()
+        class$(
+          "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted"
+        )
+      ]),
+      toList([
+        p(
+          toList([class$("text-xl")]),
+          toList([
+            (() => {
+              let _pipe = "fetching tags ...";
+              return text(_pipe);
+            })()
+          ])
+        )
       ])
     );
   }
@@ -8175,100 +8208,98 @@ function tag_select(tags, tag_type, selected2, theme) {
   );
 }
 function tags_select_section(tags, start_tag, end_tag, fetching_changelog, theme) {
-  let $ = (() => {
-    let _pipe = tags;
-    return length(_pipe);
-  })();
-  if ($ === 0) {
-    let _block;
-    if (theme instanceof Dark) {
-      _block = "text-[#ff9500]";
-    } else {
-      _block = "text-[#fa4c58]";
-    }
-    let message_class = _block;
-    return p(
-      toList([class$("mt-6 " + message_class)]),
-      toList([
-        (() => {
-          let _pipe = "repo has no tags";
-          return text(_pipe);
-        })()
-      ])
-    );
-  } else {
-    return div(
-      toList([
-        class$(
-          "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted"
-        )
-      ]),
-      toList([
-        p(
-          toList([class$("text-xl")]),
-          toList([
+  return div(
+    toList([
+      class$(
+        "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted"
+      ),
+      id("tags-section")
+    ]),
+    (() => {
+      let $ = (() => {
+        let _pipe = tags;
+        return length(_pipe);
+      })();
+      if ($ === 0) {
+        return toList([
+          p(
+            toList([class$("text-xl")]),
+            toList([
+              (() => {
+                let _pipe = "repo has no tags";
+                return text(_pipe);
+              })()
+            ])
+          )
+        ]);
+      } else {
+        return toList([
+          p(
+            toList([class$("text-xl")]),
+            toList([
+              (() => {
+                let _pipe = "tags";
+                return text(_pipe);
+              })()
+            ])
+          ),
+          div(
+            toList([class$("mt-4 flex flex-wrap gap-2 items-center")]),
             (() => {
-              let _pipe = "tags";
-              return text(_pipe);
-            })()
-          ])
-        ),
-        div(
-          toList([class$("mt-4 flex flex-wrap gap-2 items-center")]),
-          (() => {
-            if (start_tag instanceof None) {
-              return toList([
-                (() => {
-                  let _pipe = tags;
-                  return tag_select(_pipe, new Start(), start_tag, theme);
-                })()
-              ]);
-            } else if (start_tag instanceof Some && end_tag instanceof None) {
-              return toList([
-                (() => {
-                  let _pipe = tags;
-                  return tag_select(_pipe, new Start(), start_tag, theme);
-                })(),
-                (() => {
-                  let _pipe = tags;
-                  return tag_select(_pipe, new End(), end_tag, theme);
-                })()
-              ]);
-            } else {
-              let _block;
-              if (theme instanceof Dark) {
-                _block = "bg-[#80ed99] text-[#282828]";
+              if (start_tag instanceof None) {
+                return toList([
+                  (() => {
+                    let _pipe = tags;
+                    return tag_select(_pipe, new Start(), start_tag, theme);
+                  })()
+                ]);
+              } else if (start_tag instanceof Some && end_tag instanceof None) {
+                return toList([
+                  (() => {
+                    let _pipe = tags;
+                    return tag_select(_pipe, new Start(), start_tag, theme);
+                  })(),
+                  (() => {
+                    let _pipe = tags;
+                    return tag_select(_pipe, new End(), end_tag, theme);
+                  })()
+                ]);
               } else {
-                _block = "bg-[#a4f3b3] text-[#282828]";
+                let _block;
+                if (theme instanceof Dark) {
+                  _block = "bg-[#80ed99] text-[#282828]";
+                } else {
+                  _block = "bg-[#a4f3b3] text-[#282828]";
+                }
+                let button_class = _block;
+                return toList([
+                  (() => {
+                    let _pipe = tags;
+                    return tag_select(_pipe, new Start(), start_tag, theme);
+                  })(),
+                  (() => {
+                    let _pipe = tags;
+                    return tag_select(_pipe, new End(), end_tag, theme);
+                  })(),
+                  button(
+                    toList([
+                      id("fetch-changes"),
+                      class$(
+                        "px-4 py-1 font-semibold disabled:bg-[#a89984] " + button_class
+                      ),
+                      disabled(fetching_changelog),
+                      on_click(new UserRequestedChangelog())
+                    ]),
+                    toList([text("fetch changes")])
+                  )
+                ]);
               }
-              let button_class = _block;
-              return toList([
-                (() => {
-                  let _pipe = tags;
-                  return tag_select(_pipe, new Start(), start_tag, theme);
-                })(),
-                (() => {
-                  let _pipe = tags;
-                  return tag_select(_pipe, new End(), end_tag, theme);
-                })(),
-                button(
-                  toList([
-                    id("fetch-changes"),
-                    class$(
-                      "px-4 py-1 font-semibold disabled:bg-[#a89984] " + button_class
-                    ),
-                    disabled(fetching_changelog),
-                    on_click(new UserRequestedChangelog())
-                  ]),
-                  toList([text("fetch changes")])
-                )
-              ]);
-            }
-          })()
-        )
-      ])
-    );
-  }
+            })()
+          )
+        ]);
+      }
+    })()
+  );
 }
 function changes_error_section(error, theme) {
   let _block;
@@ -8456,8 +8487,9 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
   return div(
     toList([
       class$(
-        "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50\n        border-dotted"
-      )
+        "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted"
+      ),
+      id("repos-section")
     ]),
     toList([
       p(
@@ -8543,19 +8575,7 @@ function commits_section(commits, start_tag, end_tag, author_color_class_store, 
   return div(
     toList([
       class$(
-        "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50\n        border-dotted overflow-y-scroll max-h-screen"
-      ),
-      style(
-        toList([
-          [
-            "scrollbar-color",
-            (() => {
-              let _pipe = theme;
-              return scrollbar_color(_pipe);
-            })()
-          ],
-          ["scrollbar-width", "thin"]
-        ])
+        "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted"
       ),
       id("commits-section")
     ]),
@@ -8571,7 +8591,7 @@ function commits_section(commits, start_tag, end_tag, author_color_class_store, 
       ),
       div(
         toList([
-          class$("mt-4 overflow-x-auto"),
+          class$("mt-2 overflow-x-auto"),
           style(
             toList([
               [
@@ -8749,7 +8769,7 @@ function files_section(maybe_files, theme) {
     return div(
       toList([
         class$(
-          "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted overflow-y-scroll max-h-screen"
+          "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted"
         ),
         style(
           toList([
@@ -8844,7 +8864,11 @@ function main_section(model) {
             owner_type,
             fetching_repos,
             theme
-          )
+          ),
+          (() => {
+            let _pipe = fetching_repos;
+            return fetching_repos_section(_pipe);
+          })()
         ]);
       } else if ($ instanceof WithReposError) {
         let user_name = $.user_name;
@@ -8898,7 +8922,7 @@ function main_section(model) {
           ),
           (() => {
             let _pipe = fetching_tags;
-            return fetching_tags_message(_pipe);
+            return fetching_tags_section(_pipe);
           })()
         ]);
       } else if ($ instanceof WithTagsError) {
