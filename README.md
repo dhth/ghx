@@ -8,8 +8,9 @@
 `ghch` is a *work-in-progress* tool to simplify the process of viewing changes
 for GitHub repositories.
 
-![image](https://github.com/user-attachments/assets/7b00958f-7023-4e34-bb8a-f996cbe7c0f4)
-![image](https://github.com/user-attachments/assets/cb337200-6f4e-46e2-9397-408c1960b4ce)
+![image](https://github.com/user-attachments/assets/67e4259f-9202-45ab-9b2f-c22cfad8d076)
+![image](https://github.com/user-attachments/assets/5325b21d-1d32-4ba0-bb0f-b7e1d60a99e9)
+![image](https://github.com/user-attachments/assets/f058e98e-03bc-4e38-b389-8e696e4a1539)
 
 > [!NOTE]
 > An unauthenticated public version of `ghch`'s web interface is running
@@ -30,3 +31,13 @@ Options:
   -T, --theme <STRING>       Theme to use [default: dark] [possible values: light, dark]
   -h, --help                 Print help (see more with '--help')
 ```
+
+🔑 Authentication
+---
+
+You can have `ghch` make authenticated calls to GitHub on your behalf in either
+of two ways:
+
+- Have an authenticated instance of [gh](https://github.com/cli/cli) available
+  in your `PATH` (recommended).
+- Provide a valid Github token via the environment variable `GH_TOKEN`
