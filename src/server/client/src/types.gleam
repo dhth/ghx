@@ -1,11 +1,13 @@
 import constants
 import gleam/bool
 import gleam/dict.{type Dict}
+import gleam/dynamic
 import gleam/dynamic/decode
 import gleam/int
 import gleam/list
 import gleam/option
 import gleam/string
+import gleam/time/timestamp.{type Timestamp}
 import lustre_http
 import utils
 
@@ -121,13 +123,33 @@ pub fn tags_response_decoder() -> decode.Decoder(TagsResponse) {
 }
 
 pub type ChangelogCommitAuthor {
-  ChangelogCommitAuthor(name: String, email: String)
+  ChangelogCommitAuthor(
+    name: String,
+    email: String,
+    authoring_timestamp: option.Option(Timestamp),
+  )
+}
+
+fn timestamp_decoder() -> decode.Decoder(option.Option(Timestamp)) {
+  decode.new_primitive_decoder("Timestamp", fn(data) {
+    let default = option.None
+
+    case decode.run(dynamic.from(data), decode.string) {
+      Error(_) -> Ok(default)
+      Ok(timestamp_string) ->
+        case timestamp.parse_rfc3339(timestamp_string) {
+          Error(_) -> Ok(default)
+          Ok(t) -> Ok(t |> option.Some)
+        }
+    }
+  })
 }
 
 fn changelog_commit_author_decoder() -> decode.Decoder(ChangelogCommitAuthor) {
   use name <- decode.field("name", decode.string)
   use email <- decode.field("email", decode.string)
-  decode.success(ChangelogCommitAuthor(name:, email:))
+  use authoring_timestamp <- decode.field("date", timestamp_decoder())
+  decode.success(ChangelogCommitAuthor(name:, email:, authoring_timestamp:))
 }
 
 pub type ChangelogCommitDetails {

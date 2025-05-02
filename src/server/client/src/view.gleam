@@ -5,6 +5,7 @@ import gleam/list
 import gleam/option
 import gleam/result
 import gleam/string
+import gleam/time/timestamp.{type Timestamp}
 import lustre/attribute
 import lustre/element
 import lustre/element/html
@@ -824,7 +825,7 @@ fn commits_section(
             event.on_input(types.UserEnteredCommitsFilterQuery),
           ]),
           html.div(
-            [attribute.class("my-4 overflow-x-auto")],
+            [attribute.class("mt-4 overflow-x-auto")],
             case commits_filter_query {
               option.None -> commits
               option.Some(q) ->
@@ -865,16 +866,18 @@ fn commit_details(
   author_color_class_store: types.AuthorColorClassStore,
   theme: Theme,
 ) -> element.Element(Msg) {
-  let #(sha_class, author_class) = case theme {
+  let #(sha_class, author_class, timestamp_class) = case theme {
     types.Dark -> #(
       "text-[#c77dff]",
       commit.details.author.name
         |> author_color_class(author_color_class_store, "text-[#ff9500]"),
+      "text-[#ff6d44]",
     )
     types.Light -> #(
       "text-[#995f6a]",
       commit.details.author.name
         |> author_color_class(author_color_class_store, "text-[#941b0c]"),
+      "text-[#2ec0f9]",
     )
   }
 
@@ -883,13 +886,15 @@ fn commit_details(
     _ -> commit.sha
   }
 
+  let now = timestamp.system_time()
+
   let commit_message_heading =
     commit.details.message
     |> string.split("\n")
     |> list.first
     |> result.unwrap(" ")
 
-  html.p([attribute.class("flex gap-4 items-center whitespace-nowrap mt-2")], [
+  html.p([attribute.class("flex gap-6 items-center whitespace-nowrap mt-2")], [
     html.a([attribute.href(commit.html_url), attribute.target("_blank")], [
       html.span([attribute.class(sha_class)], [commit_hash |> element.text]),
     ]),
@@ -897,6 +902,15 @@ fn commit_details(
     html.span([attribute.class(author_class)], [
       commit.details.author.name |> element.text,
     ]),
+    case commit.details.author.authoring_timestamp {
+      option.None -> element.none()
+      option.Some(ts) ->
+        html.span([attribute.class(timestamp_class)], [
+          ts
+          |> get_commit_relative_time(now)
+          |> element.text,
+        ])
+    },
   ])
 }
 
@@ -910,6 +924,10 @@ fn author_color_class(
   let index = hash |> int.remainder(num_colors) |> result.unwrap(0)
 
   colors |> dict.get(index) |> result.unwrap(fallback)
+}
+
+fn get_commit_relative_time(ts: Timestamp, now: Timestamp) -> String {
+  { timestamp.difference(ts, now) |> utils.humanize_duration } <> " ago"
 }
 
 fn scrollbar_color(theme: Theme) -> String {
@@ -954,7 +972,7 @@ fn files_section(
             event.on_input(types.UserEnteredFilesFilterQuery),
           ]),
           html.div(
-            [attribute.class("my-4 overflow-x-auto")],
+            [attribute.class("mt-4 overflow-x-auto")],
             case files_filter_query {
               option.None -> files
               option.Some(q) ->
