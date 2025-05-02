@@ -358,6 +358,13 @@ function structurallyCompatibleObjects(a2, b) {
   if (nonstructural.some((c) => a2 instanceof c)) return false;
   return a2.constructor === b.constructor;
 }
+function remainderInt(a2, b) {
+  if (b === 0) {
+    return 0;
+  } else {
+    return a2 % b;
+  }
+}
 function makeError(variant, module, line, fn, message, extra) {
   let error = new globalThis.Error(message);
   error.gleam_error = variant;
@@ -1274,8 +1281,20 @@ function trim_start(string6) {
 function trim_end(string6) {
   return string6.replace(trim_end_regex, "");
 }
+function codepoint(int4) {
+  return new UtfCodepoint(int4);
+}
+function string_to_codepoint_integer_list(string6) {
+  return List.fromArray(Array.from(string6).map((item) => item.codePointAt(0)));
+}
+function utf_codepoint_to_int(utf_codepoint) {
+  return utf_codepoint.value;
+}
 function new_map() {
   return Dict.new();
+}
+function map_size(map7) {
+  return map7.size;
 }
 function map_to_list(map7) {
   return List.fromArray(map7.entries());
@@ -1466,9 +1485,37 @@ function bit_array_inspect(bits, acc) {
   return acc;
 }
 
+// build/dev/javascript/gleam_stdlib/gleam/int.mjs
+function remainder(dividend, divisor) {
+  if (divisor === 0) {
+    return new Error(void 0);
+  } else {
+    let divisor$1 = divisor;
+    return new Ok(remainderInt(dividend, divisor$1));
+  }
+}
+
 // build/dev/javascript/gleam_stdlib/gleam/dict.mjs
 function insert(dict2, key2, value4) {
   return map_insert(key2, value4, dict2);
+}
+function from_list_loop(loop$list, loop$initial) {
+  while (true) {
+    let list3 = loop$list;
+    let initial = loop$initial;
+    if (list3.hasLength(0)) {
+      return initial;
+    } else {
+      let key2 = list3.head[0];
+      let value4 = list3.head[1];
+      let rest = list3.tail;
+      loop$list = rest;
+      loop$initial = insert(initial, key2, value4);
+    }
+  }
+}
+function from_list(list3) {
+  return from_list_loop(list3, new_map());
 }
 function reverse_and_concat(loop$remaining, loop$accumulator) {
   while (true) {
@@ -1593,6 +1640,28 @@ function map_loop(loop$list, loop$fun, loop$acc) {
 }
 function map2(list3, fun) {
   return map_loop(list3, fun, toList([]));
+}
+function index_map_loop(loop$list, loop$fun, loop$index, loop$acc) {
+  while (true) {
+    let list3 = loop$list;
+    let fun = loop$fun;
+    let index5 = loop$index;
+    let acc = loop$acc;
+    if (list3.hasLength(0)) {
+      return reverse(acc);
+    } else {
+      let first$1 = list3.head;
+      let rest$1 = list3.tail;
+      let acc$1 = prepend(fun(first$1, index5), acc);
+      loop$list = rest$1;
+      loop$fun = fun;
+      loop$index = index5 + 1;
+      loop$acc = acc$1;
+    }
+  }
+}
+function index_map(list3, fun) {
+  return index_map_loop(list3, fun, 0, toList([]));
 }
 function append_loop(loop$first, loop$second) {
   while (true) {
@@ -2077,6 +2146,14 @@ function split2(x, substring) {
     let _pipe$2 = split(_pipe$1, substring);
     return map2(_pipe$2, identity);
   }
+}
+function do_to_utf_codepoints(string6) {
+  let _pipe = string6;
+  let _pipe$1 = string_to_codepoint_integer_list(_pipe);
+  return map2(_pipe$1, codepoint);
+}
+function to_utf_codepoints(string6) {
+  return do_to_utf_codepoints(string6);
 }
 function inspect2(term) {
   let _pipe = inspect(term);
@@ -4962,6 +5039,13 @@ function http_error_to_string(error) {
     return "unauthorized";
   }
 }
+function simple_hash(input2) {
+  let _pipe = to_utf_codepoints(input2);
+  let _pipe$1 = map2(_pipe, utf_codepoint_to_int);
+  return fold(_pipe$1, 0, (a2, b) => {
+    return a2 * 31 + b;
+  });
+}
 
 // build/dev/javascript/ghch/types.mjs
 var User = class extends CustomType {
@@ -5125,11 +5209,19 @@ var WithChanges = class extends CustomType {
     this.changes = changes;
   }
 };
+var AuthorColorClasses = class extends CustomType {
+  constructor(dark, light) {
+    super();
+    this.dark = dark;
+    this.light = light;
+  }
+};
 var Model2 = class extends CustomType {
-  constructor(config, state, debug) {
+  constructor(config, state, author_color_classes, debug) {
     super();
     this.config = config;
     this.state = state;
+    this.author_color_classes = author_color_classes;
     this.debug = debug;
   }
 };
@@ -5403,25 +5495,6 @@ function owner_type_to_string(owner_type) {
     return "user";
   }
 }
-function init_model() {
-  let $ = public$;
-  if (!$) {
-    return new Model2(new Config(new Dark()), new Initial(), false);
-  } else {
-    return new Model2(
-      new Config(new Dark()),
-      new ConfigLoaded(
-        (() => {
-          let _pipe = "dhth";
-          return new Some(_pipe);
-        })(),
-        new User(),
-        true
-      ),
-      false
-    );
-  }
-}
 function display_config(config) {
   return "- theme: " + (() => {
     let _pipe = config.theme;
@@ -5672,6 +5745,94 @@ function display_model(model) {
   let _pipe$1 = append(_pipe, state_info);
   return join(_pipe$1, "\n");
 }
+var author_colors_dark = /* @__PURE__ */ toList([
+  "text-[#fd780b]",
+  "text-[#a882a7]",
+  "text-[#b798f0]",
+  "text-[#59d412]",
+  "text-[#7bcaff]",
+  "text-[#ffb472]",
+  "text-[#00ce48]",
+  "text-[#1edacd]",
+  "text-[#a0d845]",
+  "text-[#a681fb]",
+  "text-[#f081de]",
+  "text-[#63bd8f]",
+  "text-[#64d97f]",
+  "text-[#90e1ef]",
+  "text-[#ddd601]",
+  "text-[#4896ef]",
+  "text-[#e98658]",
+  "text-[#b5d092]",
+  "text-[#9fb9f0]",
+  "text-[#ff6682]"
+]);
+var author_colors_light = /* @__PURE__ */ toList([
+  "text-[#b34700]",
+  "text-[#5b4a5e]",
+  "text-[#6a4da3]",
+  "text-[#3b7c0d]",
+  "text-[#005b99]",
+  "text-[#b35a2e]",
+  "text-[#007a2b]",
+  "text-[#0b8a87]",
+  "text-[#6b8f2e]",
+  "text-[#745aaf]",
+  "text-[#a03b8c]",
+  "text-[#3b7c5e]",
+  "text-[#3b8a5e]",
+  "text-[#4a8ca3]",
+  "text-[#a39b00]",
+  "text-[#2a5b99]",
+  "text-[#a34a2e]",
+  "text-[#6b8f5e]",
+  "text-[#4a6ca3]",
+  "text-[#b33a4d]"
+]);
+function get_author_color_classes() {
+  return new AuthorColorClasses(
+    (() => {
+      let _pipe = author_colors_dark;
+      let _pipe$1 = index_map(_pipe, (c, i) => {
+        return [i, c];
+      });
+      return from_list(_pipe$1);
+    })(),
+    (() => {
+      let _pipe = author_colors_light;
+      let _pipe$1 = index_map(_pipe, (c, i) => {
+        return [i, c];
+      });
+      return from_list(_pipe$1);
+    })()
+  );
+}
+function init_model() {
+  let author_color_classes = get_author_color_classes();
+  let $ = public$;
+  if (!$) {
+    return new Model2(
+      new Config(new Dark()),
+      new Initial(),
+      author_color_classes,
+      false
+    );
+  } else {
+    return new Model2(
+      new Config(new Dark()),
+      new ConfigLoaded(
+        (() => {
+          let _pipe = "dhth";
+          return new Some(_pipe);
+        })(),
+        new User(),
+        true
+      ),
+      author_color_classes,
+      false
+    );
+  }
+}
 
 // build/dev/javascript/ghch/effects.mjs
 function scroll_element_into_view(id2) {
@@ -5801,6 +5962,7 @@ function update(model, msg) {
           return new Model2(
             _record.config,
             new ConfigError(e),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -5825,6 +5987,7 @@ function update(model, msg) {
                   return is_some(_pipe);
                 })()
               ),
+              _record.author_color_classes,
               _record.debug
             );
           })(),
@@ -5852,6 +6015,7 @@ function update(model, msg) {
             })()
           ),
           _record.state,
+          _record.author_color_classes,
           _record.debug
         );
       })(),
@@ -5867,6 +6031,7 @@ function update(model, msg) {
           return new Model2(
             _record.config,
             new ConfigLoaded(user_name, owner_type, false),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -5888,6 +6053,7 @@ function update(model, msg) {
               owner_type$1,
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -5909,6 +6075,7 @@ function update(model, msg) {
               owner_type$1,
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -5930,6 +6097,7 @@ function update(model, msg) {
               owner_type$1,
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -5951,6 +6119,7 @@ function update(model, msg) {
               owner_type$1,
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -5972,6 +6141,7 @@ function update(model, msg) {
               owner_type$1,
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -5993,6 +6163,7 @@ function update(model, msg) {
               owner_type$1,
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -6027,6 +6198,7 @@ function update(model, msg) {
               owner_type,
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -6047,6 +6219,7 @@ function update(model, msg) {
               owner_type,
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -6067,6 +6240,7 @@ function update(model, msg) {
               owner_type,
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -6087,6 +6261,7 @@ function update(model, msg) {
               owner_type,
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -6107,6 +6282,7 @@ function update(model, msg) {
               owner_type,
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -6127,6 +6303,7 @@ function update(model, msg) {
               owner_type,
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -6147,6 +6324,7 @@ function update(model, msg) {
               owner_type,
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -6181,6 +6359,7 @@ function update(model, msg) {
                 owner_type,
                 true
               ),
+              _record.author_color_classes,
               _record.debug
             );
           })(),
@@ -6206,6 +6385,7 @@ function update(model, msg) {
               owner_type,
               true
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -6230,6 +6410,7 @@ function update(model, msg) {
               owner_type,
               true
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -6254,6 +6435,7 @@ function update(model, msg) {
               owner_type,
               true
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -6278,6 +6460,7 @@ function update(model, msg) {
               owner_type,
               true
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -6302,6 +6485,7 @@ function update(model, msg) {
               owner_type,
               true
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -6326,6 +6510,7 @@ function update(model, msg) {
               owner_type,
               true
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -6359,6 +6544,7 @@ function update(model, msg) {
               return new Model2(
                 _record.config,
                 new WithReposError(user_name, owner_type, error),
+                _record.author_color_classes,
                 _record.debug
               );
             })(),
@@ -6379,6 +6565,7 @@ function update(model, msg) {
                   false,
                   new None()
                 ),
+                _record.author_color_classes,
                 _record.debug
               );
             })(),
@@ -6420,6 +6607,7 @@ function update(model, msg) {
             _record$1.selected_repo
           );
         })(),
+        _record.author_color_classes,
         _record.debug
       );
     } else if (state instanceof WithTagsError) {
@@ -6437,6 +6625,7 @@ function update(model, msg) {
             _record$1.error
           );
         })(),
+        _record.author_color_classes,
         _record.debug
       );
     } else if (state instanceof WithTags) {
@@ -6457,6 +6646,7 @@ function update(model, msg) {
             _record$1.fetching_changes
           );
         })(),
+        _record.author_color_classes,
         _record.debug
       );
     } else if (state instanceof WithChangesError) {
@@ -6477,6 +6667,7 @@ function update(model, msg) {
             _record$1.error
           );
         })(),
+        _record.author_color_classes,
         _record.debug
       );
     } else if (state instanceof WithChanges) {
@@ -6497,6 +6688,7 @@ function update(model, msg) {
             _record$1.changes
           );
         })(),
+        _record.author_color_classes,
         _record.debug
       );
     } else {
@@ -6532,6 +6724,7 @@ function update(model, msg) {
                   return new Some(_pipe);
                 })()
               ),
+              _record.author_color_classes,
               _record.debug
             );
           })(),
@@ -6558,6 +6751,7 @@ function update(model, msg) {
                   return new Some(_pipe);
                 })()
               ),
+              _record.author_color_classes,
               _record.debug
             );
           })(),
@@ -6584,6 +6778,7 @@ function update(model, msg) {
                   return new Some(_pipe);
                 })()
               ),
+              _record.author_color_classes,
               _record.debug
             );
           })(),
@@ -6610,6 +6805,7 @@ function update(model, msg) {
                   return new Some(_pipe);
                 })()
               ),
+              _record.author_color_classes,
               _record.debug
             );
           })(),
@@ -6636,6 +6832,7 @@ function update(model, msg) {
                   return new Some(_pipe);
                 })()
               ),
+              _record.author_color_classes,
               _record.debug
             );
           })(),
@@ -6666,6 +6863,7 @@ function update(model, msg) {
                   return new Some(_pipe);
                 })()
               ),
+              _record.author_color_classes,
               _record.debug
             );
           })(),
@@ -6692,6 +6890,7 @@ function update(model, msg) {
                   return new Some(_pipe);
                 })()
               ),
+              _record.author_color_classes,
               _record.debug
             );
           })(),
@@ -6718,6 +6917,7 @@ function update(model, msg) {
                   return new Some(_pipe);
                 })()
               ),
+              _record.author_color_classes,
               _record.debug
             );
           })(),
@@ -6744,6 +6944,7 @@ function update(model, msg) {
                   return new Some(_pipe);
                 })()
               ),
+              _record.author_color_classes,
               _record.debug
             );
           })(),
@@ -6770,6 +6971,7 @@ function update(model, msg) {
                   return new Some(_pipe);
                 })()
               ),
+              _record.author_color_classes,
               _record.debug
             );
           })(),
@@ -6802,6 +7004,7 @@ function update(model, msg) {
                 repo,
                 error
               ),
+              _record.author_color_classes,
               _record.debug
             );
           })(),
@@ -6825,6 +7028,7 @@ function update(model, msg) {
                 new None(),
                 false
               ),
+              _record.author_color_classes,
               _record.debug
             );
           })(),
@@ -6880,6 +7084,7 @@ function update(model, msg) {
               })(),
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -6923,6 +7128,7 @@ function update(model, msg) {
               })(),
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -6966,6 +7172,7 @@ function update(model, msg) {
               })(),
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -7011,6 +7218,7 @@ function update(model, msg) {
               })(),
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -7054,6 +7262,7 @@ function update(model, msg) {
               })(),
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -7097,6 +7306,7 @@ function update(model, msg) {
               })(),
               false
             ),
+            _record.author_color_classes,
             _record.debug
           );
         })(),
@@ -7133,6 +7343,7 @@ function update(model, msg) {
                   true
                 );
               })(),
+              _record.author_color_classes,
               _record.debug
             );
           })(),
@@ -7173,6 +7384,7 @@ function update(model, msg) {
                 end_tag,
                 error
               ),
+              _record.author_color_classes,
               _record.debug
             );
           })(),
@@ -7196,6 +7408,7 @@ function update(model, msg) {
                 end_tag,
                 changes
               ),
+              _record.author_color_classes,
               _record.debug
             );
           })(),
@@ -7827,7 +8040,7 @@ function tags_select_section(tags, start_tag, end_tag, fetching_changelog, theme
     return div(
       toList([
         class$(
-          "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50\n        border-dotted"
+          "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted"
         )
       ]),
       toList([
@@ -7942,17 +8155,51 @@ function changes_error_section(error, theme) {
     ])
   );
 }
-function commit_details(commit, theme) {
+function author_color_class(input2, colors, fallback) {
+  let hash = simple_hash(input2);
+  let _block;
+  let _pipe = colors;
+  _block = map_size(_pipe);
+  let num_colors = _block;
+  let _block$1;
+  let _pipe$1 = hash;
+  let _pipe$2 = remainder(_pipe$1, num_colors);
+  _block$1 = unwrap2(_pipe$2, 0);
+  let index5 = _block$1;
+  let _pipe$3 = colors;
+  let _pipe$4 = map_get(_pipe$3, index5);
+  return unwrap2(_pipe$4, fallback);
+}
+function commit_details(commit, author_color_class_store, theme) {
   let _block;
   if (theme instanceof Dark) {
-    _block = ["text-[#c77dff]", "text-[#b5e48c]", "text-[#ff9500]"];
+    _block = [
+      "text-[#c77dff]",
+      (() => {
+        let _pipe2 = commit.details.author.name;
+        return author_color_class(
+          _pipe2,
+          author_color_class_store,
+          "text-[#ff9500]"
+        );
+      })()
+    ];
   } else {
-    _block = ["text-[#5a189a]", "text-[#168aad]", "text-[#941b0c]"];
+    _block = [
+      "text-[#995f6a]",
+      (() => {
+        let _pipe2 = commit.details.author.name;
+        return author_color_class(
+          _pipe2,
+          author_color_class_store,
+          "text-[#941b0c]"
+        );
+      })()
+    ];
   }
   let $ = _block;
   let sha_class = $[0];
-  let message_class = $[1];
-  let author_class = $[2];
+  let author_class = $[1];
   let _block$1;
   let $1 = (() => {
     let _pipe2 = commit.sha;
@@ -7973,7 +8220,7 @@ function commit_details(commit, theme) {
   _block$2 = unwrap2(_pipe$2, " ");
   let commit_message_heading = _block$2;
   return p(
-    toList([class$("flex gap-4 items-center whitespace-nowrap mb-1")]),
+    toList([class$("flex gap-4 items-center whitespace-nowrap mt-2")]),
     toList([
       a(
         toList([href(commit.html_url), target("_blank")]),
@@ -7990,7 +8237,7 @@ function commit_details(commit, theme) {
         ])
       ),
       span(
-        toList([class$(message_class)]),
+        toList([]),
         toList([
           (() => {
             let _pipe$3 = commit_message_heading;
@@ -7999,7 +8246,7 @@ function commit_details(commit, theme) {
         ])
       ),
       span(
-        toList([class$(author_class)]),
+        toList([class$("font-semibold " + author_class)]),
         toList([
           (() => {
             let _pipe$3 = commit.details.author.name;
@@ -8132,7 +8379,7 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
     ])
   );
 }
-function changes_section(changes, start_tag, end_tag, theme) {
+function changes_section(changes, start_tag, end_tag, author_color_class_store, theme) {
   return div(
     toList([
       class$(
@@ -8172,7 +8419,7 @@ function changes_section(changes, start_tag, end_tag, theme) {
           return map2(
             _pipe,
             (commit) => {
-              return commit_details(commit, theme);
+              return commit_details(commit, author_color_class_store, theme);
             }
           );
         })()
@@ -8451,7 +8698,19 @@ function main_section(model) {
           ),
           (() => {
             let _pipe = changes;
-            return changes_section(_pipe, start_tag, end_tag, theme);
+            return changes_section(
+              _pipe,
+              start_tag,
+              end_tag,
+              (() => {
+                if (theme instanceof Dark) {
+                  return model.author_color_classes.dark;
+                } else {
+                  return model.author_color_classes.light;
+                }
+              })(),
+              theme
+            );
           })()
         ]);
       }

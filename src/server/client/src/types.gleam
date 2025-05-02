@@ -1,5 +1,6 @@
 import constants
 import gleam/bool
+import gleam/dict.{type Dict}
 import gleam/dynamic/decode
 import gleam/int
 import gleam/list
@@ -7,6 +8,22 @@ import gleam/option
 import gleam/string
 import lustre_http
 import utils
+
+const author_colors_dark = [
+  "text-[#fd780b]", "text-[#a882a7]", "text-[#b798f0]", "text-[#59d412]",
+  "text-[#7bcaff]", "text-[#ffb472]", "text-[#00ce48]", "text-[#1edacd]",
+  "text-[#a0d845]", "text-[#a681fb]", "text-[#f081de]", "text-[#63bd8f]",
+  "text-[#64d97f]", "text-[#90e1ef]", "text-[#ddd601]", "text-[#4896ef]",
+  "text-[#e98658]", "text-[#b5d092]", "text-[#9fb9f0]", "text-[#ff6682]",
+]
+
+const author_colors_light = [
+  "text-[#b34700]", "text-[#5b4a5e]", "text-[#6a4da3]", "text-[#3b7c0d]",
+  "text-[#005b99]", "text-[#b35a2e]", "text-[#007a2b]", "text-[#0b8a87]",
+  "text-[#6b8f2e]", "text-[#745aaf]", "text-[#a03b8c]", "text-[#3b7c5e]",
+  "text-[#3b8a5e]", "text-[#4a8ca3]", "text-[#a39b00]", "text-[#2a5b99]",
+  "text-[#a34a2e]", "text-[#6b8f5e]", "text-[#4a6ca3]", "text-[#b33a4d]",
+]
 
 pub type AccountType {
   User
@@ -243,13 +260,43 @@ pub type State {
   )
 }
 
+pub type AuthorColorClassStore =
+  Dict(Int, String)
+
+pub type AuthorColorClasses {
+  AuthorColorClasses(dark: AuthorColorClassStore, light: AuthorColorClassStore)
+}
+
+fn get_author_color_classes() -> AuthorColorClasses {
+  AuthorColorClasses(
+    dark: author_colors_dark
+      |> list.index_map(fn(c, i) { #(i, c) })
+      |> dict.from_list,
+    light: author_colors_light
+      |> list.index_map(fn(c, i) { #(i, c) })
+      |> dict.from_list,
+  )
+}
+
 pub type Model {
-  Model(config: Config, state: State, debug: Bool)
+  Model(
+    config: Config,
+    state: State,
+    author_color_classes: AuthorColorClasses,
+    debug: Bool,
+  )
 }
 
 pub fn init_model() -> Model {
+  let author_color_classes = get_author_color_classes()
   case constants.public {
-    False -> Model(config: Config(theme: Dark), state: Initial, debug: False)
+    False ->
+      Model(
+        config: Config(theme: Dark),
+        state: Initial,
+        author_color_classes:,
+        debug: False,
+      )
     True ->
       Model(
         config: Config(theme: Dark),
@@ -258,6 +305,7 @@ pub fn init_model() -> Model {
           owner_type: User,
           fetching_repos: True,
         ),
+        author_color_classes:,
         debug: False,
       )
   }
