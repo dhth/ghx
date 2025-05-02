@@ -563,7 +563,7 @@ pub fn update(model: Model, msg: Msg) -> #(Model, effect.Effect(Msg)) {
                   changes:,
                 ),
               ),
-              effect.none(),
+              effects.scroll_element_into_view("changes-section"),
             )
           }
         _ -> zero

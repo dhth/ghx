@@ -452,11 +452,6 @@ fn repo_selection_section(
     types.Light -> "bg-[#ff9fb2]"
   }
 
-  let scrollbar_color = case theme {
-    types.Dark -> "#a594f940 #282828"
-    types.Light -> "#a594f940 #ffffff"
-  }
-
   html.div(
     [
       attribute.class(
@@ -482,7 +477,7 @@ fn repo_selection_section(
         [
           attribute.class("flex-wrap mt-2 overflow-y-scroll max-h-60"),
           attribute.style([
-            #("scrollbar-color", scrollbar_color),
+            #("scrollbar-color", theme |> scrollbar_color),
             #("scrollbar-width", "thin"),
           ]),
         ],
@@ -745,6 +740,10 @@ fn changes_section(
       html.div(
         [
           attribute.class("mt-4 overflow-x-auto"),
+          attribute.style([
+            #("scrollbar-color", theme |> scrollbar_color),
+            #("scrollbar-width", "thin"),
+          ]),
           attribute.id("changes-section"),
         ],
         changes.commits
@@ -785,4 +784,11 @@ fn commit_details(
       commit.details.author.name |> element.text,
     ]),
   ])
+}
+
+fn scrollbar_color(theme: Theme) -> String {
+  case theme {
+    types.Dark -> "#a594f940 #282828"
+    types.Light -> "#a594f940 #ffffff"
+  }
 }
