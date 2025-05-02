@@ -544,12 +544,20 @@ video {
   --tw-backdrop-sepia:  ;
 }
 
+.fixed {
+  position: fixed;
+}
+
 .absolute {
   position: absolute;
 }
 
 .relative {
   position: relative;
+}
+
+.bottom-0 {
+  bottom: 0px;
 }
 
 .left-1\/2 {
@@ -573,6 +581,11 @@ video {
 .my-2 {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
+}
+
+.my-4 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
 
 .ml-2 {
@@ -727,6 +740,11 @@ video {
   background-color: rgb(120 139 255 / var(--tw-bg-opacity));
 }
 
+.bg-\[\#7ab02d\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(122 176 45 / var(--tw-bg-opacity));
+}
+
 .bg-\[\#7cea9c\] {
   --tw-bg-opacity: 1;
   background-color: rgb(124 234 156 / var(--tw-bg-opacity));
@@ -770,6 +788,21 @@ video {
 .bg-\[\#ada9fd\] {
   --tw-bg-opacity: 1;
   background-color: rgb(173 169 253 / var(--tw-bg-opacity));
+}
+
+.bg-\[\#affc41\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(175 252 65 / var(--tw-bg-opacity));
+}
+
+.bg-\[\#b370e5\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(179 112 229 / var(--tw-bg-opacity));
+}
+
+.bg-\[\#c77dff\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(199 125 255 / var(--tw-bg-opacity));
 }
 
 .bg-\[\#cdc1ff\] {
@@ -884,6 +917,10 @@ video {
 
 .pt-10 {
   padding-top: 2.5rem;
+}
+
+.pt-4 {
+  padding-top: 1rem;
 }
 
 .text-center {
@@ -1203,24 +1240,14 @@ video {
   color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
-.placeholder-\[\#232634\]::-moz-placeholder {
+.placeholder-\[\#3d3d3d\]::-moz-placeholder {
   --tw-placeholder-opacity: 1;
-  color: rgb(35 38 52 / var(--tw-placeholder-opacity));
+  color: rgb(61 61 61 / var(--tw-placeholder-opacity));
 }
 
-.placeholder-\[\#232634\]::placeholder {
+.placeholder-\[\#3d3d3d\]::placeholder {
   --tw-placeholder-opacity: 1;
-  color: rgb(35 38 52 / var(--tw-placeholder-opacity));
-}
-
-.placeholder-\[\#525252\]::-moz-placeholder {
-  --tw-placeholder-opacity: 1;
-  color: rgb(82 82 82 / var(--tw-placeholder-opacity));
-}
-
-.placeholder-\[\#525252\]::placeholder {
-  --tw-placeholder-opacity: 1;
-  color: rgb(82 82 82 / var(--tw-placeholder-opacity));
+  color: rgb(61 61 61 / var(--tw-placeholder-opacity));
 }
 
 .filter {
@@ -1267,6 +1294,10 @@ video {
 }
 
 @media not all and (min-width: 640px) {
+  .max-sm\:hidden {
+    display: none;
+  }
+
   .max-sm\:w-5\/6 {
     width: 83.333333%;
   }

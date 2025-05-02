@@ -406,7 +406,7 @@ pub fn update(model: Model, msg: Msg) -> #(Model, effect.Effect(Msg)) {
             tags,
             _,
             end_tag,
-            _,
+            ..,
           ) -> #(
           Model(
             ..model,
@@ -480,8 +480,7 @@ pub fn update(model: Model, msg: Msg) -> #(Model, effect.Effect(Msg)) {
             repo,
             tags,
             start_tag,
-            _,
-            _,
+            ..,
           ) -> #(
           Model(
             ..model,
@@ -561,11 +560,53 @@ pub fn update(model: Model, msg: Msg) -> #(Model, effect.Effect(Msg)) {
                   start_tag:,
                   end_tag:,
                   changes:,
+                  commits_filter: option.None,
+                  files_filter: option.None,
                 ),
               ),
-              effects.scroll_element_into_view("commits-section"),
+              effects.scroll_element_into_view(
+                types.CommitsSection |> types.section_id,
+              ),
             )
           }
+        _ -> zero
+      }
+    types.UserRequestedToGoToSection(section) -> #(
+      model,
+      section |> types.section_id |> effects.scroll_element_into_view,
+    )
+    types.UserEnteredCommitsFilterQuery(query) ->
+      case state {
+        types.WithChanges(..) -> {
+          let filter = case query |> string.length {
+            0 -> option.None
+            _ -> query |> option.Some
+          }
+          #(
+            Model(
+              ..model,
+              state: types.WithChanges(..state, commits_filter: filter),
+            ),
+            effect.none(),
+          )
+        }
+        _ -> zero
+      }
+    types.UserEnteredFilesFilterQuery(query) ->
+      case state {
+        types.WithChanges(..) -> {
+          let filter = case query |> string.length {
+            0 -> option.None
+            _ -> query |> option.Some
+          }
+          #(
+            Model(
+              ..model,
+              state: types.WithChanges(..state, files_filter: filter),
+            ),
+            effect.none(),
+          )
+        }
         _ -> zero
       }
   }

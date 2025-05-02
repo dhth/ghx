@@ -5265,7 +5265,7 @@ var WithChangesError = class extends CustomType {
   }
 };
 var WithChanges = class extends CustomType {
-  constructor(user_name, owner_type, repos, repo_filter_query, repo, tags, start_tag, end_tag, changes) {
+  constructor(user_name, owner_type, repos, repo_filter_query, repo, tags, start_tag, end_tag, changes, commits_filter, files_filter) {
     super();
     this.user_name = user_name;
     this.owner_type = owner_type;
@@ -5276,6 +5276,8 @@ var WithChanges = class extends CustomType {
     this.start_tag = start_tag;
     this.end_tag = end_tag;
     this.changes = changes;
+    this.commits_filter = commits_filter;
+    this.files_filter = files_filter;
   }
 };
 var AuthorColorClasses = class extends CustomType {
@@ -5284,6 +5286,16 @@ var AuthorColorClasses = class extends CustomType {
     this.dark = dark;
     this.light = light;
   }
+};
+var OwnerSection = class extends CustomType {
+};
+var ReposSection = class extends CustomType {
+};
+var TagsSection = class extends CustomType {
+};
+var CommitsSection = class extends CustomType {
+};
+var FilesSection = class extends CustomType {
 };
 var Model2 = class extends CustomType {
   constructor(config, state, author_color_classes, debug) {
@@ -5355,6 +5367,24 @@ var EndTagChosen = class extends CustomType {
 var UserRequestedChangelog = class extends CustomType {
 };
 var ChangesFetched = class extends CustomType {
+  constructor(x0) {
+    super();
+    this[0] = x0;
+  }
+};
+var UserRequestedToGoToSection = class extends CustomType {
+  constructor(x0) {
+    super();
+    this[0] = x0;
+  }
+};
+var UserEnteredCommitsFilterQuery = class extends CustomType {
+  constructor(x0) {
+    super();
+    this[0] = x0;
+  }
+};
+var UserEnteredFilesFilterQuery = class extends CustomType {
   constructor(x0) {
     super();
     this[0] = x0;
@@ -5655,6 +5685,25 @@ function owner_type_to_string(owner_type) {
     return "user";
   }
 }
+function section_to_string(section) {
+  if (section instanceof OwnerSection) {
+    return "owner";
+  } else if (section instanceof ReposSection) {
+    return "repos";
+  } else if (section instanceof TagsSection) {
+    return "tags";
+  } else if (section instanceof CommitsSection) {
+    return "commits";
+  } else {
+    return "files";
+  }
+}
+function section_id(section) {
+  return (() => {
+    let _pipe = section;
+    return section_to_string(_pipe);
+  })() + "-section";
+}
 function display_config(config) {
   return "- theme: " + (() => {
     let _pipe = config.theme;
@@ -5864,6 +5913,8 @@ function display_model(model) {
     let start_tag = $.start_tag;
     let end_tag = $.end_tag;
     let changes = $.changes;
+    let commits_filter = $.commits_filter;
+    let files_filter = $.files_filter;
     _block = toList([
       "- state: WithChanges",
       "- user_name: " + user_name,
@@ -5888,10 +5939,24 @@ function display_model(model) {
       })(),
       "- start_tag: " + start_tag,
       "- end_tag: " + end_tag,
-      "- changes: " + (() => {
+      "- commits: " + (() => {
         let _pipe2 = changes.commits;
         let _pipe$12 = length(_pipe2);
         return to_string(_pipe$12);
+      })(),
+      "- files: " + (() => {
+        let _pipe2 = changes.files;
+        let _pipe$12 = unwrap(_pipe2, toList([]));
+        let _pipe$2 = length(_pipe$12);
+        return to_string(_pipe$2);
+      })(),
+      "- commits_filter: " + (() => {
+        let _pipe2 = commits_filter;
+        return inspect2(_pipe2);
+      })(),
+      "- files_filter: " + (() => {
+        let _pipe2 = files_filter;
+        return inspect2(_pipe2);
       })()
     ]);
   }
@@ -6845,7 +6910,9 @@ function update(model, msg) {
             _record$1.tags,
             _record$1.start_tag,
             _record$1.end_tag,
-            _record$1.changes
+            _record$1.changes,
+            _record$1.commits_filter,
+            _record$1.files_filter
           );
         })(),
         _record.author_color_classes,
@@ -7515,7 +7582,7 @@ function update(model, msg) {
     } else {
       return zero;
     }
-  } else {
+  } else if (msg instanceof ChangesFetched) {
     let start_tag = msg[0][0];
     let end_tag = msg[0][1];
     let result = msg[0][2];
@@ -7566,15 +7633,122 @@ function update(model, msg) {
                 tags,
                 start_tag,
                 end_tag,
-                changes
+                changes,
+                new None(),
+                new None()
               ),
               _record.author_color_classes,
               _record.debug
             );
           })(),
-          scroll_element_into_view("commits-section")
+          scroll_element_into_view(
+            (() => {
+              let _pipe = new CommitsSection();
+              return section_id(_pipe);
+            })()
+          )
         ];
       }
+    } else {
+      return zero;
+    }
+  } else if (msg instanceof UserRequestedToGoToSection) {
+    let section = msg[0];
+    return [
+      model,
+      (() => {
+        let _pipe = section;
+        let _pipe$1 = section_id(_pipe);
+        return scroll_element_into_view(_pipe$1);
+      })()
+    ];
+  } else if (msg instanceof UserEnteredCommitsFilterQuery) {
+    let query = msg[0];
+    if (state instanceof WithChanges) {
+      let _block;
+      let $ = (() => {
+        let _pipe = query;
+        return string_length(_pipe);
+      })();
+      if ($ === 0) {
+        _block = new None();
+      } else {
+        let _pipe = query;
+        _block = new Some(_pipe);
+      }
+      let filter3 = _block;
+      return [
+        (() => {
+          let _record = model;
+          return new Model2(
+            _record.config,
+            (() => {
+              let _record$1 = state;
+              return new WithChanges(
+                _record$1.user_name,
+                _record$1.owner_type,
+                _record$1.repos,
+                _record$1.repo_filter_query,
+                _record$1.repo,
+                _record$1.tags,
+                _record$1.start_tag,
+                _record$1.end_tag,
+                _record$1.changes,
+                filter3,
+                _record$1.files_filter
+              );
+            })(),
+            _record.author_color_classes,
+            _record.debug
+          );
+        })(),
+        none()
+      ];
+    } else {
+      return zero;
+    }
+  } else {
+    let query = msg[0];
+    if (state instanceof WithChanges) {
+      let _block;
+      let $ = (() => {
+        let _pipe = query;
+        return string_length(_pipe);
+      })();
+      if ($ === 0) {
+        _block = new None();
+      } else {
+        let _pipe = query;
+        _block = new Some(_pipe);
+      }
+      let filter3 = _block;
+      return [
+        (() => {
+          let _record = model;
+          return new Model2(
+            _record.config,
+            (() => {
+              let _record$1 = state;
+              return new WithChanges(
+                _record$1.user_name,
+                _record$1.owner_type,
+                _record$1.repos,
+                _record$1.repo_filter_query,
+                _record$1.repo,
+                _record$1.tags,
+                _record$1.start_tag,
+                _record$1.end_tag,
+                _record$1.changes,
+                _record$1.commits_filter,
+                filter3
+              );
+            })(),
+            _record.author_color_classes,
+            _record.debug
+          );
+        })(),
+        none()
+      ];
     } else {
       return zero;
     }
@@ -7701,7 +7875,7 @@ function debug_section(model) {
             class$(
               "mt-2 p-4 border-2 border-opacity-50 text-wrap " + div_class
             ),
-            id("changes")
+            id("debug-section")
           ]),
           toList([
             (() => {
@@ -7824,6 +7998,33 @@ function config_error_section(error, theme) {
     ])
   );
 }
+function section_bg_class(section, theme) {
+  if (theme instanceof Dark) {
+    if (section instanceof OwnerSection) {
+      return "bg-[#a594f9]";
+    } else if (section instanceof ReposSection) {
+      return "bg-[#8caaee]";
+    } else if (section instanceof TagsSection) {
+      return "bg-[#80ed99]";
+    } else if (section instanceof CommitsSection) {
+      return "bg-[#c77dff]";
+    } else {
+      return "bg-[#affc41]";
+    }
+  } else {
+    if (section instanceof OwnerSection) {
+      return "bg-[#cdc1ff]";
+    } else if (section instanceof ReposSection) {
+      return "bg-[#ff9fb2]";
+    } else if (section instanceof TagsSection) {
+      return "bg-[#a4f3b3]";
+    } else if (section instanceof CommitsSection) {
+      return "bg-[#b370e5]";
+    } else {
+      return "bg-[#7ab02d]";
+    }
+  }
+}
 function owner_type_radio(owner_type, checked3) {
   let id2 = "owner-selector-" + (() => {
     let _pipe = owner_type;
@@ -7874,32 +8075,38 @@ function owner_type_selector(owner_type) {
     })()
   );
 }
-function username_selection_section(user_name, owner_type, fetching_repos, theme) {
+function owner_selection_section(user_name, owner_type, fetching_repos, theme) {
+  let input_class = (() => {
+    if (theme instanceof Dark) {
+      return "text-[#282828] placeholder-[#3d3d3d]";
+    } else {
+      return "placeholder-[#3d3d3d]";
+    }
+  })() + " " + section_bg_class(new OwnerSection(), theme);
   let _block;
   if (theme instanceof Dark) {
-    _block = "bg-[#a594f9] text-[#282828] placeholder-[#525252]";
+    _block = "bg-[#817ffc] text-[#282828]";
   } else {
-    _block = "bg-[#cdc1ff] placeholder-[#525252]";
+    _block = "bg-[#ada9fd]";
   }
-  let input_class = _block;
+  let button_class = _block;
   let _block$1;
-  if (theme instanceof Dark) {
-    _block$1 = "bg-[#817ffc] text-[#282828]";
-  } else {
-    _block$1 = "bg-[#ada9fd]";
-  }
-  let button_class = _block$1;
-  let _block$2;
   if (owner_type instanceof Org) {
-    _block$2 = "org name";
+    _block$1 = "org name";
   } else {
-    _block$2 = "username";
+    _block$1 = "username";
   }
-  let placeholder2 = _block$2;
+  let placeholder2 = _block$1;
   return div(
     toList([
       class$(
         "mt-8 p-4 border-2 border-[#a594f9] border-opacity-50\n        border-dotted"
+      ),
+      id(
+        (() => {
+          let _pipe = new OwnerSection();
+          return section_id(_pipe);
+        })()
       )
     ]),
     toList([
@@ -8213,7 +8420,12 @@ function tags_select_section(tags, start_tag, end_tag, fetching_changelog, theme
       class$(
         "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted"
       ),
-      id("tags-section")
+      id(
+        (() => {
+          let _pipe = new TagsSection();
+          return section_id(_pipe);
+        })()
+      )
     ]),
     (() => {
       let $ = (() => {
@@ -8265,13 +8477,10 @@ function tags_select_section(tags, start_tag, end_tag, fetching_changelog, theme
                   })()
                 ]);
               } else {
-                let _block;
-                if (theme instanceof Dark) {
-                  _block = "bg-[#80ed99] text-[#282828]";
-                } else {
-                  _block = "bg-[#a4f3b3] text-[#282828]";
-                }
-                let button_class = _block;
+                let button_class = "text-[#282828] " + section_bg_class(
+                  new TagsSection(),
+                  theme
+                );
                 return toList([
                   (() => {
                     let _pipe = tags;
@@ -8345,6 +8554,41 @@ function changes_error_section(error, theme) {
       )
     ])
   );
+}
+function filter_commit_predicate(query) {
+  return (commit) => {
+    return (() => {
+      let _pipe = commit.details.message;
+      let _pipe$1 = lowercase(_pipe);
+      return contains_string(
+        _pipe$1,
+        (() => {
+          let _pipe$2 = query;
+          return lowercase(_pipe$2);
+        })()
+      );
+    })() || (() => {
+      let _pipe = commit.details.author.name;
+      let _pipe$1 = lowercase(_pipe);
+      return contains_string(
+        _pipe$1,
+        (() => {
+          let _pipe$2 = query;
+          return lowercase(_pipe$2);
+        })()
+      );
+    })() || (() => {
+      let _pipe = commit.details.author.email;
+      let _pipe$1 = lowercase(_pipe);
+      return contains_string(
+        _pipe$1,
+        (() => {
+          let _pipe$2 = query;
+          return lowercase(_pipe$2);
+        })()
+      );
+    })();
+  };
 }
 function author_color_class(input2, colors, fallback) {
   let hash = simple_hash(input2);
@@ -8448,6 +8692,85 @@ function commit_details(commit, author_color_class_store, theme) {
     ])
   );
 }
+function commits_section(commits, commits_filter_query, start_tag, end_tag, author_color_class_store, theme) {
+  let $ = (() => {
+    let _pipe = commits;
+    return length(_pipe);
+  })();
+  if ($ === 0) {
+    return none2();
+  } else {
+    let _block;
+    if (commits_filter_query instanceof None) {
+      _block = commits;
+    } else {
+      let q = commits_filter_query[0];
+      let _pipe = commits;
+      _block = filter(_pipe, filter_commit_predicate(q));
+    }
+    return div(
+      toList([
+        class$(
+          "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted"
+        ),
+        id(
+          (() => {
+            let _pipe = new CommitsSection();
+            return section_id(_pipe);
+          })()
+        )
+      ]),
+      toList([
+        p(
+          toList([class$("text-xl")]),
+          toList([
+            (() => {
+              let _pipe = "commits " + start_tag + "..." + end_tag;
+              return text(_pipe);
+            })()
+          ])
+        ),
+        input(
+          toList([
+            class$(
+              "mt-4 font-semibold h-8 text-[#232634] placeholder-[#3d3d3d] pl-2 " + section_bg_class(
+                new CommitsSection(),
+                theme
+              )
+            ),
+            autocomplete("off"),
+            id("filter-commits"),
+            type_("text"),
+            placeholder("filter commits"),
+            value(
+              (() => {
+                let _pipe = commits_filter_query;
+                return unwrap(_pipe, "");
+              })()
+            ),
+            on_input(
+              (var0) => {
+                return new UserEnteredCommitsFilterQuery(var0);
+              }
+            )
+          ])
+        ),
+        div(
+          toList([class$("my-4 overflow-x-auto")]),
+          (() => {
+            let _pipe = _block;
+            return map2(
+              _pipe,
+              (commit) => {
+                return commit_details(commit, author_color_class_store, theme);
+              }
+            );
+          })()
+        )
+      ])
+    );
+  }
+}
 function scrollbar_color(theme) {
   if (theme instanceof Dark) {
     return "#a594f940 #282828";
@@ -8457,28 +8780,25 @@ function scrollbar_color(theme) {
 }
 function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, theme) {
   let _block;
-  if (theme instanceof Dark) {
-    _block = "bg-[#8caaee]";
-  } else {
-    _block = "bg-[#ff9fb2]";
-  }
+  let _pipe = new ReposSection();
+  _block = section_bg_class(_pipe, theme);
   let filter_class = _block;
   let _block$1;
   if (maybe_filter_query instanceof None) {
     _block$1 = repos;
   } else {
     let filter_query = maybe_filter_query[0];
-    let _pipe = repos;
+    let _pipe$1 = repos;
     _block$1 = filter(
-      _pipe,
+      _pipe$1,
       (repo) => {
-        let _pipe$1 = repo.name;
-        let _pipe$2 = lowercase(_pipe$1);
+        let _pipe$2 = repo.name;
+        let _pipe$3 = lowercase(_pipe$2);
         return contains_string(
-          _pipe$2,
+          _pipe$3,
           (() => {
-            let _pipe$3 = filter_query;
-            return lowercase(_pipe$3);
+            let _pipe$4 = filter_query;
+            return lowercase(_pipe$4);
           })()
         );
       }
@@ -8489,22 +8809,27 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
       class$(
         "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted"
       ),
-      id("repos-section")
+      id(
+        (() => {
+          let _pipe$1 = new ReposSection();
+          return section_id(_pipe$1);
+        })()
+      )
     ]),
     toList([
       p(
         toList([class$("text-xl")]),
         toList([
           (() => {
-            let _pipe = "repos";
-            return text(_pipe);
+            let _pipe$1 = "repos";
+            return text(_pipe$1);
           })()
         ])
       ),
       input(
         toList([
           class$(
-            "mt-4 font-semibold h-8 text-[#232634] placeholder-[#232634] pl-2 " + filter_class
+            "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 " + filter_class
           ),
           autocomplete("off"),
           id("filter-repos"),
@@ -8512,8 +8837,8 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
           placeholder("filter repos"),
           value(
             (() => {
-              let _pipe = maybe_filter_query;
-              return unwrap(_pipe, "");
+              let _pipe$1 = maybe_filter_query;
+              return unwrap(_pipe$1, "");
             })()
           ),
           on_input(
@@ -8531,8 +8856,8 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
               [
                 "scrollbar-color",
                 (() => {
-                  let _pipe = theme;
-                  return scrollbar_color(_pipe);
+                  let _pipe$1 = theme;
+                  return scrollbar_color(_pipe$1);
                 })()
               ],
               ["scrollbar-width", "thin"]
@@ -8540,27 +8865,27 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
           )
         ]),
         (() => {
-          let _pipe = _block$1;
-          let _pipe$1 = sort(
-            _pipe,
+          let _pipe$1 = _block$1;
+          let _pipe$2 = sort(
+            _pipe$1,
             (a2, b) => {
               return compare3(a2.name, b.name);
             }
           );
           return map2(
-            _pipe$1,
+            _pipe$2,
             (repo) => {
               return repo_select_button(
                 repo,
                 (() => {
-                  let _pipe$2 = maybe_selected_repo;
-                  let _pipe$3 = map(
-                    _pipe$2,
+                  let _pipe$3 = maybe_selected_repo;
+                  let _pipe$4 = map(
+                    _pipe$3,
                     (r) => {
                       return r === repo.name;
                     }
                   );
-                  return unwrap(_pipe$3, false);
+                  return unwrap(_pipe$4, false);
                 })(),
                 theme
               );
@@ -8571,52 +8896,18 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
     ])
   );
 }
-function commits_section(commits, start_tag, end_tag, author_color_class_store, theme) {
-  return div(
-    toList([
-      class$(
-        "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted"
-      ),
-      id("commits-section")
-    ]),
-    toList([
-      p(
-        toList([class$("text-xl")]),
-        toList([
-          (() => {
-            let _pipe = "commits " + start_tag + "..." + end_tag;
-            return text(_pipe);
-          })()
-        ])
-      ),
-      div(
-        toList([
-          class$("mt-2 overflow-x-auto"),
-          style(
-            toList([
-              [
-                "scrollbar-color",
-                (() => {
-                  let _pipe = theme;
-                  return scrollbar_color(_pipe);
-                })()
-              ],
-              ["scrollbar-width", "thin"]
-            ])
-          )
-        ]),
-        (() => {
-          let _pipe = commits;
-          return map2(
-            _pipe,
-            (commit) => {
-              return commit_details(commit, author_color_class_store, theme);
-            }
-          );
-        })()
-      )
-    ])
-  );
+function filter_file_predicate(query) {
+  return (file) => {
+    let _pipe = file.file_name;
+    let _pipe$1 = lowercase(_pipe);
+    return contains_string(
+      _pipe$1,
+      (() => {
+        let _pipe$2 = query;
+        return lowercase(_pipe$2);
+      })()
+    );
+  };
 }
 function file_status(status, theme) {
   let _block;
@@ -8759,13 +9050,21 @@ function file_details(file, theme) {
     ])
   );
 }
-function files_section(maybe_files, theme) {
+function files_section(maybe_files, files_filter_query, theme) {
   if (maybe_files instanceof None) {
     return none2();
   } else if (maybe_files instanceof Some && maybe_files[0].hasLength(0)) {
     return none2();
   } else {
     let files = maybe_files[0];
+    let _block;
+    if (files_filter_query instanceof None) {
+      _block = files;
+    } else {
+      let q = files_filter_query[0];
+      let _pipe = files;
+      _block = filter(_pipe, filter_file_predicate(q));
+    }
     return div(
       toList([
         class$(
@@ -8783,7 +9082,12 @@ function files_section(maybe_files, theme) {
             ["scrollbar-width", "thin"]
           ])
         ),
-        id("files-section")
+        id(
+          (() => {
+            let _pipe = new FilesSection();
+            return section_id(_pipe);
+          })()
+        )
       ]),
       toList([
         p(
@@ -8795,24 +9099,35 @@ function files_section(maybe_files, theme) {
             })()
           ])
         ),
-        div(
+        input(
           toList([
-            class$("mt-4 overflow-x-auto"),
-            style(
-              toList([
-                [
-                  "scrollbar-color",
-                  (() => {
-                    let _pipe = theme;
-                    return scrollbar_color(_pipe);
-                  })()
-                ],
-                ["scrollbar-width", "thin"]
-              ])
+            class$(
+              "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 " + section_bg_class(
+                new FilesSection(),
+                theme
+              )
+            ),
+            autocomplete("off"),
+            id("filter-files"),
+            type_("text"),
+            placeholder("filter files"),
+            value(
+              (() => {
+                let _pipe = files_filter_query;
+                return unwrap(_pipe, "");
+              })()
+            ),
+            on_input(
+              (var0) => {
+                return new UserEnteredFilesFilterQuery(var0);
+              }
             )
-          ]),
+          ])
+        ),
+        div(
+          toList([class$("my-4 overflow-x-auto")]),
           (() => {
-            let _pipe = files;
+            let _pipe = _block;
             return map2(
               _pipe,
               (file) => {
@@ -8824,6 +9139,103 @@ function files_section(maybe_files, theme) {
       ])
     );
   }
+}
+function navigation_button(section, theme, enabled) {
+  return button(
+    toList([
+      class$(
+        section_bg_class(section, theme) + " disabled:bg-[#a89984] px-2 py-1"
+      ),
+      disabled(!enabled),
+      on_click(new UserRequestedToGoToSection(section))
+    ]),
+    toList([
+      (() => {
+        let _pipe = section;
+        let _pipe$1 = section_to_string(_pipe);
+        return text(_pipe$1);
+      })()
+    ])
+  );
+}
+function navigation_bar(state, theme) {
+  let _block;
+  if (state instanceof Initial) {
+    _block = [false, false, false, false, false];
+  } else if (state instanceof ConfigError) {
+    _block = [false, false, false, false, false];
+  } else if (state instanceof ConfigLoaded) {
+    _block = [true, false, false, false, false];
+  } else if (state instanceof WithReposError) {
+    _block = [true, false, false, false, false];
+  } else if (state instanceof WithRepos) {
+    _block = [true, true, false, false, false];
+  } else if (state instanceof WithTagsError) {
+    _block = [true, true, false, false, false];
+  } else if (state instanceof WithTags) {
+    _block = [true, true, true, false, false];
+  } else if (state instanceof WithChangesError) {
+    _block = [true, true, true, false, false];
+  } else {
+    let changes = state.changes;
+    let $1 = changes.commits;
+    let $2 = changes.files;
+    if ($1.hasLength(0) && $2 instanceof None) {
+      _block = [true, true, true, false, false];
+    } else if ($1.hasLength(0) && $2 instanceof Some && $2[0].hasLength(0)) {
+      _block = [true, true, true, false, false];
+    } else if ($1.hasLength(0) && $2 instanceof Some) {
+      _block = [true, true, true, false, true];
+    } else if ($2 instanceof None) {
+      _block = [true, true, true, true, false];
+    } else if ($2 instanceof Some && $2[0].hasLength(0)) {
+      _block = [true, true, true, true, false];
+    } else {
+      _block = [true, true, true, true, true];
+    }
+  }
+  let $ = _block;
+  let o = $[0];
+  let r = $[1];
+  let t = $[2];
+  let c = $[3];
+  let f = $[4];
+  let _block$1;
+  if (theme instanceof Dark) {
+    _block$1 = "bg-[#282828]";
+  } else {
+    _block$1 = "bg-[#ffffff]";
+  }
+  let footer_class = _block$1;
+  return div(
+    toList([
+      class$(
+        "fixed bottom-0 w-full px-2 pt-4 font-semibold text-[#282828] max-sm:hidden " + footer_class
+      )
+    ]),
+    toList([
+      div(
+        toList([class$("flex gap-2")]),
+        (() => {
+          let _pipe = toList([
+            [new OwnerSection(), o],
+            [new ReposSection(), r],
+            [new TagsSection(), t],
+            [new CommitsSection(), c],
+            [new FilesSection(), f]
+          ]);
+          return map2(
+            _pipe,
+            (data) => {
+              let section = data[0];
+              let enabled = data[1];
+              return navigation_button(section, theme, enabled);
+            }
+          );
+        })()
+      )
+    ])
+  );
 }
 function main_section(model) {
   let theme = model.config.theme;
@@ -8859,7 +9271,7 @@ function main_section(model) {
             let _pipe = theme;
             return heading(_pipe);
           })(),
-          username_selection_section(
+          owner_selection_section(
             maybe_user_name,
             owner_type,
             fetching_repos,
@@ -8868,6 +9280,10 @@ function main_section(model) {
           (() => {
             let _pipe = fetching_repos;
             return fetching_repos_section(_pipe);
+          })(),
+          (() => {
+            let _pipe = model.state;
+            return navigation_bar(_pipe, theme);
           })()
         ]);
       } else if ($ instanceof WithReposError) {
@@ -8879,7 +9295,7 @@ function main_section(model) {
             let _pipe = theme;
             return heading(_pipe);
           })(),
-          username_selection_section(
+          owner_selection_section(
             (() => {
               let _pipe = user_name;
               return new Some(_pipe);
@@ -8891,6 +9307,10 @@ function main_section(model) {
           (() => {
             let _pipe = error;
             return repos_error_section(_pipe, owner_type, theme);
+          })(),
+          (() => {
+            let _pipe = model.state;
+            return navigation_bar(_pipe, theme);
           })()
         ]);
       } else if ($ instanceof WithRepos) {
@@ -8905,7 +9325,7 @@ function main_section(model) {
             let _pipe = theme;
             return heading(_pipe);
           })(),
-          username_selection_section(
+          owner_selection_section(
             (() => {
               let _pipe = user_name;
               return new Some(_pipe);
@@ -8923,6 +9343,10 @@ function main_section(model) {
           (() => {
             let _pipe = fetching_tags;
             return fetching_tags_section(_pipe);
+          })(),
+          (() => {
+            let _pipe = model.state;
+            return navigation_bar(_pipe, theme);
           })()
         ]);
       } else if ($ instanceof WithTagsError) {
@@ -8937,7 +9361,7 @@ function main_section(model) {
             let _pipe = theme;
             return heading(_pipe);
           })(),
-          username_selection_section(
+          owner_selection_section(
             (() => {
               let _pipe = user_name;
               return new Some(_pipe);
@@ -8958,6 +9382,10 @@ function main_section(model) {
           (() => {
             let _pipe = error;
             return tags_error_section(_pipe, theme);
+          })(),
+          (() => {
+            let _pipe = model.state;
+            return navigation_bar(_pipe, theme);
           })()
         ]);
       } else if ($ instanceof WithTags) {
@@ -8975,7 +9403,7 @@ function main_section(model) {
             let _pipe = theme;
             return heading(_pipe);
           })(),
-          username_selection_section(
+          owner_selection_section(
             (() => {
               let _pipe = user_name;
               return new Some(_pipe);
@@ -8999,7 +9427,11 @@ function main_section(model) {
             end_tag,
             fetching_changelog,
             theme
-          )
+          ),
+          (() => {
+            let _pipe = model.state;
+            return navigation_bar(_pipe, theme);
+          })()
         ]);
       } else if ($ instanceof WithChangesError) {
         let user_name = $.user_name;
@@ -9016,7 +9448,7 @@ function main_section(model) {
             let _pipe = theme;
             return heading(_pipe);
           })(),
-          username_selection_section(
+          owner_selection_section(
             (() => {
               let _pipe = user_name;
               return new Some(_pipe);
@@ -9050,6 +9482,10 @@ function main_section(model) {
           (() => {
             let _pipe = error;
             return changes_error_section(_pipe, theme);
+          })(),
+          (() => {
+            let _pipe = model.state;
+            return navigation_bar(_pipe, theme);
           })()
         ]);
       } else {
@@ -9062,12 +9498,14 @@ function main_section(model) {
         let start_tag = $.start_tag;
         let end_tag = $.end_tag;
         let changes = $.changes;
+        let commits_filter = $.commits_filter;
+        let files_filter = $.files_filter;
         return toList([
           (() => {
             let _pipe = theme;
             return heading(_pipe);
           })(),
-          username_selection_section(
+          owner_selection_section(
             (() => {
               let _pipe = user_name;
               return new Some(_pipe);
@@ -9102,6 +9540,7 @@ function main_section(model) {
             let _pipe = changes.commits;
             return commits_section(
               _pipe,
+              commits_filter,
               start_tag,
               end_tag,
               (() => {
@@ -9116,7 +9555,11 @@ function main_section(model) {
           })(),
           (() => {
             let _pipe = changes.files;
-            return files_section(_pipe, theme);
+            return files_section(_pipe, files_filter, theme);
+          })(),
+          (() => {
+            let _pipe = model.state;
+            return navigation_bar(_pipe, theme);
           })()
         ]);
       }

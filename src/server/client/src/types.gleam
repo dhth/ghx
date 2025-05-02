@@ -326,6 +326,8 @@ pub type State {
     start_tag: String,
     end_tag: String,
     changes: ChangesResponse,
+    commits_filter: option.Option(String),
+    files_filter: option.Option(String),
   )
 }
 
@@ -345,6 +347,28 @@ fn get_author_color_classes() -> AuthorColorClasses {
       |> list.index_map(fn(c, i) { #(i, c) })
       |> dict.from_list,
   )
+}
+
+pub type Section {
+  OwnerSection
+  ReposSection
+  TagsSection
+  CommitsSection
+  FilesSection
+}
+
+pub fn section_to_string(section: Section) -> String {
+  case section {
+    OwnerSection -> "owner"
+    ReposSection -> "repos"
+    TagsSection -> "tags"
+    CommitsSection -> "commits"
+    FilesSection -> "files"
+  }
+}
+
+pub fn section_id(section: Section) -> String {
+  { section |> section_to_string } <> "-section"
 }
 
 pub type Model {
@@ -396,6 +420,9 @@ pub type Msg {
   ChangesFetched(
     #(String, String, Result(ChangesResponse, lustre_http.HttpError)),
   )
+  UserRequestedToGoToSection(Section)
+  UserEnteredCommitsFilterQuery(String)
+  UserEnteredFilesFilterQuery(String)
 }
 
 pub fn display_config(config: Config) -> String {
@@ -497,6 +524,8 @@ pub fn display_model(model: Model) -> String {
       start_tag,
       end_tag,
       changes,
+      commits_filter,
+      files_filter,
     ) -> [
       "- state: WithChanges",
       "- user_name: " <> user_name,
@@ -507,7 +536,11 @@ pub fn display_model(model: Model) -> String {
       "- tags: " <> tags |> list.length |> int.to_string,
       "- start_tag: " <> start_tag,
       "- end_tag: " <> end_tag,
-      "- changes: " <> changes.commits |> list.length |> int.to_string,
+      "- commits: " <> changes.commits |> list.length |> int.to_string,
+      "- files: "
+        <> changes.files |> option.unwrap([]) |> list.length |> int.to_string,
+      "- commits_filter: " <> commits_filter |> string.inspect,
+      "- files_filter: " <> files_filter |> string.inspect,
     ]
   }
 
