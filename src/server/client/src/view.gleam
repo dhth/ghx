@@ -1,4 +1,6 @@
 import constants
+import gleam/dict
+import gleam/int
 import gleam/list
 import gleam/option
 import gleam/result
@@ -236,7 +238,16 @@ fn main_section(model: Model) -> element.Element(Msg) {
         False,
         theme,
       ),
-      changes |> changes_section(start_tag, end_tag, theme),
+      changes
+        |> changes_section(
+          start_tag,
+          end_tag,
+          case theme {
+            types.Dark -> model.author_color_classes.dark
+            types.Light -> model.author_color_classes.light
+          },
+          theme,
+        ),
     ]
   })
 }
@@ -589,8 +600,7 @@ fn tags_select_section(
       html.div(
         [
           attribute.class(
-            "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50
-        border-dotted",
+            "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted",
           ),
         ],
         [
@@ -723,6 +733,7 @@ fn changes_section(
   changes: ChangesResponse,
   start_tag: String,
   end_tag: String,
+  author_color_class_store: types.AuthorColorClassStore,
   theme: Theme,
 ) -> element.Element(Msg) {
   html.div(
@@ -747,7 +758,9 @@ fn changes_section(
           attribute.id("changes-section"),
         ],
         changes.commits
-          |> list.map(fn(commit) { commit_details(commit, theme) }),
+          |> list.map(fn(commit) {
+            commit_details(commit, author_color_class_store, theme)
+          }),
       ),
     ],
   )
@@ -755,11 +768,20 @@ fn changes_section(
 
 fn commit_details(
   commit: types.ChangelogCommit,
+  author_color_class_store: types.AuthorColorClassStore,
   theme: Theme,
 ) -> element.Element(Msg) {
-  let #(sha_class, message_class, author_class) = case theme {
-    types.Dark -> #("text-[#c77dff]", "text-[#b5e48c]", "text-[#ff9500]")
-    types.Light -> #("text-[#5a189a]", "text-[#168aad]", "text-[#941b0c]")
+  let #(sha_class, author_class) = case theme {
+    types.Dark -> #(
+      "text-[#c77dff]",
+      commit.details.author.name
+        |> author_color_class(author_color_class_store, "text-[#ff9500]"),
+    )
+    types.Light -> #(
+      "text-[#995f6a]",
+      commit.details.author.name
+        |> author_color_class(author_color_class_store, "text-[#941b0c]"),
+    )
   }
 
   let commit_hash = case commit.sha |> string.length {
@@ -773,17 +795,27 @@ fn commit_details(
     |> list.first
     |> result.unwrap(" ")
 
-  html.p([attribute.class("flex gap-4 items-center whitespace-nowrap mb-1")], [
+  html.p([attribute.class("flex gap-4 items-center whitespace-nowrap mt-2")], [
     html.a([attribute.href(commit.html_url), attribute.target("_blank")], [
       html.span([attribute.class(sha_class)], [commit_hash |> element.text]),
     ]),
-    html.span([attribute.class(message_class)], [
-      commit_message_heading |> element.text,
-    ]),
-    html.span([attribute.class(author_class)], [
+    html.span([], [commit_message_heading |> element.text]),
+    html.span([attribute.class("font-semibold " <> author_class)], [
       commit.details.author.name |> element.text,
     ]),
   ])
+}
+
+fn author_color_class(
+  input: String,
+  colors: types.AuthorColorClassStore,
+  fallback: String,
+) -> String {
+  let hash = utils.simple_hash(input)
+  let num_colors = colors |> dict.size
+  let index = hash |> int.remainder(num_colors) |> result.unwrap(0)
+
+  colors |> dict.get(index) |> result.unwrap(fallback)
 }
 
 fn scrollbar_color(theme: Theme) -> String {

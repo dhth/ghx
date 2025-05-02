@@ -38,3 +38,9 @@ pub fn http_error_to_string(error: lustre_http.HttpError) -> String {
     lustre_http.Unauthorized -> "unauthorized"
   }
 }
+
+pub fn simple_hash(input: String) -> Int {
+  string.to_utf_codepoints(input)
+  |> list.map(string.utf_codepoint_to_int)
+  |> list.fold(0, fn(a, b) { a * 31 + b })
+}
