@@ -23,7 +23,7 @@ pub fn view(model: Model) -> element.Element(Msg) {
   html.div(
     [attribute.class("min-h-screen " <> model.config.theme |> main_div_class)],
     [
-      html.div([attribute.class("pt-10 py-20 w-4/5 max-sm:w-5/6 mx-auto")], [
+      html.div([attribute.class("pt-10 pb-20 w-4/5 max-sm:w-5/6 mx-auto")], [
         model |> main_section,
         model |> debug_section,
       ]),
@@ -452,6 +452,11 @@ fn repo_selection_section(
     types.Light -> "bg-[#ff9fb2]"
   }
 
+  let scrollbar_color = case theme {
+    types.Dark -> "#a594f940 #282828"
+    types.Light -> "#a594f940 #ffffff"
+  }
+
   html.div(
     [
       attribute.class(
@@ -474,7 +479,13 @@ fn repo_selection_section(
         event.on_input(types.UserEnteredRepoFilterQuery),
       ]),
       html.div(
-        [attribute.class("flex-wrap mt-2 overflow-y-scroll max-h-60")],
+        [
+          attribute.class("flex-wrap mt-2 overflow-y-scroll max-h-60"),
+          attribute.style([
+            #("scrollbar-color", scrollbar_color),
+            #("scrollbar-width", "thin"),
+          ]),
+        ],
         case maybe_filter_query {
           option.None -> repos
           option.Some(filter_query) ->
@@ -725,6 +736,7 @@ fn changes_section(
         "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50
         border-dotted",
       ),
+      attribute.id("changes-section"),
     ],
     [
       html.p([attribute.class("text-xl")], [
