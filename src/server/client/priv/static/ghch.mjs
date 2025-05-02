@@ -2792,6 +2792,20 @@ function property(name2, value4) {
 function on(name2, handler) {
   return new Event2("on" + name2, handler);
 }
+function style(properties) {
+  return attribute(
+    "style",
+    fold(
+      properties,
+      "",
+      (styles, _use1) => {
+        let name$1 = _use1[0];
+        let value$1 = _use1[1];
+        return styles + name$1 + ":" + value$1 + ";";
+      }
+    )
+  );
+}
 function class$(name2) {
   return attribute("class", name2);
 }
@@ -7605,12 +7619,19 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
   }
   let filter_class = _block;
   let _block$1;
+  if (theme instanceof Dark) {
+    _block$1 = "#a594f940 #282828";
+  } else {
+    _block$1 = "#a594f940 #ffffff";
+  }
+  let scrollbar_color = _block$1;
+  let _block$2;
   if (maybe_filter_query instanceof None) {
-    _block$1 = repos;
+    _block$2 = repos;
   } else {
     let filter_query = maybe_filter_query[0];
     let _pipe = repos;
-    _block$1 = filter(
+    _block$2 = filter(
       _pipe,
       (repo) => {
         let _pipe$1 = repo.name;
@@ -7664,9 +7685,17 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
         ])
       ),
       div(
-        toList([class$("flex-wrap mt-2 overflow-y-scroll max-h-60")]),
+        toList([
+          class$("flex-wrap mt-2 overflow-y-scroll max-h-60"),
+          style(
+            toList([
+              ["scrollbar-color", scrollbar_color],
+              ["scrollbar-width", "thin"]
+            ])
+          )
+        ]),
         (() => {
-          let _pipe = _block$1;
+          let _pipe = _block$2;
           let _pipe$1 = sort(
             _pipe,
             (a, b) => {
@@ -8040,7 +8069,8 @@ function changes_section(changes, start_tag, end_tag, theme) {
     toList([
       class$(
         "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50\n        border-dotted"
-      )
+      ),
+      id("changes-section")
     ]),
     toList([
       p(
@@ -8360,7 +8390,7 @@ function view(model) {
     ]),
     toList([
       div(
-        toList([class$("pt-10 py-20 w-4/5 max-sm:w-5/6 mx-auto")]),
+        toList([class$("pt-10 pb-20 w-4/5 max-sm:w-5/6 mx-auto")]),
         toList([
           (() => {
             let _pipe = model;

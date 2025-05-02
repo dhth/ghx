@@ -1,5 +1,6 @@
 body {
     font-family: "Open Sans", sans-serif;
+    overflow-y: scroll;
 }
 
 #debug-section {
@@ -15,14 +16,10 @@ body::-webkit-scrollbar {
 }
 
 body::-webkit-scrollbar-track {
-    background: #232634;
+    background: #282828;
 }
 
 body::-webkit-scrollbar-thumb {
-    background: #444857;
+    background: #a594f940;
     border-radius: 4px;
-}
-
-body::-webkit-scrollbar-thumb:hover {
-    background: #5a5e6e;
 }
