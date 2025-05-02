@@ -140,6 +140,68 @@ fn changelog_commit_details_decoder() -> decode.Decoder(ChangelogCommitDetails) 
   decode.success(ChangelogCommitDetails(author:, message:))
 }
 
+pub type ChangesFileStatus {
+  Added
+  Removed
+  Modified
+  Renamed
+  Copied
+  Changed
+  Unchanged
+}
+
+pub fn file_status_to_string(status: ChangesFileStatus) -> String {
+  case status {
+    Added -> "added"
+    Changed -> "changed"
+    Copied -> "copied"
+    Modified -> "modified"
+    Removed -> "removed"
+    Renamed -> "renamed"
+    Unchanged -> "unchangd"
+  }
+  |> string.pad_end(8, ".")
+}
+
+fn changes_file_status_decoder() -> decode.Decoder(ChangesFileStatus) {
+  use variant <- decode.then(decode.string)
+  case variant {
+    "added" -> decode.success(Added)
+    "removed" -> decode.success(Removed)
+    "modified" -> decode.success(Modified)
+    "renamed" -> decode.success(Renamed)
+    "copied" -> decode.success(Copied)
+    "changed" -> decode.success(Changed)
+    "unchanged" -> decode.success(Unchanged)
+    _ -> decode.failure(Unchanged, "ChangesFileStatus")
+  }
+}
+
+pub type ChangesFileItem {
+  CommitFileItem(
+    file_name: String,
+    status: ChangesFileStatus,
+    additions: Int,
+    deletions: Int,
+    blob_url: String,
+  )
+}
+
+fn changes_file_item_decoder() -> decode.Decoder(ChangesFileItem) {
+  use file_name <- decode.field("filename", decode.string)
+  use status <- decode.field("status", changes_file_status_decoder())
+  use additions <- decode.field("additions", decode.int)
+  use deletions <- decode.field("deletions", decode.int)
+  use blob_url <- decode.field("blob_url", decode.string)
+  decode.success(CommitFileItem(
+    file_name:,
+    status:,
+    additions:,
+    deletions:,
+    blob_url:,
+  ))
+}
+
 pub type ChangelogCommit {
   ChangelogCommit(
     sha: String,
@@ -156,15 +218,22 @@ fn changelog_commit_decoder() -> decode.Decoder(ChangelogCommit) {
 }
 
 pub type ChangesResponse {
-  ChangelogResponse(commits: List(ChangelogCommit))
+  ChangelogResponse(
+    commits: List(ChangelogCommit),
+    files: option.Option(List(ChangesFileItem)),
+  )
 }
 
-pub fn changelog_response_decoder() -> decode.Decoder(ChangesResponse) {
+pub fn changes_response_decoder() -> decode.Decoder(ChangesResponse) {
   use commits <- decode.field(
     "commits",
     decode.list(changelog_commit_decoder()),
   )
-  decode.success(ChangelogResponse(commits:))
+  use files <- decode.field(
+    "files",
+    decode.optional(decode.list(changes_file_item_decoder())),
+  )
+  decode.success(ChangelogResponse(commits:, files:))
 }
 
 pub fn theme_to_string(theme: Theme) -> String {

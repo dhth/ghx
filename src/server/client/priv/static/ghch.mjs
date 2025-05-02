@@ -365,6 +365,16 @@ function remainderInt(a2, b) {
     return a2 % b;
   }
 }
+function divideInt(a2, b) {
+  return Math.trunc(divideFloat(a2, b));
+}
+function divideFloat(a2, b) {
+  if (b === 0) {
+    return 0;
+  } else {
+    return a2 / b;
+  }
+}
 function makeError(variant, module, line, fn, message, extra) {
   let error = new globalThis.Error(message);
   error.gleam_error = variant;
@@ -2088,6 +2098,24 @@ function concat_loop(loop$strings, loop$accumulator) {
 function concat2(strings) {
   return concat_loop(strings, "");
 }
+function repeat_loop(loop$string, loop$times, loop$acc) {
+  while (true) {
+    let string6 = loop$string;
+    let times = loop$times;
+    let acc = loop$acc;
+    let $ = times <= 0;
+    if ($) {
+      return acc;
+    } else {
+      loop$string = string6;
+      loop$times = times - 1;
+      loop$acc = acc + string6;
+    }
+  }
+}
+function repeat(string6, times) {
+  return repeat_loop(string6, times, "");
+}
 function join_loop(loop$strings, loop$separator, loop$accumulator) {
   while (true) {
     let strings = loop$strings;
@@ -2111,6 +2139,22 @@ function join(strings, separator) {
     let first$1 = strings.head;
     let rest = strings.tail;
     return join_loop(rest, separator, first$1);
+  }
+}
+function padding(size, pad_string) {
+  let pad_string_length = string_length(pad_string);
+  let num_pads = divideInt(size, pad_string_length);
+  let extra = remainderInt(size, pad_string_length);
+  return repeat(pad_string, num_pads) + slice(pad_string, 0, extra);
+}
+function pad_end(string6, desired_length, pad_string) {
+  let current_length = string_length(string6);
+  let to_pad_length = desired_length - current_length;
+  let $ = to_pad_length <= 0;
+  if ($) {
+    return string6;
+  } else {
+    return string6 + padding(to_pad_length, pad_string);
   }
 }
 function trim(string6) {
@@ -5101,6 +5145,30 @@ var ChangelogCommitDetails = class extends CustomType {
     this.message = message;
   }
 };
+var Added = class extends CustomType {
+};
+var Removed = class extends CustomType {
+};
+var Modified = class extends CustomType {
+};
+var Renamed = class extends CustomType {
+};
+var Copied = class extends CustomType {
+};
+var Changed = class extends CustomType {
+};
+var Unchanged = class extends CustomType {
+};
+var CommitFileItem = class extends CustomType {
+  constructor(file_name, status, additions, deletions, blob_url) {
+    super();
+    this.file_name = file_name;
+    this.status = status;
+    this.additions = additions;
+    this.deletions = deletions;
+    this.blob_url = blob_url;
+  }
+};
 var ChangelogCommit = class extends CustomType {
   constructor(sha, details, html_url) {
     super();
@@ -5110,9 +5178,10 @@ var ChangelogCommit = class extends CustomType {
   }
 };
 var ChangelogResponse = class extends CustomType {
-  constructor(commits) {
+  constructor(commits, files) {
     super();
     this.commits = commits;
+    this.files = files;
   }
 };
 var Config = class extends CustomType {
@@ -5439,6 +5508,91 @@ function changelog_commit_details_decoder() {
     }
   );
 }
+function file_status_to_string(status) {
+  let _block;
+  if (status instanceof Added) {
+    _block = "added";
+  } else if (status instanceof Changed) {
+    _block = "changed";
+  } else if (status instanceof Copied) {
+    _block = "copied";
+  } else if (status instanceof Modified) {
+    _block = "modified";
+  } else if (status instanceof Removed) {
+    _block = "removed";
+  } else if (status instanceof Renamed) {
+    _block = "renamed";
+  } else {
+    _block = "unchangd";
+  }
+  let _pipe = _block;
+  return pad_end(_pipe, 8, ".");
+}
+function changes_file_status_decoder() {
+  return then$2(
+    string4,
+    (variant) => {
+      if (variant === "added") {
+        return success(new Added());
+      } else if (variant === "removed") {
+        return success(new Removed());
+      } else if (variant === "modified") {
+        return success(new Modified());
+      } else if (variant === "renamed") {
+        return success(new Renamed());
+      } else if (variant === "copied") {
+        return success(new Copied());
+      } else if (variant === "changed") {
+        return success(new Changed());
+      } else if (variant === "unchanged") {
+        return success(new Unchanged());
+      } else {
+        return failure(new Unchanged(), "ChangesFileStatus");
+      }
+    }
+  );
+}
+function changes_file_item_decoder() {
+  return field2(
+    "filename",
+    string4,
+    (file_name) => {
+      return field2(
+        "status",
+        changes_file_status_decoder(),
+        (status) => {
+          return field2(
+            "additions",
+            int2,
+            (additions) => {
+              return field2(
+                "deletions",
+                int2,
+                (deletions) => {
+                  return field2(
+                    "blob_url",
+                    string4,
+                    (blob_url) => {
+                      return success(
+                        new CommitFileItem(
+                          file_name,
+                          status,
+                          additions,
+                          deletions,
+                          blob_url
+                        )
+                      );
+                    }
+                  );
+                }
+              );
+            }
+          );
+        }
+      );
+    }
+  );
+}
 function changelog_commit_decoder() {
   return field2(
     "sha",
@@ -5462,12 +5616,18 @@ function changelog_commit_decoder() {
     }
   );
 }
-function changelog_response_decoder() {
+function changes_response_decoder() {
   return field2(
     "commits",
     list2(changelog_commit_decoder()),
     (commits) => {
-      return success(new ChangelogResponse(commits));
+      return field2(
+        "files",
+        optional(list2(changes_file_item_decoder())),
+        (files) => {
+          return success(new ChangelogResponse(commits, files));
+        }
+      );
     }
   );
 }
@@ -5937,7 +6097,7 @@ function changelog_endpoint(user_name, repo, start_tag, end_tag) {
 }
 function fetch_changes(user_name, repo, start_tag, end_tag) {
   let expect = expect_json(
-    changelog_response_decoder(),
+    changes_response_decoder(),
     (result) => {
       return new ChangesFetched([start_tag, end_tag, result]);
     }
@@ -7412,7 +7572,7 @@ function update(model, msg) {
               _record.debug
             );
           })(),
-          scroll_element_into_view("changes-section")
+          scroll_element_into_view("commits-section")
         ];
       }
     } else {
@@ -8246,7 +8406,7 @@ function commit_details(commit, author_color_class_store, theme) {
         ])
       ),
       span(
-        toList([class$("font-semibold " + author_class)]),
+        toList([class$(author_class)]),
         toList([
           (() => {
             let _pipe$3 = commit.details.author.name;
@@ -8379,20 +8539,32 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
     ])
   );
 }
-function changes_section(changes, start_tag, end_tag, author_color_class_store, theme) {
+function commits_section(commits, start_tag, end_tag, author_color_class_store, theme) {
   return div(
     toList([
       class$(
-        "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50\n        border-dotted"
+        "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50\n        border-dotted overflow-y-scroll max-h-screen"
       ),
-      id("changes-section")
+      style(
+        toList([
+          [
+            "scrollbar-color",
+            (() => {
+              let _pipe = theme;
+              return scrollbar_color(_pipe);
+            })()
+          ],
+          ["scrollbar-width", "thin"]
+        ])
+      ),
+      id("commits-section")
     ]),
     toList([
       p(
         toList([class$("text-xl")]),
         toList([
           (() => {
-            let _pipe = "changes " + start_tag + "..." + end_tag;
+            let _pipe = "commits " + start_tag + "..." + end_tag;
             return text(_pipe);
           })()
         ])
@@ -8411,11 +8583,10 @@ function changes_section(changes, start_tag, end_tag, author_color_class_store, 
               ],
               ["scrollbar-width", "thin"]
             ])
-          ),
-          id("changes-section")
+          )
         ]),
         (() => {
-          let _pipe = changes.commits;
+          let _pipe = commits;
           return map2(
             _pipe,
             (commit) => {
@@ -8426,6 +8597,213 @@ function changes_section(changes, start_tag, end_tag, author_color_class_store, 
       )
     ])
   );
+}
+function file_status(status, theme) {
+  let _block;
+  if (theme instanceof Dark) {
+    if (status instanceof Added) {
+      _block = "bg-[#7cea9c]";
+    } else if (status instanceof Changed) {
+      _block = "bg-[#fdb3ae]";
+    } else if (status instanceof Copied) {
+      _block = "bg-[#d0f4de]";
+    } else if (status instanceof Modified) {
+      _block = "bg-[#ffc300]";
+    } else if (status instanceof Removed) {
+      _block = "bg-[#ff4365]";
+    } else if (status instanceof Renamed) {
+      _block = "bg-[#dfa8a9]";
+    } else {
+      _block = "bg-[#e5d9f2]";
+    }
+  } else {
+    if (status instanceof Added) {
+      _block = "bg-[#a3f0b9]";
+    } else if (status instanceof Changed) {
+      _block = "bg-[#fdc9c6]";
+    } else if (status instanceof Copied) {
+      _block = "bg-[#def7e7]";
+    } else if (status instanceof Modified) {
+      _block = "bg-[#ffe17f]";
+    } else if (status instanceof Removed) {
+      _block = "bg-[#ff8ea2]";
+    } else if (status instanceof Renamed) {
+      _block = "bg-[#ebcacb]";
+    } else {
+      _block = "bg-[#efe8f7]";
+    }
+  }
+  let class$2 = _block;
+  return span(
+    toList([
+      class$(
+        "px-2 py-1 text-[#282828] text-xs font-semibold " + class$2
+      )
+    ]),
+    toList([
+      (() => {
+        let _pipe = status;
+        let _pipe$1 = file_status_to_string(_pipe);
+        return text(_pipe$1);
+      })()
+    ])
+  );
+}
+function file_change_stats(additions, deletions, theme) {
+  let _block;
+  if (additions === 0) {
+    _block = "";
+  } else {
+    let n = additions;
+    _block = "+" + (() => {
+      let _pipe = n;
+      return to_string(_pipe);
+    })();
+  }
+  let additions_text = _block;
+  let _block$1;
+  if (deletions === 0) {
+    _block$1 = "";
+  } else {
+    let n = deletions;
+    _block$1 = "-" + (() => {
+      let _pipe = n;
+      return to_string(_pipe);
+    })();
+  }
+  let deletions_text = _block$1;
+  let _block$2;
+  if (theme instanceof Dark) {
+    _block$2 = ["text-[#affc41]", "text-[#ff4365]"];
+  } else {
+    _block$2 = ["text-[#068360]", "text-[#cc3550]"];
+  }
+  let $ = _block$2;
+  let additions_class = $[0];
+  let deletions_class = $[1];
+  return div(
+    toList([class$("flex gap-2")]),
+    toList([
+      span(
+        toList([
+          class$(
+            "px-2 py-1 text-sm font-semibold w-16 " + additions_class
+          )
+        ]),
+        toList([
+          (() => {
+            let _pipe = additions_text;
+            return text(_pipe);
+          })()
+        ])
+      ),
+      span(
+        toList([
+          class$(
+            "px-2 py-1 text-sm font-semibold w-16 " + deletions_class
+          )
+        ]),
+        toList([
+          (() => {
+            let _pipe = deletions_text;
+            return text(_pipe);
+          })()
+        ])
+      )
+    ])
+  );
+}
+function file_details(file, theme) {
+  return p(
+    toList([class$("flex gap-4 items-center whitespace-nowrap mt-2")]),
+    toList([
+      (() => {
+        let _pipe = file.status;
+        return file_status(_pipe, theme);
+      })(),
+      file_change_stats(file.additions, file.deletions, theme),
+      a(
+        toList([href(file.blob_url), target("_blank")]),
+        toList([
+          span(
+            toList([]),
+            toList([
+              (() => {
+                let _pipe = file.file_name;
+                return text(_pipe);
+              })()
+            ])
+          )
+        ])
+      )
+    ])
+  );
+}
+function files_section(maybe_files, theme) {
+  if (maybe_files instanceof None) {
+    return none2();
+  } else if (maybe_files instanceof Some && maybe_files[0].hasLength(0)) {
+    return none2();
+  } else {
+    let files = maybe_files[0];
+    return div(
+      toList([
+        class$(
+          "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted overflow-y-scroll max-h-screen"
+        ),
+        style(
+          toList([
+            [
+              "scrollbar-color",
+              (() => {
+                let _pipe = theme;
+                return scrollbar_color(_pipe);
+              })()
+            ],
+            ["scrollbar-width", "thin"]
+          ])
+        ),
+        id("files-section")
+      ]),
+      toList([
+        p(
+          toList([class$("text-xl")]),
+          toList([
+            (() => {
+              let _pipe = "files";
+              return text(_pipe);
+            })()
+          ])
+        ),
+        div(
+          toList([
+            class$("mt-4 overflow-x-auto"),
+            style(
+              toList([
+                [
+                  "scrollbar-color",
+                  (() => {
+                    let _pipe = theme;
+                    return scrollbar_color(_pipe);
+                  })()
+                ],
+                ["scrollbar-width", "thin"]
+              ])
+            )
+          ]),
+          (() => {
+            let _pipe = files;
+            return map2(
+              _pipe,
+              (file) => {
+                return file_details(file, theme);
+              }
+            );
+          })()
+        )
+      ])
+    );
+  }
 }
 function main_section(model) {
   let theme = model.config.theme;
@@ -8697,8 +9075,8 @@ function main_section(model) {
             theme
           ),
           (() => {
-            let _pipe = changes;
-            return changes_section(
+            let _pipe = changes.commits;
+            return commits_section(
               _pipe,
               start_tag,
               end_tag,
@@ -8711,6 +9089,10 @@ function main_section(model) {
               })(),
               theme
             );
+          })(),
+          (() => {
+            let _pipe = changes.files;
+            return files_section(_pipe, theme);
           })()
         ]);
       }
