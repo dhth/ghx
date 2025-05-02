@@ -221,6 +221,8 @@ fn main_section(model: Model) -> element.Element(Msg) {
       start_tag,
       end_tag,
       changes,
+      commits_filter,
+      files_filter,
     ) -> [
       theme |> heading,
       owner_selection_section(
@@ -244,6 +246,7 @@ fn main_section(model: Model) -> element.Element(Msg) {
       ),
       changes.commits
         |> commits_section(
+          commits_filter,
           start_tag,
           end_tag,
           case theme {
@@ -253,7 +256,7 @@ fn main_section(model: Model) -> element.Element(Msg) {
           theme,
         ),
       changes.files
-        |> files_section(theme),
+        |> files_section(files_filter, theme),
       model.state |> navigation_bar(theme),
     ]
   })
@@ -338,8 +341,8 @@ fn owner_selection_section(
 ) -> element.Element(Msg) {
   let input_class =
     case theme {
-      types.Dark -> "text-[#282828] placeholder-[#525252]"
-      types.Light -> "placeholder-[#525252]"
+      types.Dark -> "text-[#282828] placeholder-[#3d3d3d]"
+      types.Light -> "placeholder-[#3d3d3d]"
     }
     <> " "
     <> section_bg_class(types.OwnerSection, theme)
@@ -410,8 +413,8 @@ fn section_bg_class(section: types.Section, theme: Theme) -> String {
         types.OwnerSection -> "bg-[#cdc1ff]"
         types.ReposSection -> "bg-[#ff9fb2]"
         types.TagsSection -> "bg-[#a4f3b3]"
-        types.CommitsSection -> "bg-[#995f6a]"
-        types.FilesSection -> "bg-[#068360]"
+        types.CommitsSection -> "bg-[#b370e5]"
+        types.FilesSection -> "bg-[#7ab02d]"
       }
   }
 }
@@ -522,7 +525,7 @@ fn repo_selection_section(
       html.p([attribute.class("text-xl")], ["repos" |> element.text]),
       html.input([
         attribute.class(
-          "mt-4 font-semibold h-8 text-[#232634] placeholder-[#232634] pl-2 "
+          "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 "
           <> filter_class,
         ),
         attribute.autocomplete("off"),
@@ -788,6 +791,7 @@ fn changes_error_section(
 
 fn commits_section(
   commits: List(types.ChangelogCommit),
+  commits_filter_query: option.Option(String),
   start_tag: String,
   end_tag: String,
   author_color_class_store: types.AuthorColorClassStore,
@@ -807,21 +811,52 @@ fn commits_section(
           html.p([attribute.class("text-xl")], [
             { "commits " <> start_tag <> "..." <> end_tag } |> element.text,
           ]),
+          html.input([
+            attribute.class(
+              "mt-4 font-semibold h-8 text-[#232634] placeholder-[#3d3d3d] pl-2 "
+              <> section_bg_class(types.CommitsSection, theme),
+            ),
+            attribute.autocomplete("off"),
+            attribute.id("filter-commits"),
+            attribute.type_("text"),
+            attribute.placeholder("filter commits"),
+            attribute.value(commits_filter_query |> option.unwrap("")),
+            event.on_input(types.UserEnteredCommitsFilterQuery),
+          ]),
           html.div(
-            [
-              attribute.class("mt-2 overflow-x-auto"),
-              attribute.style([
-                #("scrollbar-color", theme |> scrollbar_color),
-                #("scrollbar-width", "thin"),
-              ]),
-            ],
-            commits
+            [attribute.class("my-4 overflow-x-auto")],
+            case commits_filter_query {
+              option.None -> commits
+              option.Some(q) ->
+                commits
+                |> list.filter(filter_commit_predicate(q))
+            }
               |> list.map(fn(commit) {
                 commit_details(commit, author_color_class_store, theme)
               }),
           ),
         ],
       )
+  }
+}
+
+fn filter_commit_predicate(query: String) -> fn(types.ChangelogCommit) -> Bool {
+  fn(commit: types.ChangelogCommit) {
+    {
+      commit.details.message
+      |> string.lowercase
+      |> string.contains(query |> string.lowercase)
+    }
+    || {
+      commit.details.author.name
+      |> string.lowercase
+      |> string.contains(query |> string.lowercase)
+    }
+    || {
+      commit.details.author.email
+      |> string.lowercase
+      |> string.contains(query |> string.lowercase)
+    }
   }
 }
 
@@ -886,6 +921,7 @@ fn scrollbar_color(theme: Theme) -> String {
 
 fn files_section(
   maybe_files: option.Option(List(types.ChangesFileItem)),
+  files_filter_query: option.Option(String),
   theme: Theme,
 ) -> element.Element(Msg) {
   case maybe_files {
@@ -905,19 +941,40 @@ fn files_section(
         ],
         [
           html.p([attribute.class("text-xl")], ["files" |> element.text]),
+          html.input([
+            attribute.class(
+              "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 "
+              <> section_bg_class(types.FilesSection, theme),
+            ),
+            attribute.autocomplete("off"),
+            attribute.id("filter-files"),
+            attribute.type_("text"),
+            attribute.placeholder("filter files"),
+            attribute.value(files_filter_query |> option.unwrap("")),
+            event.on_input(types.UserEnteredFilesFilterQuery),
+          ]),
           html.div(
-            [
-              attribute.class("my-2 overflow-x-auto"),
-              attribute.style([
-                #("scrollbar-color", theme |> scrollbar_color),
-                #("scrollbar-width", "thin"),
-              ]),
-            ],
-            files
+            [attribute.class("my-4 overflow-x-auto")],
+            case files_filter_query {
+              option.None -> files
+              option.Some(q) ->
+                files
+                |> list.filter(filter_file_predicate(q))
+            }
               |> list.map(fn(file) { file_details(file, theme) }),
           ),
         ],
       )
+    }
+  }
+}
+
+fn filter_file_predicate(query: String) -> fn(types.ChangesFileItem) -> Bool {
+  fn(file: types.ChangesFileItem) {
+    {
+      file.file_name
+      |> string.lowercase
+      |> string.contains(query |> string.lowercase)
     }
   }
 }
@@ -1022,7 +1079,7 @@ fn navigation_bar(state: types.State, theme: Theme) -> element.Element(Msg) {
     types.WithTagsError(..) -> #(True, True, False, False, False)
     types.WithTags(..) -> #(True, True, True, False, False)
     types.WithChangesError(..) -> #(True, True, True, False, False)
-    types.WithChanges(_, _, _, _, _, _, _, _, changes) ->
+    types.WithChanges(_, _, _, _, _, _, _, _, changes, _, _) ->
       case changes.commits, changes.files {
         [], option.None -> #(True, True, True, False, False)
         [], option.Some([]) -> #(True, True, True, False, False)

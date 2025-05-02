@@ -583,6 +583,11 @@ video {
   margin-bottom: 0.5rem;
 }
 
+.my-4 {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
 .ml-2 {
   margin-left: 0.5rem;
 }
@@ -725,11 +730,6 @@ video {
   --tw-border-opacity: 0.75;
 }
 
-.bg-\[\#068360\] {
-  --tw-bg-opacity: 1;
-  background-color: rgb(6 131 96 / var(--tw-bg-opacity));
-}
-
 .bg-\[\#282828\] {
   --tw-bg-opacity: 1;
   background-color: rgb(40 40 40 / var(--tw-bg-opacity));
@@ -738,6 +738,11 @@ video {
 .bg-\[\#788bff\] {
   --tw-bg-opacity: 1;
   background-color: rgb(120 139 255 / var(--tw-bg-opacity));
+}
+
+.bg-\[\#7ab02d\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(122 176 45 / var(--tw-bg-opacity));
 }
 
 .bg-\[\#7cea9c\] {
@@ -758,11 +763,6 @@ video {
 .bg-\[\#8caaee\] {
   --tw-bg-opacity: 1;
   background-color: rgb(140 170 238 / var(--tw-bg-opacity));
-}
-
-.bg-\[\#995f6a\] {
-  --tw-bg-opacity: 1;
-  background-color: rgb(153 95 106 / var(--tw-bg-opacity));
 }
 
 .bg-\[\#9bb1ff\] {
@@ -793,6 +793,11 @@ video {
 .bg-\[\#affc41\] {
   --tw-bg-opacity: 1;
   background-color: rgb(175 252 65 / var(--tw-bg-opacity));
+}
+
+.bg-\[\#b370e5\] {
+  --tw-bg-opacity: 1;
+  background-color: rgb(179 112 229 / var(--tw-bg-opacity));
 }
 
 .bg-\[\#c77dff\] {
@@ -1235,24 +1240,14 @@ video {
   color: rgb(255 255 255 / var(--tw-text-opacity));
 }
 
-.placeholder-\[\#232634\]::-moz-placeholder {
+.placeholder-\[\#3d3d3d\]::-moz-placeholder {
   --tw-placeholder-opacity: 1;
-  color: rgb(35 38 52 / var(--tw-placeholder-opacity));
+  color: rgb(61 61 61 / var(--tw-placeholder-opacity));
 }
 
-.placeholder-\[\#232634\]::placeholder {
+.placeholder-\[\#3d3d3d\]::placeholder {
   --tw-placeholder-opacity: 1;
-  color: rgb(35 38 52 / var(--tw-placeholder-opacity));
-}
-
-.placeholder-\[\#525252\]::-moz-placeholder {
-  --tw-placeholder-opacity: 1;
-  color: rgb(82 82 82 / var(--tw-placeholder-opacity));
-}
-
-.placeholder-\[\#525252\]::placeholder {
-  --tw-placeholder-opacity: 1;
-  color: rgb(82 82 82 / var(--tw-placeholder-opacity));
+  color: rgb(61 61 61 / var(--tw-placeholder-opacity));
 }
 
 .filter {

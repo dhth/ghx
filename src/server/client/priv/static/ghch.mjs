@@ -5265,7 +5265,7 @@ var WithChangesError = class extends CustomType {
   }
 };
 var WithChanges = class extends CustomType {
-  constructor(user_name, owner_type, repos, repo_filter_query, repo, tags, start_tag, end_tag, changes) {
+  constructor(user_name, owner_type, repos, repo_filter_query, repo, tags, start_tag, end_tag, changes, commits_filter, files_filter) {
     super();
     this.user_name = user_name;
     this.owner_type = owner_type;
@@ -5276,6 +5276,8 @@ var WithChanges = class extends CustomType {
     this.start_tag = start_tag;
     this.end_tag = end_tag;
     this.changes = changes;
+    this.commits_filter = commits_filter;
+    this.files_filter = files_filter;
   }
 };
 var AuthorColorClasses = class extends CustomType {
@@ -5371,6 +5373,18 @@ var ChangesFetched = class extends CustomType {
   }
 };
 var UserRequestedToGoToSection = class extends CustomType {
+  constructor(x0) {
+    super();
+    this[0] = x0;
+  }
+};
+var UserEnteredCommitsFilterQuery = class extends CustomType {
+  constructor(x0) {
+    super();
+    this[0] = x0;
+  }
+};
+var UserEnteredFilesFilterQuery = class extends CustomType {
   constructor(x0) {
     super();
     this[0] = x0;
@@ -5899,6 +5913,8 @@ function display_model(model) {
     let start_tag = $.start_tag;
     let end_tag = $.end_tag;
     let changes = $.changes;
+    let commits_filter = $.commits_filter;
+    let files_filter = $.files_filter;
     _block = toList([
       "- state: WithChanges",
       "- user_name: " + user_name,
@@ -5923,10 +5939,24 @@ function display_model(model) {
       })(),
       "- start_tag: " + start_tag,
       "- end_tag: " + end_tag,
-      "- changes: " + (() => {
+      "- commits: " + (() => {
         let _pipe2 = changes.commits;
         let _pipe$12 = length(_pipe2);
         return to_string(_pipe$12);
+      })(),
+      "- files: " + (() => {
+        let _pipe2 = changes.files;
+        let _pipe$12 = unwrap(_pipe2, toList([]));
+        let _pipe$2 = length(_pipe$12);
+        return to_string(_pipe$2);
+      })(),
+      "- commits_filter: " + (() => {
+        let _pipe2 = commits_filter;
+        return inspect2(_pipe2);
+      })(),
+      "- files_filter: " + (() => {
+        let _pipe2 = files_filter;
+        return inspect2(_pipe2);
       })()
     ]);
   }
@@ -6880,7 +6910,9 @@ function update(model, msg) {
             _record$1.tags,
             _record$1.start_tag,
             _record$1.end_tag,
-            _record$1.changes
+            _record$1.changes,
+            _record$1.commits_filter,
+            _record$1.files_filter
           );
         })(),
         _record.author_color_classes,
@@ -7601,7 +7633,9 @@ function update(model, msg) {
                 tags,
                 start_tag,
                 end_tag,
-                changes
+                changes,
+                new None(),
+                new None()
               ),
               _record.author_color_classes,
               _record.debug
@@ -7618,7 +7652,7 @@ function update(model, msg) {
     } else {
       return zero;
     }
-  } else {
+  } else if (msg instanceof UserRequestedToGoToSection) {
     let section = msg[0];
     return [
       model,
@@ -7628,6 +7662,96 @@ function update(model, msg) {
         return scroll_element_into_view(_pipe$1);
       })()
     ];
+  } else if (msg instanceof UserEnteredCommitsFilterQuery) {
+    let query = msg[0];
+    if (state instanceof WithChanges) {
+      let _block;
+      let $ = (() => {
+        let _pipe = query;
+        return string_length(_pipe);
+      })();
+      if ($ === 0) {
+        _block = new None();
+      } else {
+        let _pipe = query;
+        _block = new Some(_pipe);
+      }
+      let filter3 = _block;
+      return [
+        (() => {
+          let _record = model;
+          return new Model2(
+            _record.config,
+            (() => {
+              let _record$1 = state;
+              return new WithChanges(
+                _record$1.user_name,
+                _record$1.owner_type,
+                _record$1.repos,
+                _record$1.repo_filter_query,
+                _record$1.repo,
+                _record$1.tags,
+                _record$1.start_tag,
+                _record$1.end_tag,
+                _record$1.changes,
+                filter3,
+                _record$1.files_filter
+              );
+            })(),
+            _record.author_color_classes,
+            _record.debug
+          );
+        })(),
+        none()
+      ];
+    } else {
+      return zero;
+    }
+  } else {
+    let query = msg[0];
+    if (state instanceof WithChanges) {
+      let _block;
+      let $ = (() => {
+        let _pipe = query;
+        return string_length(_pipe);
+      })();
+      if ($ === 0) {
+        _block = new None();
+      } else {
+        let _pipe = query;
+        _block = new Some(_pipe);
+      }
+      let filter3 = _block;
+      return [
+        (() => {
+          let _record = model;
+          return new Model2(
+            _record.config,
+            (() => {
+              let _record$1 = state;
+              return new WithChanges(
+                _record$1.user_name,
+                _record$1.owner_type,
+                _record$1.repos,
+                _record$1.repo_filter_query,
+                _record$1.repo,
+                _record$1.tags,
+                _record$1.start_tag,
+                _record$1.end_tag,
+                _record$1.changes,
+                _record$1.commits_filter,
+                filter3
+              );
+            })(),
+            _record.author_color_classes,
+            _record.debug
+          );
+        })(),
+        none()
+      ];
+    } else {
+      return zero;
+    }
   }
 }
 
@@ -7895,9 +8019,9 @@ function section_bg_class(section, theme) {
     } else if (section instanceof TagsSection) {
       return "bg-[#a4f3b3]";
     } else if (section instanceof CommitsSection) {
-      return "bg-[#995f6a]";
+      return "bg-[#b370e5]";
     } else {
-      return "bg-[#068360]";
+      return "bg-[#7ab02d]";
     }
   }
 }
@@ -7954,9 +8078,9 @@ function owner_type_selector(owner_type) {
 function owner_selection_section(user_name, owner_type, fetching_repos, theme) {
   let input_class = (() => {
     if (theme instanceof Dark) {
-      return "text-[#282828] placeholder-[#525252]";
+      return "text-[#282828] placeholder-[#3d3d3d]";
     } else {
-      return "placeholder-[#525252]";
+      return "placeholder-[#3d3d3d]";
     }
   })() + " " + section_bg_class(new OwnerSection(), theme);
   let _block;
@@ -8431,6 +8555,41 @@ function changes_error_section(error, theme) {
     ])
   );
 }
+function filter_commit_predicate(query) {
+  return (commit) => {
+    return (() => {
+      let _pipe = commit.details.message;
+      let _pipe$1 = lowercase(_pipe);
+      return contains_string(
+        _pipe$1,
+        (() => {
+          let _pipe$2 = query;
+          return lowercase(_pipe$2);
+        })()
+      );
+    })() || (() => {
+      let _pipe = commit.details.author.name;
+      let _pipe$1 = lowercase(_pipe);
+      return contains_string(
+        _pipe$1,
+        (() => {
+          let _pipe$2 = query;
+          return lowercase(_pipe$2);
+        })()
+      );
+    })() || (() => {
+      let _pipe = commit.details.author.email;
+      let _pipe$1 = lowercase(_pipe);
+      return contains_string(
+        _pipe$1,
+        (() => {
+          let _pipe$2 = query;
+          return lowercase(_pipe$2);
+        })()
+      );
+    })();
+  };
+}
 function author_color_class(input2, colors, fallback) {
   let hash = simple_hash(input2);
   let _block;
@@ -8533,6 +8692,85 @@ function commit_details(commit, author_color_class_store, theme) {
     ])
   );
 }
+function commits_section(commits, commits_filter_query, start_tag, end_tag, author_color_class_store, theme) {
+  let $ = (() => {
+    let _pipe = commits;
+    return length(_pipe);
+  })();
+  if ($ === 0) {
+    return none2();
+  } else {
+    let _block;
+    if (commits_filter_query instanceof None) {
+      _block = commits;
+    } else {
+      let q = commits_filter_query[0];
+      let _pipe = commits;
+      _block = filter(_pipe, filter_commit_predicate(q));
+    }
+    return div(
+      toList([
+        class$(
+          "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted"
+        ),
+        id(
+          (() => {
+            let _pipe = new CommitsSection();
+            return section_id(_pipe);
+          })()
+        )
+      ]),
+      toList([
+        p(
+          toList([class$("text-xl")]),
+          toList([
+            (() => {
+              let _pipe = "commits " + start_tag + "..." + end_tag;
+              return text(_pipe);
+            })()
+          ])
+        ),
+        input(
+          toList([
+            class$(
+              "mt-4 font-semibold h-8 text-[#232634] placeholder-[#3d3d3d] pl-2 " + section_bg_class(
+                new CommitsSection(),
+                theme
+              )
+            ),
+            autocomplete("off"),
+            id("filter-commits"),
+            type_("text"),
+            placeholder("filter commits"),
+            value(
+              (() => {
+                let _pipe = commits_filter_query;
+                return unwrap(_pipe, "");
+              })()
+            ),
+            on_input(
+              (var0) => {
+                return new UserEnteredCommitsFilterQuery(var0);
+              }
+            )
+          ])
+        ),
+        div(
+          toList([class$("my-4 overflow-x-auto")]),
+          (() => {
+            let _pipe = _block;
+            return map2(
+              _pipe,
+              (commit) => {
+                return commit_details(commit, author_color_class_store, theme);
+              }
+            );
+          })()
+        )
+      ])
+    );
+  }
+}
 function scrollbar_color(theme) {
   if (theme instanceof Dark) {
     return "#a594f940 #282828";
@@ -8591,7 +8829,7 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
       input(
         toList([
           class$(
-            "mt-4 font-semibold h-8 text-[#232634] placeholder-[#232634] pl-2 " + filter_class
+            "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 " + filter_class
           ),
           autocomplete("off"),
           id("filter-repos"),
@@ -8658,65 +8896,18 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
     ])
   );
 }
-function commits_section(commits, start_tag, end_tag, author_color_class_store, theme) {
-  let $ = (() => {
-    let _pipe = commits;
-    return length(_pipe);
-  })();
-  if ($ === 0) {
-    return none2();
-  } else {
-    return div(
-      toList([
-        class$(
-          "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted"
-        ),
-        id(
-          (() => {
-            let _pipe = new CommitsSection();
-            return section_id(_pipe);
-          })()
-        )
-      ]),
-      toList([
-        p(
-          toList([class$("text-xl")]),
-          toList([
-            (() => {
-              let _pipe = "commits " + start_tag + "..." + end_tag;
-              return text(_pipe);
-            })()
-          ])
-        ),
-        div(
-          toList([
-            class$("mt-2 overflow-x-auto"),
-            style(
-              toList([
-                [
-                  "scrollbar-color",
-                  (() => {
-                    let _pipe = theme;
-                    return scrollbar_color(_pipe);
-                  })()
-                ],
-                ["scrollbar-width", "thin"]
-              ])
-            )
-          ]),
-          (() => {
-            let _pipe = commits;
-            return map2(
-              _pipe,
-              (commit) => {
-                return commit_details(commit, author_color_class_store, theme);
-              }
-            );
-          })()
-        )
-      ])
+function filter_file_predicate(query) {
+  return (file) => {
+    let _pipe = file.file_name;
+    let _pipe$1 = lowercase(_pipe);
+    return contains_string(
+      _pipe$1,
+      (() => {
+        let _pipe$2 = query;
+        return lowercase(_pipe$2);
+      })()
     );
-  }
+  };
 }
 function file_status(status, theme) {
   let _block;
@@ -8859,13 +9050,21 @@ function file_details(file, theme) {
     ])
   );
 }
-function files_section(maybe_files, theme) {
+function files_section(maybe_files, files_filter_query, theme) {
   if (maybe_files instanceof None) {
     return none2();
   } else if (maybe_files instanceof Some && maybe_files[0].hasLength(0)) {
     return none2();
   } else {
     let files = maybe_files[0];
+    let _block;
+    if (files_filter_query instanceof None) {
+      _block = files;
+    } else {
+      let q = files_filter_query[0];
+      let _pipe = files;
+      _block = filter(_pipe, filter_file_predicate(q));
+    }
     return div(
       toList([
         class$(
@@ -8900,24 +9099,35 @@ function files_section(maybe_files, theme) {
             })()
           ])
         ),
-        div(
+        input(
           toList([
-            class$("my-2 overflow-x-auto"),
-            style(
-              toList([
-                [
-                  "scrollbar-color",
-                  (() => {
-                    let _pipe = theme;
-                    return scrollbar_color(_pipe);
-                  })()
-                ],
-                ["scrollbar-width", "thin"]
-              ])
+            class$(
+              "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 " + section_bg_class(
+                new FilesSection(),
+                theme
+              )
+            ),
+            autocomplete("off"),
+            id("filter-files"),
+            type_("text"),
+            placeholder("filter files"),
+            value(
+              (() => {
+                let _pipe = files_filter_query;
+                return unwrap(_pipe, "");
+              })()
+            ),
+            on_input(
+              (var0) => {
+                return new UserEnteredFilesFilterQuery(var0);
+              }
             )
-          ]),
+          ])
+        ),
+        div(
+          toList([class$("my-4 overflow-x-auto")]),
           (() => {
-            let _pipe = files;
+            let _pipe = _block;
             return map2(
               _pipe,
               (file) => {
@@ -9288,6 +9498,8 @@ function main_section(model) {
         let start_tag = $.start_tag;
         let end_tag = $.end_tag;
         let changes = $.changes;
+        let commits_filter = $.commits_filter;
+        let files_filter = $.files_filter;
         return toList([
           (() => {
             let _pipe = theme;
@@ -9328,6 +9540,7 @@ function main_section(model) {
             let _pipe = changes.commits;
             return commits_section(
               _pipe,
+              commits_filter,
               start_tag,
               end_tag,
               (() => {
@@ -9342,7 +9555,7 @@ function main_section(model) {
           })(),
           (() => {
             let _pipe = changes.files;
-            return files_section(_pipe, theme);
+            return files_section(_pipe, files_filter, theme);
           })(),
           (() => {
             let _pipe = model.state;
