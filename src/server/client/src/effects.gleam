@@ -2,7 +2,10 @@ import constants
 import gleam/string
 import lustre/effect
 import lustre_http
+import plinth/browser/document
+import plinth/browser/element
 import plinth/browser/window
+import plinth/javascript/global
 import types
 
 const dev = True
@@ -101,4 +104,23 @@ fn changelog_endpoint(
     start_tag <> "..." <> end_tag,
   ]
   |> string.join("/")
+}
+
+pub fn scroll_element_into_view(id: String) -> effect.Effect(types.Msg) {
+  let scroll_fn = fn() {
+    case id |> document.get_element_by_id {
+      Error(_) -> Nil
+      Ok(e) -> {
+        e |> element.scroll_into_view
+      }
+    }
+  }
+
+  fn(_) {
+    // the timeout is needed to let the lustre runtime render the latest view
+    // maybe there's a nicer way to do this
+    global.set_timeout(100, scroll_fn)
+    Nil
+  }
+  |> effect.from
 }

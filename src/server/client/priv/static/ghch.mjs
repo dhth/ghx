@@ -4761,6 +4761,20 @@ function expect_json(decoder, to_msg) {
   );
 }
 
+// build/dev/javascript/plinth/document_ffi.mjs
+function getElementById(id2) {
+  let found = document.getElementById(id2);
+  if (!found) {
+    return new Error();
+  }
+  return new Ok(found);
+}
+
+// build/dev/javascript/plinth/element_ffi.mjs
+function scrollIntoView(element2) {
+  element2.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
 // build/dev/javascript/plinth/window_ffi.mjs
 function self() {
   return globalThis;
@@ -4896,6 +4910,11 @@ async function import_(string6) {
   } catch (error) {
     return new Error(error.toString());
   }
+}
+
+// build/dev/javascript/plinth/global_ffi.mjs
+function setTimeout(delay, callback) {
+  return globalThis.setTimeout(callback, delay);
 }
 
 // build/dev/javascript/ghch/utils.mjs
@@ -5655,6 +5674,26 @@ function display_model(model) {
 }
 
 // build/dev/javascript/ghch/effects.mjs
+function scroll_element_into_view(id2) {
+  let scroll_fn = () => {
+    let $ = (() => {
+      let _pipe2 = id2;
+      return getElementById(_pipe2);
+    })();
+    if (!$.isOk()) {
+      return void 0;
+    } else {
+      let e = $[0];
+      let _pipe2 = e;
+      return scrollIntoView(_pipe2);
+    }
+  };
+  let _pipe = (_) => {
+    setTimeout(100, scroll_fn);
+    return void 0;
+  };
+  return from(_pipe);
+}
 var dev = true;
 function base_url() {
   let $ = public$;
@@ -7160,7 +7199,7 @@ function update(model, msg) {
               _record.debug
             );
           })(),
-          none()
+          scroll_element_into_view("changes-section")
         ];
       }
     } else {
@@ -7628,122 +7667,6 @@ function repo_select_button(repo, selected2, theme) {
     toList([text(repo.name)])
   );
 }
-function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, theme) {
-  let _block;
-  if (theme instanceof Dark) {
-    _block = "bg-[#8caaee]";
-  } else {
-    _block = "bg-[#ff9fb2]";
-  }
-  let filter_class = _block;
-  let _block$1;
-  if (theme instanceof Dark) {
-    _block$1 = "#a594f940 #282828";
-  } else {
-    _block$1 = "#a594f940 #ffffff";
-  }
-  let scrollbar_color = _block$1;
-  let _block$2;
-  if (maybe_filter_query instanceof None) {
-    _block$2 = repos;
-  } else {
-    let filter_query = maybe_filter_query[0];
-    let _pipe = repos;
-    _block$2 = filter(
-      _pipe,
-      (repo) => {
-        let _pipe$1 = repo.name;
-        let _pipe$2 = lowercase(_pipe$1);
-        return contains_string(
-          _pipe$2,
-          (() => {
-            let _pipe$3 = filter_query;
-            return lowercase(_pipe$3);
-          })()
-        );
-      }
-    );
-  }
-  return div(
-    toList([
-      class$(
-        "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50\n        border-dotted"
-      )
-    ]),
-    toList([
-      p(
-        toList([class$("text-xl")]),
-        toList([
-          (() => {
-            let _pipe = "repos";
-            return text(_pipe);
-          })()
-        ])
-      ),
-      input(
-        toList([
-          class$(
-            "mt-4 font-semibold h-8 text-[#232634] placeholder-[#232634] pl-2 " + filter_class
-          ),
-          autocomplete("off"),
-          id("filter-repos"),
-          type_("text"),
-          placeholder("filter repos"),
-          value(
-            (() => {
-              let _pipe = maybe_filter_query;
-              return unwrap(_pipe, "");
-            })()
-          ),
-          on_input(
-            (var0) => {
-              return new UserEnteredRepoFilterQuery(var0);
-            }
-          )
-        ])
-      ),
-      div(
-        toList([
-          class$("flex-wrap mt-2 overflow-y-scroll max-h-60"),
-          style(
-            toList([
-              ["scrollbar-color", scrollbar_color],
-              ["scrollbar-width", "thin"]
-            ])
-          )
-        ]),
-        (() => {
-          let _pipe = _block$2;
-          let _pipe$1 = sort(
-            _pipe,
-            (a2, b) => {
-              return compare3(a2.name, b.name);
-            }
-          );
-          return map2(
-            _pipe$1,
-            (repo) => {
-              return repo_select_button(
-                repo,
-                (() => {
-                  let _pipe$2 = maybe_selected_repo;
-                  let _pipe$3 = map(
-                    _pipe$2,
-                    (r) => {
-                      return r === repo.name;
-                    }
-                  );
-                  return unwrap(_pipe$3, false);
-                })(),
-                theme
-              );
-            }
-          );
-        })()
-      )
-    ])
-  );
-}
 function fetching_tags_message(fetching_tags) {
   if (!fetching_tags) {
     return none2();
@@ -8087,6 +8010,128 @@ function commit_details(commit, theme) {
     ])
   );
 }
+function scrollbar_color(theme) {
+  if (theme instanceof Dark) {
+    return "#a594f940 #282828";
+  } else {
+    return "#a594f940 #ffffff";
+  }
+}
+function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, theme) {
+  let _block;
+  if (theme instanceof Dark) {
+    _block = "bg-[#8caaee]";
+  } else {
+    _block = "bg-[#ff9fb2]";
+  }
+  let filter_class = _block;
+  let _block$1;
+  if (maybe_filter_query instanceof None) {
+    _block$1 = repos;
+  } else {
+    let filter_query = maybe_filter_query[0];
+    let _pipe = repos;
+    _block$1 = filter(
+      _pipe,
+      (repo) => {
+        let _pipe$1 = repo.name;
+        let _pipe$2 = lowercase(_pipe$1);
+        return contains_string(
+          _pipe$2,
+          (() => {
+            let _pipe$3 = filter_query;
+            return lowercase(_pipe$3);
+          })()
+        );
+      }
+    );
+  }
+  return div(
+    toList([
+      class$(
+        "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50\n        border-dotted"
+      )
+    ]),
+    toList([
+      p(
+        toList([class$("text-xl")]),
+        toList([
+          (() => {
+            let _pipe = "repos";
+            return text(_pipe);
+          })()
+        ])
+      ),
+      input(
+        toList([
+          class$(
+            "mt-4 font-semibold h-8 text-[#232634] placeholder-[#232634] pl-2 " + filter_class
+          ),
+          autocomplete("off"),
+          id("filter-repos"),
+          type_("text"),
+          placeholder("filter repos"),
+          value(
+            (() => {
+              let _pipe = maybe_filter_query;
+              return unwrap(_pipe, "");
+            })()
+          ),
+          on_input(
+            (var0) => {
+              return new UserEnteredRepoFilterQuery(var0);
+            }
+          )
+        ])
+      ),
+      div(
+        toList([
+          class$("flex-wrap mt-2 overflow-y-scroll max-h-60"),
+          style(
+            toList([
+              [
+                "scrollbar-color",
+                (() => {
+                  let _pipe = theme;
+                  return scrollbar_color(_pipe);
+                })()
+              ],
+              ["scrollbar-width", "thin"]
+            ])
+          )
+        ]),
+        (() => {
+          let _pipe = _block$1;
+          let _pipe$1 = sort(
+            _pipe,
+            (a2, b) => {
+              return compare3(a2.name, b.name);
+            }
+          );
+          return map2(
+            _pipe$1,
+            (repo) => {
+              return repo_select_button(
+                repo,
+                (() => {
+                  let _pipe$2 = maybe_selected_repo;
+                  let _pipe$3 = map(
+                    _pipe$2,
+                    (r) => {
+                      return r === repo.name;
+                    }
+                  );
+                  return unwrap(_pipe$3, false);
+                })(),
+                theme
+              );
+            }
+          );
+        })()
+      )
+    ])
+  );
+}
 function changes_section(changes, start_tag, end_tag, theme) {
   return div(
     toList([
@@ -8108,6 +8153,18 @@ function changes_section(changes, start_tag, end_tag, theme) {
       div(
         toList([
           class$("mt-4 overflow-x-auto"),
+          style(
+            toList([
+              [
+                "scrollbar-color",
+                (() => {
+                  let _pipe = theme;
+                  return scrollbar_color(_pipe);
+                })()
+              ],
+              ["scrollbar-width", "thin"]
+            ])
+          ),
           id("changes-section")
         ]),
         (() => {
