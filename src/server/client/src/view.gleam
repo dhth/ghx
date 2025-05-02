@@ -775,7 +775,9 @@ fn commit_details(
     |> result.unwrap(" ")
 
   html.p([attribute.class("flex gap-4 items-center whitespace-nowrap mb-1")], [
-    html.span([attribute.class(sha_class)], [commit_hash |> element.text]),
+    html.a([attribute.href(commit.html_url), attribute.target("_blank")], [
+      html.span([attribute.class(sha_class)], [commit_hash |> element.text]),
+    ]),
     html.span([attribute.class(message_class)], [
       commit_message_heading |> element.text,
     ]),

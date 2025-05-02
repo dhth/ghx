@@ -124,13 +124,18 @@ fn changelog_commit_details_decoder() -> decode.Decoder(ChangelogCommitDetails) 
 }
 
 pub type ChangelogCommit {
-  ChangelogCommit(sha: String, details: ChangelogCommitDetails)
+  ChangelogCommit(
+    sha: String,
+    details: ChangelogCommitDetails,
+    html_url: String,
+  )
 }
 
 fn changelog_commit_decoder() -> decode.Decoder(ChangelogCommit) {
   use sha <- decode.field("sha", decode.string)
   use details <- decode.field("commit", changelog_commit_details_decoder())
-  decode.success(ChangelogCommit(sha:, details:))
+  use html_url <- decode.field("html_url", decode.string)
+  decode.success(ChangelogCommit(sha:, details:, html_url:))
 }
 
 pub type ChangesResponse {

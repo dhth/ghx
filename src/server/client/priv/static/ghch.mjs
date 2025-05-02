@@ -183,15 +183,15 @@ var BitArray = class {
       }
     } else {
       for (let i = 0; i < wholeByteCount; i++) {
-        const a = bitArrayByteAt(this.rawBuffer, this.bitOffset, i);
+        const a2 = bitArrayByteAt(this.rawBuffer, this.bitOffset, i);
         const b = bitArrayByteAt(other.rawBuffer, other.bitOffset, i);
-        if (a !== b) {
+        if (a2 !== b) {
           return false;
         }
       }
       const trailingBitsCount = this.bitSize % 8;
       if (trailingBitsCount) {
-        const a = bitArrayByteAt(
+        const a2 = bitArrayByteAt(
           this.rawBuffer,
           this.bitOffset,
           wholeByteCount
@@ -202,7 +202,7 @@ var BitArray = class {
           wholeByteCount
         );
         const unusedLowBitCount = 8 - trailingBitsCount;
-        if (a >> unusedLowBitCount !== b >> unusedLowBitCount) {
+        if (a2 >> unusedLowBitCount !== b >> unusedLowBitCount) {
           return false;
         }
       }
@@ -252,9 +252,9 @@ function bitArrayByteAt(buffer, bitOffset, index5) {
   if (bitOffset === 0) {
     return buffer[index5] ?? 0;
   } else {
-    const a = buffer[index5] << bitOffset & 255;
+    const a2 = buffer[index5] << bitOffset & 255;
     const b = buffer[index5 + 1] >> 8 - bitOffset;
-    return a | b;
+    return a2 | b;
   }
 }
 var UtfCodepoint = class {
@@ -301,23 +301,23 @@ var Error = class extends Result {
 function isEqual(x, y) {
   let values2 = [x, y];
   while (values2.length) {
-    let a = values2.pop();
+    let a2 = values2.pop();
     let b = values2.pop();
-    if (a === b) continue;
-    if (!isObject(a) || !isObject(b)) return false;
-    let unequal = !structurallyCompatibleObjects(a, b) || unequalDates(a, b) || unequalBuffers(a, b) || unequalArrays(a, b) || unequalMaps(a, b) || unequalSets(a, b) || unequalRegExps(a, b);
+    if (a2 === b) continue;
+    if (!isObject(a2) || !isObject(b)) return false;
+    let unequal = !structurallyCompatibleObjects(a2, b) || unequalDates(a2, b) || unequalBuffers(a2, b) || unequalArrays(a2, b) || unequalMaps(a2, b) || unequalSets(a2, b) || unequalRegExps(a2, b);
     if (unequal) return false;
-    const proto = Object.getPrototypeOf(a);
+    const proto = Object.getPrototypeOf(a2);
     if (proto !== null && typeof proto.equals === "function") {
       try {
-        if (a.equals(b)) continue;
+        if (a2.equals(b)) continue;
         else return false;
       } catch {
       }
     }
-    let [keys2, get2] = getters(a);
-    for (let k of keys2(a)) {
-      values2.push(get2(a, k), get2(b, k));
+    let [keys2, get2] = getters(a2);
+    for (let k of keys2(a2)) {
+      values2.push(get2(a2, k), get2(b, k));
     }
   }
   return true;
@@ -330,33 +330,33 @@ function getters(object3) {
     return [(x) => [...extra, ...Object.keys(x)], (x, y) => x[y]];
   }
 }
-function unequalDates(a, b) {
-  return a instanceof Date && (a > b || a < b);
+function unequalDates(a2, b) {
+  return a2 instanceof Date && (a2 > b || a2 < b);
 }
-function unequalBuffers(a, b) {
-  return !(a instanceof BitArray) && a.buffer instanceof ArrayBuffer && a.BYTES_PER_ELEMENT && !(a.byteLength === b.byteLength && a.every((n, i) => n === b[i]));
+function unequalBuffers(a2, b) {
+  return !(a2 instanceof BitArray) && a2.buffer instanceof ArrayBuffer && a2.BYTES_PER_ELEMENT && !(a2.byteLength === b.byteLength && a2.every((n, i) => n === b[i]));
 }
-function unequalArrays(a, b) {
-  return Array.isArray(a) && a.length !== b.length;
+function unequalArrays(a2, b) {
+  return Array.isArray(a2) && a2.length !== b.length;
 }
-function unequalMaps(a, b) {
-  return a instanceof Map && a.size !== b.size;
+function unequalMaps(a2, b) {
+  return a2 instanceof Map && a2.size !== b.size;
 }
-function unequalSets(a, b) {
-  return a instanceof Set && (a.size != b.size || [...a].some((e) => !b.has(e)));
+function unequalSets(a2, b) {
+  return a2 instanceof Set && (a2.size != b.size || [...a2].some((e) => !b.has(e)));
 }
-function unequalRegExps(a, b) {
-  return a instanceof RegExp && (a.source !== b.source || a.flags !== b.flags);
+function unequalRegExps(a2, b) {
+  return a2 instanceof RegExp && (a2.source !== b.source || a2.flags !== b.flags);
 }
-function isObject(a) {
-  return typeof a === "object" && a !== null;
+function isObject(a2) {
+  return typeof a2 === "object" && a2 !== null;
 }
-function structurallyCompatibleObjects(a, b) {
-  if (typeof a !== "object" && typeof b !== "object" && (!a || !b))
+function structurallyCompatibleObjects(a2, b) {
+  if (typeof a2 !== "object" && typeof b !== "object" && (!a2 || !b))
     return false;
   let nonstructural = [Promise, WeakSet, WeakMap, Function];
-  if (nonstructural.some((c) => a instanceof c)) return false;
-  return a.constructor === b.constructor;
+  if (nonstructural.some((c) => a2 instanceof c)) return false;
+  return a2.constructor === b.constructor;
 }
 function makeError(variant, module, line, fn, message, extra) {
   let error = new globalThis.Error(message);
@@ -394,8 +394,8 @@ function is_none(option2) {
 }
 function to_result(option2, e) {
   if (option2 instanceof Some) {
-    let a = option2[0];
-    return new Ok(a);
+    let a2 = option2[0];
+    return new Ok(a2);
   } else {
     return new Error(e);
   }
@@ -442,8 +442,8 @@ function hashByReference(o) {
   referenceMap.set(o, hash);
   return hash;
 }
-function hashMerge(a, b) {
-  return a ^ b + 2654435769 + (a << 6) + (a >> 2) | 0;
+function hashMerge(a2, b) {
+  return a2 ^ b + 2654435769 + (a2 << 6) + (a2 >> 2) | 0;
 }
 function hashString(s) {
   let hash = 0;
@@ -1200,8 +1200,8 @@ function pop_codeunit(str) {
 function lowercase(string6) {
   return string6.toLowerCase();
 }
-function less_than(a, b) {
-  return a < b;
+function less_than(a2, b) {
+  return a2 < b;
 }
 function split(xs, pattern) {
   return List.fromArray(xs.split(pattern));
@@ -1970,12 +1970,12 @@ function sort(list3, compare4) {
 }
 
 // build/dev/javascript/gleam_stdlib/gleam/string.mjs
-function compare3(a, b) {
-  let $ = a === b;
+function compare3(a2, b) {
+  let $ = a2 === b;
   if ($) {
     return new Eq();
   } else {
-    let $1 = less_than(a, b);
+    let $1 = less_than(a2, b);
     if ($1) {
       return new Lt();
     } else {
@@ -2839,6 +2839,12 @@ function name(name2) {
 function for$(id2) {
   return attribute("for", id2);
 }
+function href(uri) {
+  return attribute("href", uri);
+}
+function target(target3) {
+  return attribute("target", target3);
+}
 
 // build/dev/javascript/lustre/lustre/element.mjs
 function element(tag, attrs, children2) {
@@ -3042,7 +3048,7 @@ function createElementNode({ prev, next, dispatch, stack }) {
     handlersForEl = registeredHandlers.get(el);
   }
   const prevHandlers = canMorph ? new Set(handlersForEl.keys()) : null;
-  const prevAttributes = canMorph ? new Set(Array.from(prev.attributes, (a) => a.name)) : null;
+  const prevAttributes = canMorph ? new Set(Array.from(prev.attributes, (a2) => a2.name)) : null;
   let className = null;
   let style2 = null;
   let innerHTML = null;
@@ -3163,14 +3169,14 @@ function createElementNode({ prev, next, dispatch, stack }) {
 }
 var registeredHandlers = /* @__PURE__ */ new WeakMap();
 function lustreGenericEventHandler(event2) {
-  const target2 = event2.currentTarget;
-  if (!registeredHandlers.has(target2)) {
-    target2.removeEventListener(event2.type, lustreGenericEventHandler);
+  const target3 = event2.currentTarget;
+  if (!registeredHandlers.has(target3)) {
+    target3.removeEventListener(event2.type, lustreGenericEventHandler);
     return;
   }
-  const handlersForEventTarget = registeredHandlers.get(target2);
+  const handlersForEventTarget = registeredHandlers.get(target3);
   if (!handlersForEventTarget.has(event2.type)) {
-    target2.removeEventListener(event2.type, lustreGenericEventHandler);
+    target3.removeEventListener(event2.type, lustreGenericEventHandler);
     return;
   }
   handlersForEventTarget.get(event2.type)(event2);
@@ -4553,9 +4559,9 @@ function tap(promise, callback) {
   let _pipe = promise;
   return map_promise(
     _pipe,
-    (a) => {
-      callback(a);
-      return a;
+    (a2) => {
+      callback(a2);
+      return a2;
     }
   );
 }
@@ -4565,8 +4571,8 @@ function try_await(promise, callback) {
     _pipe,
     (result) => {
       if (result.isOk()) {
-        let a = result[0];
-        return callback(a);
+        let a2 = result[0];
+        return callback(a2);
       } else {
         let e = result[0];
         return resolve(new Error(e));
@@ -4855,9 +4861,9 @@ function scrollX(w) {
 function scrollY(w) {
   return w.scrollY;
 }
-function open(url, target2, features) {
+function open(url, target3, features) {
   try {
-    return new Ok(window.open(url, target2, features));
+    return new Ok(window.open(url, target3, features));
   } catch (error) {
     return new Error(error.toString());
   }
@@ -4993,10 +4999,11 @@ var ChangelogCommitDetails = class extends CustomType {
   }
 };
 var ChangelogCommit = class extends CustomType {
-  constructor(sha, details) {
+  constructor(sha, details, html_url) {
     super();
     this.sha = sha;
     this.details = details;
+    this.html_url = html_url;
   }
 };
 var ChangelogResponse = class extends CustomType {
@@ -5330,7 +5337,15 @@ function changelog_commit_decoder() {
         "commit",
         changelog_commit_details_decoder(),
         (details) => {
-          return success(new ChangelogCommit(sha, details));
+          return field2(
+            "html_url",
+            string4,
+            (html_url) => {
+              return success(
+                new ChangelogCommit(sha, details, html_url)
+              );
+            }
+          );
         }
       );
     }
@@ -7167,6 +7182,9 @@ function p(attrs, children2) {
 function pre(attrs, children2) {
   return element("pre", attrs, children2);
 }
+function a(attrs, children2) {
+  return element("a", attrs, children2);
+}
 function span(attrs, children2) {
   return element("span", attrs, children2);
 }
@@ -7698,8 +7716,8 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
           let _pipe = _block$2;
           let _pipe$1 = sort(
             _pipe,
-            (a, b) => {
-              return compare3(a.name, b.name);
+            (a2, b) => {
+              return compare3(a2.name, b.name);
             }
           );
           return map2(
@@ -8034,13 +8052,18 @@ function commit_details(commit, theme) {
   return p(
     toList([class$("flex gap-4 items-center whitespace-nowrap mb-1")]),
     toList([
-      span(
-        toList([class$(sha_class)]),
+      a(
+        toList([href(commit.html_url), target("_blank")]),
         toList([
-          (() => {
-            let _pipe$3 = commit_hash;
-            return text(_pipe$3);
-          })()
+          span(
+            toList([class$(sha_class)]),
+            toList([
+              (() => {
+                let _pipe$3 = commit_hash;
+                return text(_pipe$3);
+              })()
+            ])
+          )
         ])
       ),
       span(
