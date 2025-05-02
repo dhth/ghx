@@ -88,6 +88,7 @@ fn main_section(model: Model) -> element.Element(Msg) {
         fetching_repos,
         theme,
       ),
+      fetching_repos |> fetching_repos_section,
     ]
     types.WithReposError(user_name, owner_type, error) -> [
       theme |> heading,
@@ -120,7 +121,7 @@ fn main_section(model: Model) -> element.Element(Msg) {
         maybe_selected_repo,
         theme,
       ),
-      fetching_tags |> fetching_tags_message,
+      fetching_tags |> fetching_tags_section,
     ]
     types.WithTagsError(
       user_name,
@@ -451,6 +452,25 @@ fn repos_error_section(
   )
 }
 
+fn fetching_repos_section(fetching_repos: Bool) -> element.Element(Msg) {
+  case fetching_repos {
+    False -> element.none()
+    True ->
+      html.div(
+        [
+          attribute.class(
+            "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted",
+          ),
+        ],
+        [
+          html.p([attribute.class("text-xl")], [
+            "fetching repos ..." |> element.text,
+          ]),
+        ],
+      )
+  }
+}
+
 fn repo_selection_section(
   repos: List(types.Repo),
   maybe_filter_query: option.Option(String),
@@ -465,9 +485,9 @@ fn repo_selection_section(
   html.div(
     [
       attribute.class(
-        "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50
-        border-dotted",
+        "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted",
       ),
+      attribute.id("repos-section"),
     ],
     [
       html.p([attribute.class("text-xl")], ["repos" |> element.text]),
@@ -540,10 +560,22 @@ fn repo_select_button(
   )
 }
 
-fn fetching_tags_message(fetching_tags: Bool) -> element.Element(Msg) {
+fn fetching_tags_section(fetching_tags: Bool) -> element.Element(Msg) {
   case fetching_tags {
     False -> element.none()
-    True -> html.p([attribute.class("mt-6")], ["fetching tags" |> element.text])
+    True ->
+      html.div(
+        [
+          attribute.class(
+            "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted",
+          ),
+        ],
+        [
+          html.p([attribute.class("text-xl")], [
+            "fetching tags ..." |> element.text,
+          ]),
+        ],
+      )
   }
 }
 
@@ -585,66 +617,64 @@ fn tags_select_section(
   fetching_changelog: Bool,
   theme: Theme,
 ) -> element.Element(Msg) {
-  case tags |> list.length {
-    0 -> {
-      let message_class = case theme {
-        types.Dark -> "text-[#ff9500]"
-        types.Light -> "text-[#fa4c58]"
+  html.div(
+    [
+      attribute.class(
+        "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted",
+      ),
+      attribute.id("tags-section"),
+    ],
+    case tags |> list.length {
+      0 -> {
+        [
+          html.p([attribute.class("text-xl")], [
+            "repo has no tags" |> element.text,
+          ]),
+        ]
       }
-      html.p([attribute.class("mt-6 " <> message_class)], [
-        "repo has no tags" |> element.text,
-      ])
-    }
-    _ ->
-      html.div(
-        [
-          attribute.class(
-            "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted",
-          ),
-        ],
-        [
-          html.p([attribute.class("text-xl")], ["tags" |> element.text]),
-          html.div(
-            [attribute.class("mt-4 flex flex-wrap gap-2 items-center")],
-            case start_tag, end_tag {
-              option.None, _ -> [
+      _ -> [
+        html.p([attribute.class("text-xl")], ["tags" |> element.text]),
+        html.div(
+          [attribute.class("mt-4 flex flex-wrap gap-2 items-center")],
+          case start_tag, end_tag {
+            option.None, _ -> [
+              tags
+              |> tag_select(Start, start_tag, theme),
+            ]
+            option.Some(_), option.None -> [
+              tags |> tag_select(Start, start_tag, theme),
+              tags
+                |> tag_select(End, end_tag, theme),
+            ]
+            option.Some(_), option.Some(_) -> {
+              let button_class = case theme {
+                types.Dark -> "bg-[#80ed99] text-[#282828]"
+                types.Light -> "bg-[#a4f3b3] text-[#282828]"
+              }
+              [
                 tags
-                |> tag_select(Start, start_tag, theme),
-              ]
-              option.Some(_), option.None -> [
-                tags |> tag_select(Start, start_tag, theme),
+                  |> tag_select(Start, start_tag, theme),
                 tags
                   |> tag_select(End, end_tag, theme),
+                html.button(
+                  [
+                    attribute.id("fetch-changes"),
+                    attribute.class(
+                      "px-4 py-1 font-semibold disabled:bg-[#a89984] "
+                      <> button_class,
+                    ),
+                    attribute.disabled(fetching_changelog),
+                    event.on_click(types.UserRequestedChangelog),
+                  ],
+                  [element.text("fetch changes")],
+                ),
               ]
-              option.Some(_), option.Some(_) -> {
-                let button_class = case theme {
-                  types.Dark -> "bg-[#80ed99] text-[#282828]"
-                  types.Light -> "bg-[#a4f3b3] text-[#282828]"
-                }
-                [
-                  tags
-                    |> tag_select(Start, start_tag, theme),
-                  tags
-                    |> tag_select(End, end_tag, theme),
-                  html.button(
-                    [
-                      attribute.id("fetch-changes"),
-                      attribute.class(
-                        "px-4 py-1 font-semibold disabled:bg-[#a89984] "
-                        <> button_class,
-                      ),
-                      attribute.disabled(fetching_changelog),
-                      event.on_click(types.UserRequestedChangelog),
-                    ],
-                    [element.text("fetch changes")],
-                  ),
-                ]
-              }
-            },
-          ),
-        ],
-      )
-  }
+            }
+          },
+        ),
+      ]
+    },
+  )
 }
 
 fn tag_select(
@@ -738,13 +768,8 @@ fn commits_section(
   html.div(
     [
       attribute.class(
-        "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50
-        border-dotted overflow-y-scroll max-h-screen",
+        "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted",
       ),
-      attribute.style([
-        #("scrollbar-color", theme |> scrollbar_color),
-        #("scrollbar-width", "thin"),
-      ]),
       attribute.id("commits-section"),
     ],
     [
@@ -753,7 +778,7 @@ fn commits_section(
       ]),
       html.div(
         [
-          attribute.class("mt-4 overflow-x-auto"),
+          attribute.class("mt-2 overflow-x-auto"),
           attribute.style([
             #("scrollbar-color", theme |> scrollbar_color),
             #("scrollbar-width", "thin"),
@@ -838,7 +863,7 @@ fn files_section(
       html.div(
         [
           attribute.class(
-            "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted overflow-y-scroll max-h-screen",
+            "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted",
           ),
           attribute.style([
             #("scrollbar-color", theme |> scrollbar_color),
