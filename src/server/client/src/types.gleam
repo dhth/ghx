@@ -347,6 +347,28 @@ fn get_author_color_classes() -> AuthorColorClasses {
   )
 }
 
+pub type Section {
+  OwnerSection
+  ReposSection
+  TagsSection
+  CommitsSection
+  FilesSection
+}
+
+pub fn section_to_string(section: Section) -> String {
+  case section {
+    OwnerSection -> "owner"
+    ReposSection -> "repos"
+    TagsSection -> "tags"
+    CommitsSection -> "commits"
+    FilesSection -> "files"
+  }
+}
+
+pub fn section_id(section: Section) -> String {
+  { section |> section_to_string } <> "-section"
+}
+
 pub type Model {
   Model(
     config: Config,
@@ -396,6 +418,7 @@ pub type Msg {
   ChangesFetched(
     #(String, String, Result(ChangesResponse, lustre_http.HttpError)),
   )
+  UserRequestedToGoToSection(Section)
 }
 
 pub fn display_config(config: Config) -> String {

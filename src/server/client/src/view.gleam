@@ -57,7 +57,7 @@ fn debug_section(model: Model) -> element.Element(Msg) {
               attribute.class(
                 "mt-2 p-4 border-2 border-opacity-50 text-wrap " <> div_class,
               ),
-              attribute.id("changes"),
+              attribute.id("debug-section"),
             ],
             [
               model
@@ -82,23 +82,25 @@ fn main_section(model: Model) -> element.Element(Msg) {
     ]
     types.ConfigLoaded(maybe_user_name, owner_type, fetching_repos) -> [
       theme |> heading,
-      username_selection_section(
+      owner_selection_section(
         maybe_user_name,
         owner_type,
         fetching_repos,
         theme,
       ),
       fetching_repos |> fetching_repos_section,
+      model.state |> navigation_bar(theme),
     ]
     types.WithReposError(user_name, owner_type, error) -> [
       theme |> heading,
-      username_selection_section(
+      owner_selection_section(
         user_name |> option.Some,
         owner_type,
         False,
         theme,
       ),
       error |> repos_error_section(owner_type, theme),
+      model.state |> navigation_bar(theme),
     ]
     types.WithRepos(
       user_name,
@@ -109,7 +111,7 @@ fn main_section(model: Model) -> element.Element(Msg) {
       maybe_selected_repo,
     ) -> [
       theme |> heading,
-      username_selection_section(
+      owner_selection_section(
         user_name |> option.Some,
         owner_type,
         False,
@@ -122,6 +124,7 @@ fn main_section(model: Model) -> element.Element(Msg) {
         theme,
       ),
       fetching_tags |> fetching_tags_section,
+      model.state |> navigation_bar(theme),
     ]
     types.WithTagsError(
       user_name,
@@ -132,7 +135,7 @@ fn main_section(model: Model) -> element.Element(Msg) {
       error,
     ) -> [
       theme |> heading,
-      username_selection_section(
+      owner_selection_section(
         user_name |> option.Some,
         owner_type,
         False,
@@ -145,6 +148,7 @@ fn main_section(model: Model) -> element.Element(Msg) {
         theme,
       ),
       error |> tags_error_section(theme),
+      model.state |> navigation_bar(theme),
     ]
     types.WithTags(
       user_name,
@@ -158,7 +162,7 @@ fn main_section(model: Model) -> element.Element(Msg) {
       fetching_changelog,
     ) -> [
       theme |> heading,
-      username_selection_section(
+      owner_selection_section(
         user_name |> option.Some,
         owner_type,
         False,
@@ -171,6 +175,7 @@ fn main_section(model: Model) -> element.Element(Msg) {
         theme,
       ),
       tags_select_section(tags, start_tag, end_tag, fetching_changelog, theme),
+      model.state |> navigation_bar(theme),
     ]
     types.WithChangesError(
       user_name,
@@ -184,7 +189,7 @@ fn main_section(model: Model) -> element.Element(Msg) {
       error,
     ) -> [
       theme |> heading,
-      username_selection_section(
+      owner_selection_section(
         user_name |> option.Some,
         owner_type,
         False,
@@ -204,6 +209,7 @@ fn main_section(model: Model) -> element.Element(Msg) {
         theme,
       ),
       error |> changes_error_section(theme),
+      model.state |> navigation_bar(theme),
     ]
     types.WithChanges(
       user_name,
@@ -217,7 +223,7 @@ fn main_section(model: Model) -> element.Element(Msg) {
       changes,
     ) -> [
       theme |> heading,
-      username_selection_section(
+      owner_selection_section(
         user_name |> option.Some,
         owner_type,
         False,
@@ -248,6 +254,7 @@ fn main_section(model: Model) -> element.Element(Msg) {
         ),
       changes.files
         |> files_section(theme),
+      model.state |> navigation_bar(theme),
     ]
   })
 }
@@ -323,16 +330,19 @@ fn config_error_section(
   )
 }
 
-fn username_selection_section(
+fn owner_selection_section(
   user_name: option.Option(String),
   owner_type: types.AccountType,
   fetching_repos: Bool,
   theme: Theme,
 ) -> element.Element(Msg) {
-  let input_class = case theme {
-    types.Dark -> "bg-[#a594f9] text-[#282828] placeholder-[#525252]"
-    types.Light -> "bg-[#cdc1ff] placeholder-[#525252]"
-  }
+  let input_class =
+    case theme {
+      types.Dark -> "text-[#282828] placeholder-[#525252]"
+      types.Light -> "placeholder-[#525252]"
+    }
+    <> " "
+    <> section_bg_class(types.OwnerSection, theme)
 
   let button_class = case theme {
     types.Dark -> "bg-[#817ffc] text-[#282828]"
@@ -350,6 +360,7 @@ fn username_selection_section(
         "mt-8 p-4 border-2 border-[#a594f9] border-opacity-50
         border-dotted",
       ),
+      attribute.id(types.OwnerSection |> types.section_id),
     ],
     [
       html.p([attribute.class("text-xl")], ["owner" |> element.text]),
@@ -382,6 +393,27 @@ fn username_selection_section(
       ]),
     ],
   )
+}
+
+fn section_bg_class(section: types.Section, theme: Theme) -> String {
+  case theme {
+    types.Dark ->
+      case section {
+        types.OwnerSection -> "bg-[#a594f9]"
+        types.ReposSection -> "bg-[#8caaee]"
+        types.TagsSection -> "bg-[#80ed99]"
+        types.CommitsSection -> "bg-[#c77dff]"
+        types.FilesSection -> "bg-[#affc41]"
+      }
+    types.Light ->
+      case section {
+        types.OwnerSection -> "bg-[#cdc1ff]"
+        types.ReposSection -> "bg-[#ff9fb2]"
+        types.TagsSection -> "bg-[#a4f3b3]"
+        types.CommitsSection -> "bg-[#995f6a]"
+        types.FilesSection -> "bg-[#068360]"
+      }
+  }
 }
 
 fn owner_type_selector(owner_type: types.AccountType) -> element.Element(Msg) {
@@ -477,17 +509,14 @@ fn repo_selection_section(
   maybe_selected_repo: option.Option(String),
   theme: Theme,
 ) -> element.Element(Msg) {
-  let filter_class = case theme {
-    types.Dark -> "bg-[#8caaee]"
-    types.Light -> "bg-[#ff9fb2]"
-  }
+  let filter_class = types.ReposSection |> section_bg_class(theme)
 
   html.div(
     [
       attribute.class(
         "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted",
       ),
-      attribute.id("repos-section"),
+      attribute.id(types.ReposSection |> types.section_id),
     ],
     [
       html.p([attribute.class("text-xl")], ["repos" |> element.text]),
@@ -622,7 +651,7 @@ fn tags_select_section(
       attribute.class(
         "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted",
       ),
-      attribute.id("tags-section"),
+      attribute.id(types.TagsSection |> types.section_id),
     ],
     case tags |> list.length {
       0 -> {
@@ -647,10 +676,9 @@ fn tags_select_section(
                 |> tag_select(End, end_tag, theme),
             ]
             option.Some(_), option.Some(_) -> {
-              let button_class = case theme {
-                types.Dark -> "bg-[#80ed99] text-[#282828]"
-                types.Light -> "bg-[#a4f3b3] text-[#282828]"
-              }
+              let button_class =
+                "text-[#282828] " <> section_bg_class(types.TagsSection, theme)
+
               [
                 tags
                   |> tag_select(Start, start_tag, theme),
@@ -765,32 +793,36 @@ fn commits_section(
   author_color_class_store: types.AuthorColorClassStore,
   theme: Theme,
 ) -> element.Element(Msg) {
-  html.div(
-    [
-      attribute.class(
-        "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted",
-      ),
-      attribute.id("commits-section"),
-    ],
-    [
-      html.p([attribute.class("text-xl")], [
-        { "commits " <> start_tag <> "..." <> end_tag } |> element.text,
-      ]),
+  case commits |> list.length {
+    0 -> element.none()
+    _ ->
       html.div(
         [
-          attribute.class("mt-2 overflow-x-auto"),
-          attribute.style([
-            #("scrollbar-color", theme |> scrollbar_color),
-            #("scrollbar-width", "thin"),
-          ]),
+          attribute.class(
+            "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted",
+          ),
+          attribute.id(types.CommitsSection |> types.section_id),
         ],
-        commits
-          |> list.map(fn(commit) {
-            commit_details(commit, author_color_class_store, theme)
-          }),
-      ),
-    ],
-  )
+        [
+          html.p([attribute.class("text-xl")], [
+            { "commits " <> start_tag <> "..." <> end_tag } |> element.text,
+          ]),
+          html.div(
+            [
+              attribute.class("mt-2 overflow-x-auto"),
+              attribute.style([
+                #("scrollbar-color", theme |> scrollbar_color),
+                #("scrollbar-width", "thin"),
+              ]),
+            ],
+            commits
+              |> list.map(fn(commit) {
+                commit_details(commit, author_color_class_store, theme)
+              }),
+          ),
+        ],
+      )
+  }
 }
 
 fn commit_details(
@@ -869,13 +901,13 @@ fn files_section(
             #("scrollbar-color", theme |> scrollbar_color),
             #("scrollbar-width", "thin"),
           ]),
-          attribute.id("files-section"),
+          attribute.id(types.FilesSection |> types.section_id),
         ],
         [
           html.p([attribute.class("text-xl")], ["files" |> element.text]),
           html.div(
             [
-              attribute.class("mt-4 overflow-x-auto"),
+              attribute.class("my-2 overflow-x-auto"),
               attribute.style([
                 #("scrollbar-color", theme |> scrollbar_color),
                 #("scrollbar-width", "thin"),
@@ -978,4 +1010,73 @@ fn file_change_stats(
       [deletions_text |> element.text],
     ),
   ])
+}
+
+fn navigation_bar(state: types.State, theme: Theme) -> element.Element(Msg) {
+  let #(o, r, t, c, f) = case state {
+    types.Initial -> #(False, False, False, False, False)
+    types.ConfigError(..) -> #(False, False, False, False, False)
+    types.ConfigLoaded(..) -> #(True, False, False, False, False)
+    types.WithReposError(..) -> #(True, False, False, False, False)
+    types.WithRepos(..) -> #(True, True, False, False, False)
+    types.WithTagsError(..) -> #(True, True, False, False, False)
+    types.WithTags(..) -> #(True, True, True, False, False)
+    types.WithChangesError(..) -> #(True, True, True, False, False)
+    types.WithChanges(_, _, _, _, _, _, _, _, changes) ->
+      case changes.commits, changes.files {
+        [], option.None -> #(True, True, True, False, False)
+        [], option.Some([]) -> #(True, True, True, False, False)
+        [], option.Some(_) -> #(True, True, True, False, True)
+        _, option.None -> #(True, True, True, True, False)
+        _, option.Some([]) -> #(True, True, True, True, False)
+        _, _ -> #(True, True, True, True, True)
+      }
+  }
+
+  let footer_class = case theme {
+    types.Dark -> "bg-[#282828]"
+    types.Light -> "bg-[#ffffff]"
+  }
+
+  html.div(
+    [
+      attribute.class(
+        "fixed bottom-0 w-full px-2 pt-4 font-semibold text-[#282828] max-sm:hidden "
+        <> footer_class,
+      ),
+    ],
+    [
+      html.div(
+        [attribute.class("flex gap-2")],
+        [
+          #(types.OwnerSection, o),
+          #(types.ReposSection, r),
+          #(types.TagsSection, t),
+          #(types.CommitsSection, c),
+          #(types.FilesSection, f),
+        ]
+          |> list.map(fn(data) {
+            let #(section, enabled) = data
+            navigation_button(section, theme, enabled)
+          }),
+      ),
+    ],
+  )
+}
+
+fn navigation_button(
+  section: types.Section,
+  theme: Theme,
+  enabled: Bool,
+) -> element.Element(Msg) {
+  html.button(
+    [
+      attribute.class(
+        section_bg_class(section, theme) <> " disabled:bg-[#a89984] px-2 py-1",
+      ),
+      attribute.disabled(!enabled),
+      event.on_click(types.UserRequestedToGoToSection(section)),
+    ],
+    [section |> types.section_to_string |> element.text],
+  )
 }

@@ -563,10 +563,16 @@ pub fn update(model: Model, msg: Msg) -> #(Model, effect.Effect(Msg)) {
                   changes:,
                 ),
               ),
-              effects.scroll_element_into_view("commits-section"),
+              effects.scroll_element_into_view(
+                types.CommitsSection |> types.section_id,
+              ),
             )
           }
         _ -> zero
       }
+    types.UserRequestedToGoToSection(section) -> #(
+      model,
+      section |> types.section_id |> effects.scroll_element_into_view,
+    )
   }
 }
