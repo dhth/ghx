@@ -10,6 +10,7 @@ pub async fn handle(args: Args) -> Result<(), AppError> {
             owner,
             owner_type,
             theme,
+            port,
             skip_opening,
         } => {
             let start_config = Config {
@@ -19,7 +20,7 @@ pub async fn handle(args: Args) -> Result<(), AppError> {
             };
             let gh_token = get_auth_token().map_err(AppError::CouldntGetGhToken)?;
 
-            run_server(start_config, gh_token, skip_opening)
+            run_server(start_config, gh_token, port, skip_opening)
                 .await
                 .map_err(AppError::CouldntRunServer)?;
         }
