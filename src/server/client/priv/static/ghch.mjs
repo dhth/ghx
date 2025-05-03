@@ -6239,7 +6239,7 @@ function file_status_to_string(status) {
   } else if (status instanceof Modified) {
     return "mod";
   } else if (status instanceof Removed) {
-    return "remd";
+    return "rem";
   } else if (status instanceof Renamed) {
     return "ren";
   } else {
@@ -8860,7 +8860,7 @@ function owner_selection_section(user_name, owner_type, fetching_repos, theme) {
           input(
             toList([
               class$(
-                "px-2 py-1 my-2 font-semibold max-sm:w-full " + input_class
+                "px-2 py-1 my-2 font-semibold max-sm:w-full w-1/3 " + input_class
               ),
               placeholder(placeholder2),
               value(
@@ -9529,7 +9529,7 @@ function commits_section(commits, commits_filter_query, start_tag, end_tag, auth
         input(
           toList([
             class$(
-              "mt-4 font-semibold h-8 text-[#232634] placeholder-[#3d3d3d] pl-2 max-sm:w-full " + section_bg_class(
+              "mt-4 font-semibold h-8 text-[#232634] placeholder-[#3d3d3d] pl-2 max-sm:w-full w-1/3 " + section_bg_class(
                 new CommitsSection(),
                 theme
               )
@@ -9633,7 +9633,7 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
       input(
         toList([
           class$(
-            "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2\n          max-sm:w-full " + filter_class
+            "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2\n          max-sm:w-full w-1/3 " + filter_class
           ),
           autocomplete("off"),
           id("filter-repos"),
@@ -9914,7 +9914,7 @@ function files_section(maybe_files, files_filter_query, theme) {
         input(
           toList([
             class$(
-              "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 max-sm:w-full " + section_bg_class(
+              "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 max-sm:w-full w-1/3 " + section_bg_class(
                 new FilesSection(),
                 theme
               )

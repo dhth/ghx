@@ -167,7 +167,7 @@ pub fn file_status_to_string(status: ChangesFileStatus) -> String {
     Changed -> "chd"
     Copied -> "cop"
     Modified -> "mod"
-    Removed -> "remd"
+    Removed -> "rem"
     Renamed -> "ren"
     Unchanged -> "unc"
   }

@@ -384,7 +384,7 @@ fn owner_selection_section(
       html.div([attribute.class("flex flex-wrap gap-4 items-center mt-2")], [
         html.input([
           attribute.class(
-            "px-2 py-1 my-2 font-semibold max-sm:w-full " <> input_class,
+            "px-2 py-1 my-2 font-semibold max-sm:w-full w-1/3 " <> input_class,
           ),
           attribute.placeholder(placeholder),
           attribute.value(user_name |> option.unwrap("")),
@@ -546,7 +546,7 @@ fn repo_selection_section(
       html.input([
         attribute.class(
           "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2
-          max-sm:w-full " <> filter_class,
+          max-sm:w-full w-1/3 " <> filter_class,
         ),
         attribute.autocomplete("off"),
         attribute.id("filter-repos"),
@@ -844,7 +844,7 @@ fn commits_section(
           ),
           html.input([
             attribute.class(
-              "mt-4 font-semibold h-8 text-[#232634] placeholder-[#3d3d3d] pl-2 max-sm:w-full "
+              "mt-4 font-semibold h-8 text-[#232634] placeholder-[#3d3d3d] pl-2 max-sm:w-full w-1/3 "
               <> section_bg_class(types.CommitsSection, theme),
             ),
             attribute.autocomplete("off"),
@@ -1011,7 +1011,7 @@ fn files_section(
           ),
           html.input([
             attribute.class(
-              "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 max-sm:w-full "
+              "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 max-sm:w-full w-1/3 "
               <> section_bg_class(types.FilesSection, theme),
             ),
             attribute.autocomplete("off"),
