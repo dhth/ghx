@@ -8,7 +8,7 @@ import plinth/browser/window
 import plinth/javascript/global
 import types
 
-const dev = False
+const dev = True
 
 fn base_url() -> String {
   case constants.public {

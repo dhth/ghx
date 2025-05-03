@@ -6811,7 +6811,7 @@ function scroll_element_into_view(id2) {
   };
   return from(_pipe);
 }
-var dev = false;
+var dev = true;
 function base_url() {
   let $ = public$;
   if (!$) {

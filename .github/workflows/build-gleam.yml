@@ -32,3 +32,9 @@ jobs:
             git --no-pager diff --name-only
             false
           fi
+      - name: Ensure dev flag is set to false
+        run: |
+          if grep -q "const dev = True" src/server/client/src/effects.gleam; then
+            echo "dev flag is set to True"
+            false
+          fi
