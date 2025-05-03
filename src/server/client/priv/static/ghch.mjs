@@ -572,6 +572,14 @@ function map(option2, fun) {
     return new None();
   }
 }
+function then$(option2, fun) {
+  if (option2 instanceof Some) {
+    let x = option2[0];
+    return fun(x);
+  } else {
+    return new None();
+  }
+}
 function or(first3, second) {
   if (first3 instanceof Some) {
     return first3;
@@ -2390,7 +2398,7 @@ function try$(result, fun) {
     return new Error(e);
   }
 }
-function then$(result, fun) {
+function then$2(result, fun) {
   return try$(result, fun);
 }
 function unwrap2(result, default$) {
@@ -2585,7 +2593,7 @@ function map4(decoder, transformer) {
     }
   );
 }
-function then$2(decoder, next) {
+function then$3(decoder, next) {
   return new Decoder(
     (dynamic_data) => {
       let $ = decoder.function(dynamic_data);
@@ -2939,7 +2947,7 @@ var UnableToDecode = class extends CustomType {
   }
 };
 function do_parse(json, decoder) {
-  return then$(
+  return then$2(
     decode(json),
     (dynamic_value) => {
       let _pipe = run(dynamic_value, decoder);
@@ -4778,14 +4786,14 @@ function to_uri(request) {
   );
 }
 function from_uri(uri) {
-  return then$(
+  return then$2(
     (() => {
       let _pipe = uri.scheme;
       let _pipe$1 = unwrap(_pipe, "");
       return scheme_from_string(_pipe$1);
     })(),
     (scheme) => {
-      return then$(
+      return then$2(
         (() => {
           let _pipe = uri.host;
           return to_result(_pipe, void 0);
@@ -4810,7 +4818,7 @@ function from_uri(uri) {
 function to(url) {
   let _pipe = url;
   let _pipe$1 = parse2(_pipe);
-  return then$(_pipe$1, from_uri);
+  return then$2(_pipe$1, from_uri);
 }
 
 // build/dev/javascript/gleam_http/gleam/http/response.mjs
@@ -5038,8 +5046,8 @@ function expect_json(decoder, to_msg) {
   return new ExpectTextResponse(
     (response) => {
       let _pipe = response;
-      let _pipe$1 = then$(_pipe, response_to_result);
-      let _pipe$2 = then$(
+      let _pipe$1 = then$2(_pipe, response_to_result);
+      let _pipe$2 = then$2(
         _pipe$1,
         (body2) => {
           let $ = parse(body2, decoder);
@@ -5820,20 +5828,13 @@ var Repo = class extends CustomType {
     this.language = language;
   }
 };
-var Commit = class extends CustomType {
-  constructor(sha) {
-    super();
-    this.sha = sha;
-  }
-};
 var Tag = class extends CustomType {
-  constructor(name2, commit) {
+  constructor(name2) {
     super();
     this.name = name2;
-    this.commit = commit;
   }
 };
-var ChangelogCommitAuthor = class extends CustomType {
+var Author = class extends CustomType {
   constructor(name2, email, authoring_timestamp) {
     super();
     this.name = name2;
@@ -5841,7 +5842,7 @@ var ChangelogCommitAuthor = class extends CustomType {
     this.authoring_timestamp = authoring_timestamp;
   }
 };
-var ChangelogCommitDetails = class extends CustomType {
+var CommitDetails = class extends CustomType {
   constructor(author, message) {
     super();
     this.author = author;
@@ -5872,7 +5873,7 @@ var CommitFileItem = class extends CustomType {
     this.blob_url = blob_url;
   }
 };
-var ChangelogCommit = class extends CustomType {
+var Commit = class extends CustomType {
   constructor(sha, details, html_url) {
     super();
     this.sha = sha;
@@ -5880,7 +5881,7 @@ var ChangelogCommit = class extends CustomType {
     this.html_url = html_url;
   }
 };
-var ChangelogResponse = class extends CustomType {
+var Changes = class extends CustomType {
   constructor(commits, files) {
     super();
     this.commits = commits;
@@ -6094,7 +6095,7 @@ var UserEnteredFilesFilterQuery = class extends CustomType {
   }
 };
 function theme_decoder() {
-  return then$2(
+  return then$3(
     string4,
     (variant) => {
       if (variant === "light") {
@@ -6108,7 +6109,7 @@ function theme_decoder() {
   );
 }
 function owner_type_decoder() {
-  return then$2(
+  return then$3(
     string4,
     (variant) => {
       if (variant === "user") {
@@ -6183,27 +6184,12 @@ function repos_response_decoder() {
   let _pipe = repo_decoder();
   return list2(_pipe);
 }
-function commit_decoder() {
-  return field2(
-    "sha",
-    string4,
-    (sha) => {
-      return success(new Commit(sha));
-    }
-  );
-}
 function tag_decoder() {
   return field2(
     "name",
     string4,
     (name2) => {
-      return field2(
-        "commit",
-        commit_decoder(),
-        (commit) => {
-          return success(new Tag(name2, commit));
-        }
-      );
+      return success(new Tag(name2));
     }
   );
 }
@@ -6237,7 +6223,7 @@ function optional_timestamp_decoder() {
     }
   );
 }
-function changelog_commit_author_decoder() {
+function author_decoder() {
   return field2(
     "name",
     string4,
@@ -6251,7 +6237,7 @@ function changelog_commit_author_decoder() {
             optional_timestamp_decoder(),
             (authoring_timestamp) => {
               return success(
-                new ChangelogCommitAuthor(name2, email, authoring_timestamp)
+                new Author(name2, email, authoring_timestamp)
               );
             }
           );
@@ -6260,16 +6246,16 @@ function changelog_commit_author_decoder() {
     }
   );
 }
-function changelog_commit_details_decoder() {
+function commit_details_decoder() {
   return field2(
     "author",
-    changelog_commit_author_decoder(),
+    optional(author_decoder()),
     (author) => {
       return field2(
         "message",
         string4,
         (message) => {
-          return success(new ChangelogCommitDetails(author, message));
+          return success(new CommitDetails(author, message));
         }
       );
     }
@@ -6296,7 +6282,7 @@ function file_status_to_string(status) {
   return pad_end(_pipe, 8, ".");
 }
 function changes_file_status_decoder() {
-  return then$2(
+  return then$3(
     string4,
     (variant) => {
       if (variant === "added") {
@@ -6360,22 +6346,20 @@ function changes_file_item_decoder() {
     }
   );
 }
-function changelog_commit_decoder() {
+function commit_decoder() {
   return field2(
     "sha",
     string4,
     (sha) => {
       return field2(
         "commit",
-        changelog_commit_details_decoder(),
+        commit_details_decoder(),
         (details) => {
           return field2(
             "html_url",
             string4,
             (html_url) => {
-              return success(
-                new ChangelogCommit(sha, details, html_url)
-              );
+              return success(new Commit(sha, details, html_url));
             }
           );
         }
@@ -6383,16 +6367,16 @@ function changelog_commit_decoder() {
     }
   );
 }
-function changes_response_decoder() {
+function changes_decoder() {
   return field2(
     "commits",
-    list2(changelog_commit_decoder()),
+    list2(commit_decoder()),
     (commits) => {
       return field2(
         "files",
         optional(list2(changes_file_item_decoder())),
         (files) => {
-          return success(new ChangelogResponse(commits, files));
+          return success(new Changes(commits, files));
         }
       );
     }
@@ -6899,7 +6883,7 @@ function changelog_endpoint(user_name, repo, start_tag, end_tag) {
 }
 function fetch_changes(user_name, repo, start_tag, end_tag) {
   let expect = expect_json(
-    changes_response_decoder(),
+    changes_decoder(),
     (result) => {
       return new ChangesFetched([start_tag, end_tag, result]);
     }
@@ -9305,42 +9289,55 @@ function filter_commit_predicate(query) {
         })()
       );
     })() || (() => {
-      let _pipe = commit.details.author.name;
-      let _pipe$1 = lowercase(_pipe);
-      return contains_string(
-        _pipe$1,
-        (() => {
-          let _pipe$2 = query;
-          return lowercase(_pipe$2);
-        })()
-      );
-    })() || (() => {
-      let _pipe = commit.details.author.email;
-      let _pipe$1 = lowercase(_pipe);
-      return contains_string(
-        _pipe$1,
-        (() => {
-          let _pipe$2 = query;
-          return lowercase(_pipe$2);
-        })()
-      );
+      let $ = commit.details.author;
+      if ($ instanceof None) {
+        return false;
+      } else {
+        let author = $[0];
+        return (() => {
+          let _pipe = author.name;
+          let _pipe$1 = lowercase(_pipe);
+          return contains_string(
+            _pipe$1,
+            (() => {
+              let _pipe$2 = query;
+              return lowercase(_pipe$2);
+            })()
+          );
+        })() || (() => {
+          let _pipe = author.email;
+          let _pipe$1 = lowercase(_pipe);
+          return contains_string(
+            _pipe$1,
+            (() => {
+              let _pipe$2 = query;
+              return lowercase(_pipe$2);
+            })()
+          );
+        })();
+      }
     })();
   };
 }
-function author_color_class(input2, colors, fallback) {
-  let hash = simple_hash(input2);
-  let _block;
-  let _pipe = colors;
-  _block = map_size(_pipe);
-  let num_colors = _block;
-  let _block$1;
-  let _pipe$1 = hash;
-  let _pipe$2 = remainder(_pipe$1, num_colors);
-  _block$1 = unwrap2(_pipe$2, 0);
-  let index5 = _block$1;
-  let _pipe$3 = colors;
-  let _pipe$4 = map_get(_pipe$3, index5);
-  return unwrap2(_pipe$4, fallback);
+function author_color_class(maybe_author, colors, fallback) {
+  if (maybe_author instanceof None) {
+    return fallback;
+  } else {
+    let author = maybe_author[0];
+    let hash = simple_hash(author.name);
+    let _block;
+    let _pipe = colors;
+    _block = map_size(_pipe);
+    let num_colors = _block;
+    let _block$1;
+    let _pipe$1 = hash;
+    let _pipe$2 = remainder(_pipe$1, num_colors);
+    _block$1 = unwrap2(_pipe$2, 0);
+    let index5 = _block$1;
+    let _pipe$3 = colors;
+    let _pipe$4 = map_get(_pipe$3, index5);
+    return unwrap2(_pipe$4, fallback);
+  }
 }
 function get_commit_relative_time(ts, now) {
   return (() => {
@@ -9354,7 +9351,7 @@ function commit_details(commit, author_color_class_store, theme) {
     _block = [
       "text-[#c77dff]",
       (() => {
-        let _pipe2 = commit.details.author.name;
+        let _pipe2 = commit.details.author;
         return author_color_class(
           _pipe2,
           author_color_class_store,
@@ -9367,7 +9364,7 @@ function commit_details(commit, author_color_class_store, theme) {
     _block = [
       "text-[#995f6a]",
       (() => {
-        let _pipe2 = commit.details.author.name;
+        let _pipe2 = commit.details.author;
         return author_color_class(
           _pipe2,
           author_color_class_store,
@@ -9427,32 +9424,48 @@ function commit_details(commit, author_color_class_store, theme) {
           })()
         ])
       ),
-      span(
-        toList([class$(author_class)]),
-        toList([
-          (() => {
-            let _pipe$3 = commit.details.author.name;
-            return text(_pipe$3);
-          })()
-        ])
-      ),
       (() => {
-        let $2 = commit.details.author.authoring_timestamp;
-        if ($2 instanceof None) {
-          return none2();
-        } else {
-          let ts = $2[0];
-          return span(
-            toList([class$(timestamp_class)]),
-            toList([
-              (() => {
-                let _pipe$3 = ts;
-                let _pipe$4 = get_commit_relative_time(_pipe$3, now);
-                return text(_pipe$4);
-              })()
-            ])
-          );
-        }
+        let _pipe$3 = commit.details.author;
+        let _pipe$4 = map(
+          _pipe$3,
+          (author) => {
+            return span(
+              toList([class$(author_class)]),
+              toList([
+                (() => {
+                  let _pipe$42 = author.name;
+                  return text(_pipe$42);
+                })()
+              ])
+            );
+          }
+        );
+        return unwrap(_pipe$4, none2());
+      })(),
+      (() => {
+        let _pipe$3 = commit.details.author;
+        let _pipe$4 = then$(
+          _pipe$3,
+          (author) => {
+            let _pipe$42 = author.authoring_timestamp;
+            return map(
+              _pipe$42,
+              (ts) => {
+                return span(
+                  toList([class$(timestamp_class)]),
+                  toList([
+                    (() => {
+                      let _pipe$5 = ts;
+                      let _pipe$6 = get_commit_relative_time(_pipe$5, now);
+                      return text(_pipe$6);
+                    })()
+                  ])
+                );
+              }
+            );
+          }
+        );
+        return unwrap(_pipe$4, none2());
       })()
     ])
   );

@@ -8,9 +8,9 @@
 `ghch` is a *work-in-progress* tool to simplify the process of viewing changes
 for GitHub repositories.
 
-![image](https://github.com/user-attachments/assets/67e4259f-9202-45ab-9b2f-c22cfad8d076)
-![image](https://github.com/user-attachments/assets/5325b21d-1d32-4ba0-bb0f-b7e1d60a99e9)
-![image](https://github.com/user-attachments/assets/f058e98e-03bc-4e38-b389-8e696e4a1539)
+![](https://github.com/user-attachments/assets/548484ac-7d3f-4261-8c59-cb84def173a6)
+![](https://github.com/user-attachments/assets/af584b9f-281e-46fd-951f-75278b4d7c9f)
+![](https://github.com/user-attachments/assets/74803101-eb63-4837-adac-f3fe9c9c1a76)
 
 > [!NOTE]
 > An unauthenticated public version of `ghch`'s web interface is running
