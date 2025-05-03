@@ -20,15 +20,20 @@ type TagType {
 }
 
 pub fn view(model: Model) -> element.Element(Msg) {
-  html.div(
-    [attribute.class("min-h-screen " <> model.config.theme |> main_div_class)],
-    [
-      html.div([attribute.class("pt-10 pb-20 w-4/5 max-sm:w-5/6 mx-auto")], [
-        model |> main_section,
+  html.div([attribute.class("" <> model.config.theme |> main_div_class)], [
+    html.div(
+      [
+        attribute.class(
+          "flex flex-col h-screen lg:w-4/5 max-sm:px-2 lg:mx-auto",
+        ),
+      ],
+      [
         model |> debug_section,
-      ]),
-    ],
-  )
+        model |> main_section,
+        model.state |> navigation_bar(model.config.theme),
+      ],
+    ),
+  ])
 }
 
 fn main_div_class(theme: Theme) -> String {
@@ -42,30 +47,28 @@ fn debug_section(model: Model) -> element.Element(Msg) {
   case model.debug {
     False -> element.none()
     True -> {
-      let div_class = case model.config.theme {
-        types.Dark -> "border-[#fabd2f]"
-        types.Light -> "border-[#8ec07c]"
-      }
-
       html.div(
-        [attribute.class("mt-8 " <> div_class), attribute.id("debug-section")],
         [
-          html.p([attribute.class("text-xl font-semibold")], [
-            "Debug" |> element.text,
-          ]),
-          html.pre(
+          attribute.class(
+            "flex-1 overflow-y-scroll mx-4 mt-8 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted max-h-60",
+          ),
+          attribute.id(types.DebugSection |> types.section_id),
+        ],
+        [
+          html.p(
             [
-              attribute.class(
-                "mt-2 p-4 border-2 border-opacity-50 text-wrap " <> div_class,
-              ),
-              attribute.id("debug-section"),
+              attribute.class("text-xl"),
+              attribute.id(types.DebugSection |> types.section_heading_id),
             ],
-            [
+            ["debug" |> element.text],
+          ),
+          html.div([], [
+            html.pre([attribute.class("mt-4 text-wrap ")], [
               model
               |> display_model
               |> element.text,
-            ],
-          ),
+            ]),
+          ]),
         ],
       )
     }
@@ -75,192 +78,194 @@ fn debug_section(model: Model) -> element.Element(Msg) {
 fn main_section(model: Model) -> element.Element(Msg) {
   let theme = model.config.theme
 
-  html.div([], case model.state {
-    types.Initial -> [theme |> heading]
-    types.ConfigError(error) -> [
-      theme |> heading,
-      error |> config_error_section(theme),
-    ]
-    types.ConfigLoaded(maybe_user_name, owner_type, fetching_repos) -> [
-      theme |> heading,
-      owner_selection_section(
-        maybe_user_name,
-        owner_type,
-        fetching_repos,
-        theme,
-      ),
-      fetching_repos |> fetching_repos_section,
-      model.state |> navigation_bar(theme),
-    ]
-    types.WithReposError(user_name, owner_type, error) -> [
-      theme |> heading,
-      owner_selection_section(
-        user_name |> option.Some,
-        owner_type,
-        False,
-        theme,
-      ),
-      error |> repos_error_section(owner_type, theme),
-      model.state |> navigation_bar(theme),
-    ]
-    types.WithRepos(
-      user_name,
-      owner_type,
-      repos,
-      repo_filter_query,
-      fetching_tags,
-      maybe_selected_repo,
-    ) -> [
-      theme |> heading,
-      owner_selection_section(
-        user_name |> option.Some,
-        owner_type,
-        False,
-        theme,
-      ),
-      repo_selection_section(
-        repos,
-        repo_filter_query,
-        maybe_selected_repo,
-        theme,
-      ),
-      fetching_tags |> fetching_tags_section,
-      model.state |> navigation_bar(theme),
-    ]
-    types.WithTagsError(
-      user_name,
-      owner_type,
-      repos,
-      repo_filter_query,
-      selected_repo,
-      error,
-    ) -> [
-      theme |> heading,
-      owner_selection_section(
-        user_name |> option.Some,
-        owner_type,
-        False,
-        theme,
-      ),
-      repo_selection_section(
-        repos,
-        repo_filter_query,
-        selected_repo |> option.Some,
-        theme,
-      ),
-      error |> tags_error_section(theme),
-      model.state |> navigation_bar(theme),
-    ]
-    types.WithTags(
-      user_name,
-      owner_type,
-      repos,
-      repo_filter_query,
-      selected_repo,
-      tags,
-      start_tag,
-      end_tag,
-      fetching_changelog,
-    ) -> [
-      theme |> heading,
-      owner_selection_section(
-        user_name |> option.Some,
-        owner_type,
-        False,
-        theme,
-      ),
-      repo_selection_section(
-        repos,
-        repo_filter_query,
-        selected_repo |> option.Some,
-        theme,
-      ),
-      tags_select_section(tags, start_tag, end_tag, fetching_changelog, theme),
-      model.state |> navigation_bar(theme),
-    ]
-    types.WithChangesError(
-      user_name,
-      owner_type,
-      repos,
-      repo_filter_query,
-      selected_repo,
-      tags,
-      start_tag,
-      end_tag,
-      error,
-    ) -> [
-      theme |> heading,
-      owner_selection_section(
-        user_name |> option.Some,
-        owner_type,
-        False,
-        theme,
-      ),
-      repo_selection_section(
-        repos,
-        repo_filter_query,
-        selected_repo |> option.Some,
-        theme,
-      ),
-      tags_select_section(
-        tags,
-        start_tag |> option.Some,
-        end_tag |> option.Some,
-        False,
-        theme,
-      ),
-      error |> changes_error_section(theme),
-      model.state |> navigation_bar(theme),
-    ]
-    types.WithChanges(
-      user_name,
-      owner_type,
-      repos,
-      repo_filter_query,
-      selected_repo,
-      tags,
-      start_tag,
-      end_tag,
-      changes,
-      commits_filter,
-      files_filter,
-    ) -> [
-      theme |> heading,
-      owner_selection_section(
-        user_name |> option.Some,
-        owner_type,
-        False,
-        theme,
-      ),
-      repo_selection_section(
-        repos,
-        repo_filter_query,
-        selected_repo |> option.Some,
-        theme,
-      ),
-      tags_select_section(
-        tags,
-        start_tag |> option.Some,
-        end_tag |> option.Some,
-        False,
-        theme,
-      ),
-      changes.commits
-        |> commits_section(
-          commits_filter,
-          start_tag,
-          end_tag,
-          case theme {
-            types.Dark -> model.author_color_classes.dark
-            types.Light -> model.author_color_classes.light
-          },
+  html.div(
+    [
+      attribute.class("flex-1 overflow-y-scroll pt-8 px-4"),
+      attribute.style([
+        #("scrollbar-color", theme |> scrollbar_color),
+        #("scrollbar-width", "thin"),
+      ]),
+    ],
+    case model.state {
+      types.Initial -> [theme |> heading]
+      types.ConfigError(error) -> [
+        theme |> heading,
+        error |> config_error_section(theme),
+      ]
+      types.ConfigLoaded(maybe_user_name, owner_type, fetching_repos) -> [
+        theme |> heading,
+        owner_selection_section(
+          maybe_user_name,
+          owner_type,
+          fetching_repos,
           theme,
         ),
-      changes.files
-        |> files_section(files_filter, theme),
-      model.state |> navigation_bar(theme),
-    ]
-  })
+        fetching_repos |> fetching_repos_section,
+      ]
+      types.WithReposError(user_name, owner_type, error) -> [
+        theme |> heading,
+        owner_selection_section(
+          user_name |> option.Some,
+          owner_type,
+          False,
+          theme,
+        ),
+        error |> repos_error_section(owner_type, theme),
+      ]
+      types.WithRepos(
+        user_name,
+        owner_type,
+        repos,
+        repo_filter_query,
+        fetching_tags,
+        maybe_selected_repo,
+      ) -> [
+        theme |> heading,
+        owner_selection_section(
+          user_name |> option.Some,
+          owner_type,
+          False,
+          theme,
+        ),
+        repo_selection_section(
+          repos,
+          repo_filter_query,
+          maybe_selected_repo,
+          theme,
+        ),
+        fetching_tags |> fetching_tags_section,
+      ]
+      types.WithTagsError(
+        user_name,
+        owner_type,
+        repos,
+        repo_filter_query,
+        selected_repo,
+        error,
+      ) -> [
+        theme |> heading,
+        owner_selection_section(
+          user_name |> option.Some,
+          owner_type,
+          False,
+          theme,
+        ),
+        repo_selection_section(
+          repos,
+          repo_filter_query,
+          selected_repo |> option.Some,
+          theme,
+        ),
+        error |> tags_error_section(theme),
+      ]
+      types.WithTags(
+        user_name,
+        owner_type,
+        repos,
+        repo_filter_query,
+        selected_repo,
+        tags,
+        start_tag,
+        end_tag,
+        fetching_changelog,
+      ) -> [
+        theme |> heading,
+        owner_selection_section(
+          user_name |> option.Some,
+          owner_type,
+          False,
+          theme,
+        ),
+        repo_selection_section(
+          repos,
+          repo_filter_query,
+          selected_repo |> option.Some,
+          theme,
+        ),
+        tags_select_section(tags, start_tag, end_tag, fetching_changelog, theme),
+      ]
+      types.WithChangesError(
+        user_name,
+        owner_type,
+        repos,
+        repo_filter_query,
+        selected_repo,
+        tags,
+        start_tag,
+        end_tag,
+        error,
+      ) -> [
+        theme |> heading,
+        owner_selection_section(
+          user_name |> option.Some,
+          owner_type,
+          False,
+          theme,
+        ),
+        repo_selection_section(
+          repos,
+          repo_filter_query,
+          selected_repo |> option.Some,
+          theme,
+        ),
+        tags_select_section(
+          tags,
+          start_tag |> option.Some,
+          end_tag |> option.Some,
+          False,
+          theme,
+        ),
+        error |> changes_error_section(theme),
+      ]
+      types.WithChanges(
+        user_name,
+        owner_type,
+        repos,
+        repo_filter_query,
+        selected_repo,
+        tags,
+        start_tag,
+        end_tag,
+        changes,
+        commits_filter,
+        files_filter,
+      ) -> [
+        theme |> heading,
+        owner_selection_section(
+          user_name |> option.Some,
+          owner_type,
+          False,
+          theme,
+        ),
+        repo_selection_section(
+          repos,
+          repo_filter_query,
+          selected_repo |> option.Some,
+          theme,
+        ),
+        tags_select_section(
+          tags,
+          start_tag |> option.Some,
+          end_tag |> option.Some,
+          False,
+          theme,
+        ),
+        changes.commits
+          |> commits_section(
+            commits_filter,
+            start_tag,
+            end_tag,
+            case theme {
+              types.Dark -> model.author_color_classes.dark
+              types.Light -> model.author_color_classes.light
+            },
+            theme,
+          ),
+        changes.files
+          |> files_section(files_filter, theme),
+      ]
+    },
+  )
 }
 
 fn heading(theme: Theme) -> element.Element(Msg) {
@@ -367,7 +372,13 @@ fn owner_selection_section(
       attribute.id(types.OwnerSection |> types.section_id),
     ],
     [
-      html.p([attribute.class("text-xl")], ["owner" |> element.text]),
+      html.p(
+        [
+          attribute.class("text-xl"),
+          attribute.id(types.OwnerSection |> types.section_heading_id),
+        ],
+        ["owner" |> element.text],
+      ),
       html.div([attribute.class("flex flex-wrap gap-2 items-center mt-2")], [
         html.input([
           attribute.class("px-4 py-1 my-2 font-semibold " <> input_class),
@@ -403,6 +414,7 @@ fn section_bg_class(section: types.Section, theme: Theme) -> String {
   case theme {
     types.Dark ->
       case section {
+        types.DebugSection -> "bg-[#fabd2f]"
         types.OwnerSection -> "bg-[#a594f9]"
         types.ReposSection -> "bg-[#8caaee]"
         types.TagsSection -> "bg-[#80ed99]"
@@ -411,6 +423,7 @@ fn section_bg_class(section: types.Section, theme: Theme) -> String {
       }
     types.Light ->
       case section {
+        types.DebugSection -> "bg-[#fabd2f]"
         types.OwnerSection -> "bg-[#cdc1ff]"
         types.ReposSection -> "bg-[#ff9fb2]"
         types.TagsSection -> "bg-[#a4f3b3]"
@@ -523,7 +536,13 @@ fn repo_selection_section(
       attribute.id(types.ReposSection |> types.section_id),
     ],
     [
-      html.p([attribute.class("text-xl")], ["repos" |> element.text]),
+      html.p(
+        [
+          attribute.class("text-xl"),
+          attribute.id(types.ReposSection |> types.section_heading_id),
+        ],
+        ["repos" |> element.text],
+      ),
       html.input([
         attribute.class(
           "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 "
@@ -666,7 +685,13 @@ fn tags_select_section(
         ]
       }
       _ -> [
-        html.p([attribute.class("text-xl")], ["tags" |> element.text]),
+        html.p(
+          [
+            attribute.class("text-xl"),
+            attribute.id(types.TagsSection |> types.section_heading_id),
+          ],
+          ["tags" |> element.text],
+        ),
         html.div(
           [attribute.class("mt-4 flex flex-wrap gap-2 items-center")],
           case start_tag, end_tag {
@@ -809,9 +834,13 @@ fn commits_section(
           attribute.id(types.CommitsSection |> types.section_id),
         ],
         [
-          html.p([attribute.class("text-xl")], [
-            { "commits " <> start_tag <> "..." <> end_tag } |> element.text,
-          ]),
+          html.p(
+            [
+              attribute.class("text-xl"),
+              attribute.id(types.CommitsSection |> types.section_heading_id),
+            ],
+            [{ "commits " <> start_tag <> "..." <> end_tag } |> element.text],
+          ),
           html.input([
             attribute.class(
               "mt-4 font-semibold h-8 text-[#232634] placeholder-[#3d3d3d] pl-2 "
@@ -972,7 +1001,13 @@ fn files_section(
           attribute.id(types.FilesSection |> types.section_id),
         ],
         [
-          html.p([attribute.class("text-xl")], ["files" |> element.text]),
+          html.p(
+            [
+              attribute.class("text-xl"),
+              attribute.id(types.FilesSection |> types.section_heading_id),
+            ],
+            ["files" |> element.text],
+          ),
           html.input([
             attribute.class(
               "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 "
@@ -1127,10 +1162,10 @@ fn navigation_bar(state: types.State, theme: Theme) -> element.Element(Msg) {
     types.Light -> "bg-[#ffffff]"
   }
 
-  html.div(
+  html.nav(
     [
       attribute.class(
-        "fixed bottom-0 w-full px-2 pt-4 font-semibold text-[#282828] max-sm:hidden "
+        "flex px-4 pt-4 font-semibold text-[#282828] max-sm:hidden "
         <> footer_class,
       ),
     ],

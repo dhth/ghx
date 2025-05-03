@@ -5991,6 +5991,8 @@ var AuthorColorClasses = class extends CustomType {
     this.light = light;
   }
 };
+var DebugSection = class extends CustomType {
+};
 var OwnerSection = class extends CustomType {
 };
 var ReposSection = class extends CustomType {
@@ -6407,7 +6409,9 @@ function owner_type_to_string(owner_type) {
   }
 }
 function section_to_string(section) {
-  if (section instanceof OwnerSection) {
+  if (section instanceof DebugSection) {
+    return "debug";
+  } else if (section instanceof OwnerSection) {
     return "owner";
   } else if (section instanceof ReposSection) {
     return "repos";
@@ -6418,6 +6422,12 @@ function section_to_string(section) {
   } else {
     return "files";
   }
+}
+function section_heading_id(section) {
+  return (() => {
+    let _pipe = section;
+    return section_to_string(_pipe);
+  })() + "-heading";
 }
 function section_id(section) {
   return (() => {
@@ -8379,7 +8389,7 @@ function update(model, msg) {
       model,
       (() => {
         let _pipe = section;
-        let _pipe$1 = section_id(_pipe);
+        let _pipe$1 = section_heading_id(_pipe);
         return scroll_element_into_view(_pipe$1);
       })()
     ];
@@ -8480,6 +8490,9 @@ function update(model, msg) {
 function text2(content) {
   return text(content);
 }
+function nav(attrs, children2) {
+  return element("nav", attrs, children2);
+}
 function div(attrs, children2) {
   return element("div", attrs, children2);
 }
@@ -8568,42 +8581,49 @@ function debug_section(model) {
   if (!$) {
     return none2();
   } else {
-    let _block;
-    let $1 = model.config.theme;
-    if ($1 instanceof Dark) {
-      _block = "border-[#fabd2f]";
-    } else {
-      _block = "border-[#8ec07c]";
-    }
-    let div_class = _block;
     return div(
       toList([
-        class$("mt-8 " + div_class),
-        id("debug-section")
+        class$(
+          "flex-1 overflow-y-scroll mx-4 mt-8 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted max-h-60"
+        ),
+        id(
+          (() => {
+            let _pipe = new DebugSection();
+            return section_id(_pipe);
+          })()
+        )
       ]),
       toList([
         p(
-          toList([class$("text-xl font-semibold")]),
+          toList([
+            class$("text-xl"),
+            id(
+              (() => {
+                let _pipe = new DebugSection();
+                return section_heading_id(_pipe);
+              })()
+            )
+          ]),
           toList([
             (() => {
-              let _pipe = "Debug";
+              let _pipe = "debug";
               return text(_pipe);
             })()
           ])
         ),
-        pre(
+        div(
+          toList([]),
           toList([
-            class$(
-              "mt-2 p-4 border-2 border-opacity-50 text-wrap " + div_class
-            ),
-            id("debug-section")
-          ]),
-          toList([
-            (() => {
-              let _pipe = model;
-              let _pipe$1 = display_model(_pipe);
-              return text(_pipe$1);
-            })()
+            pre(
+              toList([class$("mt-4 text-wrap ")]),
+              toList([
+                (() => {
+                  let _pipe = model;
+                  let _pipe$1 = display_model(_pipe);
+                  return text(_pipe$1);
+                })()
+              ])
+            )
           ])
         )
       ])
@@ -8721,7 +8741,9 @@ function config_error_section(error, theme) {
 }
 function section_bg_class(section, theme) {
   if (theme instanceof Dark) {
-    if (section instanceof OwnerSection) {
+    if (section instanceof DebugSection) {
+      return "bg-[#fabd2f]";
+    } else if (section instanceof OwnerSection) {
       return "bg-[#a594f9]";
     } else if (section instanceof ReposSection) {
       return "bg-[#8caaee]";
@@ -8733,7 +8755,9 @@ function section_bg_class(section, theme) {
       return "bg-[#affc41]";
     }
   } else {
-    if (section instanceof OwnerSection) {
+    if (section instanceof DebugSection) {
+      return "bg-[#fabd2f]";
+    } else if (section instanceof OwnerSection) {
       return "bg-[#cdc1ff]";
     } else if (section instanceof ReposSection) {
       return "bg-[#ff9fb2]";
@@ -8832,7 +8856,15 @@ function owner_selection_section(user_name, owner_type, fetching_repos, theme) {
     ]),
     toList([
       p(
-        toList([class$("text-xl")]),
+        toList([
+          class$("text-xl"),
+          id(
+            (() => {
+              let _pipe = new OwnerSection();
+              return section_heading_id(_pipe);
+            })()
+          )
+        ]),
         toList([
           (() => {
             let _pipe = "owner";
@@ -9168,7 +9200,15 @@ function tags_select_section(tags, start_tag, end_tag, fetching_changelog, theme
       } else {
         return toList([
           p(
-            toList([class$("text-xl")]),
+            toList([
+              class$("text-xl"),
+              id(
+                (() => {
+                  let _pipe = new TagsSection();
+                  return section_heading_id(_pipe);
+                })()
+              )
+            ]),
             toList([
               (() => {
                 let _pipe = "tags";
@@ -9500,7 +9540,15 @@ function commits_section(commits, commits_filter_query, start_tag, end_tag, auth
       ]),
       toList([
         p(
-          toList([class$("text-xl")]),
+          toList([
+            class$("text-xl"),
+            id(
+              (() => {
+                let _pipe = new CommitsSection();
+                return section_heading_id(_pipe);
+              })()
+            )
+          ]),
           toList([
             (() => {
               let _pipe = "commits " + start_tag + "..." + end_tag;
@@ -9596,7 +9644,15 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
     ]),
     toList([
       p(
-        toList([class$("text-xl")]),
+        toList([
+          class$("text-xl"),
+          id(
+            (() => {
+              let _pipe$1 = new ReposSection();
+              return section_heading_id(_pipe$1);
+            })()
+          )
+        ]),
         toList([
           (() => {
             let _pipe$1 = "repos";
@@ -9869,7 +9925,15 @@ function files_section(maybe_files, files_filter_query, theme) {
       ]),
       toList([
         p(
-          toList([class$("text-xl")]),
+          toList([
+            class$("text-xl"),
+            id(
+              (() => {
+                let _pipe = new FilesSection();
+                return section_heading_id(_pipe);
+              })()
+            )
+          ]),
           toList([
             (() => {
               let _pipe = "files";
@@ -9918,107 +9982,24 @@ function files_section(maybe_files, files_filter_query, theme) {
     );
   }
 }
-function navigation_button(section, theme, enabled) {
-  return button(
-    toList([
-      class$(
-        section_bg_class(section, theme) + " disabled:bg-[#a89984] px-2 py-1"
-      ),
-      disabled(!enabled),
-      on_click(new UserRequestedToGoToSection(section))
-    ]),
-    toList([
-      (() => {
-        let _pipe = section;
-        let _pipe$1 = section_to_string(_pipe);
-        return text(_pipe$1);
-      })()
-    ])
-  );
-}
-function navigation_bar(state, theme) {
-  let _block;
-  if (state instanceof Initial) {
-    _block = [false, false, false, false, false];
-  } else if (state instanceof ConfigError) {
-    _block = [false, false, false, false, false];
-  } else if (state instanceof ConfigLoaded) {
-    _block = [true, false, false, false, false];
-  } else if (state instanceof WithReposError) {
-    _block = [true, false, false, false, false];
-  } else if (state instanceof WithRepos) {
-    _block = [true, true, false, false, false];
-  } else if (state instanceof WithTagsError) {
-    _block = [true, true, false, false, false];
-  } else if (state instanceof WithTags) {
-    _block = [true, true, true, false, false];
-  } else if (state instanceof WithChangesError) {
-    _block = [true, true, true, false, false];
-  } else {
-    let changes = state.changes;
-    let $1 = changes.commits;
-    let $2 = changes.files;
-    if ($1.hasLength(0) && $2 instanceof None) {
-      _block = [true, true, true, false, false];
-    } else if ($1.hasLength(0) && $2 instanceof Some && $2[0].hasLength(0)) {
-      _block = [true, true, true, false, false];
-    } else if ($1.hasLength(0) && $2 instanceof Some) {
-      _block = [true, true, true, false, true];
-    } else if ($2 instanceof None) {
-      _block = [true, true, true, true, false];
-    } else if ($2 instanceof Some && $2[0].hasLength(0)) {
-      _block = [true, true, true, true, false];
-    } else {
-      _block = [true, true, true, true, true];
-    }
-  }
-  let $ = _block;
-  let o = $[0];
-  let r = $[1];
-  let t = $[2];
-  let c = $[3];
-  let f = $[4];
-  let _block$1;
-  if (theme instanceof Dark) {
-    _block$1 = "bg-[#282828]";
-  } else {
-    _block$1 = "bg-[#ffffff]";
-  }
-  let footer_class = _block$1;
-  return div(
-    toList([
-      class$(
-        "fixed bottom-0 w-full px-2 pt-4 font-semibold text-[#282828] max-sm:hidden " + footer_class
-      )
-    ]),
-    toList([
-      div(
-        toList([class$("flex gap-2")]),
-        (() => {
-          let _pipe = toList([
-            [new OwnerSection(), o],
-            [new ReposSection(), r],
-            [new TagsSection(), t],
-            [new CommitsSection(), c],
-            [new FilesSection(), f]
-          ]);
-          return map2(
-            _pipe,
-            (data) => {
-              let section = data[0];
-              let enabled = data[1];
-              return navigation_button(section, theme, enabled);
-            }
-          );
-        })()
-      )
-    ])
-  );
-}
 function main_section(model) {
   let theme = model.config.theme;
   return div(
-    toList([]),
+    toList([
+      class$("flex-1 overflow-y-scroll pt-8 px-4"),
+      style(
+        toList([
+          [
+            "scrollbar-color",
+            (() => {
+              let _pipe = theme;
+              return scrollbar_color(_pipe);
+            })()
+          ],
+          ["scrollbar-width", "thin"]
+        ])
+      )
+    ]),
     (() => {
       let $ = model.state;
       if ($ instanceof Initial) {
@@ -10058,10 +10039,6 @@ function main_section(model) {
           (() => {
             let _pipe = fetching_repos;
             return fetching_repos_section(_pipe);
-          })(),
-          (() => {
-            let _pipe = model.state;
-            return navigation_bar(_pipe, theme);
           })()
         ]);
       } else if ($ instanceof WithReposError) {
@@ -10085,10 +10062,6 @@ function main_section(model) {
           (() => {
             let _pipe = error;
             return repos_error_section(_pipe, owner_type, theme);
-          })(),
-          (() => {
-            let _pipe = model.state;
-            return navigation_bar(_pipe, theme);
           })()
         ]);
       } else if ($ instanceof WithRepos) {
@@ -10121,10 +10094,6 @@ function main_section(model) {
           (() => {
             let _pipe = fetching_tags;
             return fetching_tags_section(_pipe);
-          })(),
-          (() => {
-            let _pipe = model.state;
-            return navigation_bar(_pipe, theme);
           })()
         ]);
       } else if ($ instanceof WithTagsError) {
@@ -10160,10 +10129,6 @@ function main_section(model) {
           (() => {
             let _pipe = error;
             return tags_error_section(_pipe, theme);
-          })(),
-          (() => {
-            let _pipe = model.state;
-            return navigation_bar(_pipe, theme);
           })()
         ]);
       } else if ($ instanceof WithTags) {
@@ -10205,11 +10170,7 @@ function main_section(model) {
             end_tag,
             fetching_changelog,
             theme
-          ),
-          (() => {
-            let _pipe = model.state;
-            return navigation_bar(_pipe, theme);
-          })()
+          )
         ]);
       } else if ($ instanceof WithChangesError) {
         let user_name = $.user_name;
@@ -10260,10 +10221,6 @@ function main_section(model) {
           (() => {
             let _pipe = error;
             return changes_error_section(_pipe, theme);
-          })(),
-          (() => {
-            let _pipe = model.state;
-            return navigation_bar(_pipe, theme);
           })()
         ]);
       } else {
@@ -10334,21 +10291,114 @@ function main_section(model) {
           (() => {
             let _pipe = changes.files;
             return files_section(_pipe, files_filter, theme);
-          })(),
-          (() => {
-            let _pipe = model.state;
-            return navigation_bar(_pipe, theme);
           })()
         ]);
       }
     })()
   );
 }
+function navigation_button(section, theme, enabled) {
+  return button(
+    toList([
+      class$(
+        section_bg_class(section, theme) + " disabled:bg-[#a89984] px-2 py-1"
+      ),
+      disabled(!enabled),
+      on_click(new UserRequestedToGoToSection(section))
+    ]),
+    toList([
+      (() => {
+        let _pipe = section;
+        let _pipe$1 = section_to_string(_pipe);
+        return text(_pipe$1);
+      })()
+    ])
+  );
+}
+function navigation_bar(state, theme) {
+  let _block;
+  if (state instanceof Initial) {
+    _block = [false, false, false, false, false];
+  } else if (state instanceof ConfigError) {
+    _block = [false, false, false, false, false];
+  } else if (state instanceof ConfigLoaded) {
+    _block = [true, false, false, false, false];
+  } else if (state instanceof WithReposError) {
+    _block = [true, false, false, false, false];
+  } else if (state instanceof WithRepos) {
+    _block = [true, true, false, false, false];
+  } else if (state instanceof WithTagsError) {
+    _block = [true, true, false, false, false];
+  } else if (state instanceof WithTags) {
+    _block = [true, true, true, false, false];
+  } else if (state instanceof WithChangesError) {
+    _block = [true, true, true, false, false];
+  } else {
+    let changes = state.changes;
+    let $1 = changes.commits;
+    let $2 = changes.files;
+    if ($1.hasLength(0) && $2 instanceof None) {
+      _block = [true, true, true, false, false];
+    } else if ($1.hasLength(0) && $2 instanceof Some && $2[0].hasLength(0)) {
+      _block = [true, true, true, false, false];
+    } else if ($1.hasLength(0) && $2 instanceof Some) {
+      _block = [true, true, true, false, true];
+    } else if ($2 instanceof None) {
+      _block = [true, true, true, true, false];
+    } else if ($2 instanceof Some && $2[0].hasLength(0)) {
+      _block = [true, true, true, true, false];
+    } else {
+      _block = [true, true, true, true, true];
+    }
+  }
+  let $ = _block;
+  let o = $[0];
+  let r = $[1];
+  let t = $[2];
+  let c = $[3];
+  let f = $[4];
+  let _block$1;
+  if (theme instanceof Dark) {
+    _block$1 = "bg-[#282828]";
+  } else {
+    _block$1 = "bg-[#ffffff]";
+  }
+  let footer_class = _block$1;
+  return nav(
+    toList([
+      class$(
+        "flex px-4 pt-4 font-semibold text-[#282828] max-sm:hidden " + footer_class
+      )
+    ]),
+    toList([
+      div(
+        toList([class$("flex gap-2")]),
+        (() => {
+          let _pipe = toList([
+            [new OwnerSection(), o],
+            [new ReposSection(), r],
+            [new TagsSection(), t],
+            [new CommitsSection(), c],
+            [new FilesSection(), f]
+          ]);
+          return map2(
+            _pipe,
+            (data) => {
+              let section = data[0];
+              let enabled = data[1];
+              return navigation_button(section, theme, enabled);
+            }
+          );
+        })()
+      )
+    ])
+  );
+}
 function view(model) {
   return div(
     toList([
       class$(
-        "min-h-screen " + (() => {
+        "" + (() => {
           let _pipe = model.config.theme;
           return main_div_class(_pipe);
         })()
@@ -10356,15 +10406,23 @@ function view(model) {
     ]),
     toList([
       div(
-        toList([class$("pt-10 pb-20 w-4/5 max-sm:w-5/6 mx-auto")]),
         toList([
+          class$(
+            "flex flex-col h-screen lg:w-4/5 max-sm:px-2 lg:mx-auto"
+          )
+        ]),
+        toList([
+          (() => {
+            let _pipe = model;
+            return debug_section(_pipe);
+          })(),
           (() => {
             let _pipe = model;
             return main_section(_pipe);
           })(),
           (() => {
-            let _pipe = model;
-            return debug_section(_pipe);
+            let _pipe = model.state;
+            return navigation_bar(_pipe, model.config.theme);
           })()
         ])
       )

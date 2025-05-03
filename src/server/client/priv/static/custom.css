@@ -1,6 +1,5 @@
 body {
     font-family: "Open Sans", sans-serif;
-    overflow-y: scroll;
 }
 
 #debug-section {
@@ -13,17 +12,4 @@ body {
 
 #files-section {
   font-family: "Fira Mono", monospace;
-}
-
-body::-webkit-scrollbar {
-    width: 8px;
-}
-
-body::-webkit-scrollbar-track {
-    background: #282828;
-}
-
-body::-webkit-scrollbar-thumb {
-    background: #a594f940;
-    border-radius: 4px;
 }
