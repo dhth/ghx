@@ -16,6 +16,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Ensure dev flag is set to False
+        run: |
+          if grep -q "const dev = True" src/server/client/src/effects.gleam; then
+            echo "dev flag is set to True"
+            false
+          fi
       - uses: erlef/setup-beam@v1
         with:
           otp-version: "27.1"
