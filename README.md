@@ -24,7 +24,7 @@ repositories. While GitHub's UI allows comparing refs, doing it for git tags is
 a bit tedious. Additionally, comparing tags across multiple repositories
 involves a lot of clicks. To simplify this process, I built `ghch`.
 
-Everything that `ghch` does can be achieved using `git` locally. The goal is to
+Everything that `ghch` does can be achieved locally using `git`; the goal is to
 access commit logs quickly without having to clone a repository, or pull
 changes, or run `git tag` to discover tags.
 
@@ -33,7 +33,7 @@ changes, or run `git tag` to discover tags.
 
 ```text
 $ ghch serve -h
-Serve ghch' web interface
+Serve ghch's web interface
 
 Usage: ghch serve [OPTIONS]
 
@@ -41,6 +41,8 @@ Options:
   -o, --owner <STRING>       Owner to show results for
   -t, --owner-type <STRING>  Owner type [default: user] [possible values: user, org]
   -T, --theme <STRING>       Theme to use [default: dark] [possible values: light, dark]
+  -p, --port <INTEGER>       Port to use
+  -s, --skip-opening         Whether to skip opening the front-end in the browser
   -h, --help                 Print help (see more with '--help')
 ```
 

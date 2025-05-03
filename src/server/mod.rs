@@ -1,5 +1,6 @@
 mod handlers;
 mod state;
+mod utils;
 
 use axum::{Router, http::Method, routing::get};
 use handlers::{
@@ -12,10 +13,15 @@ pub use state::Config;
 pub use state::Theme;
 use tokio::signal;
 use tower_http::cors::{Any, CorsLayer};
+use utils::find_open_port_in_range;
+
+const PORT_RANGE_START: u16 = 9899;
+const PORT_RANGE_END: u16 = 10199;
 
 pub async fn run_server(
     start_config: Config,
     token: String,
+    port: Option<u16>,
     skip_opening: bool,
 ) -> anyhow::Result<()> {
     let client = Client::new();
@@ -63,7 +69,12 @@ pub async fn run_server(
         .with_state(app_state)
         .layer(cors);
 
-    let address = format!("127.0.0.1:{}", 9899);
+    let port = port.map(Ok).unwrap_or_else(|| {
+        find_open_port_in_range(PORT_RANGE_START, PORT_RANGE_END)
+            .ok_or(anyhow::anyhow!("couldn't find open port"))
+    })?;
+
+    let address = format!("127.0.0.1:{}", port);
 
     let listener = tokio::net::TcpListener::bind(&address).await.unwrap();
 
