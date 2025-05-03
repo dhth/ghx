@@ -1,7 +1,6 @@
 import constants
 import gleam/bool
 import gleam/dict.{type Dict}
-import gleam/dynamic
 import gleam/dynamic/decode
 import gleam/int
 import gleam/list
@@ -130,11 +129,11 @@ pub type ChangelogCommitAuthor {
   )
 }
 
-fn timestamp_decoder() -> decode.Decoder(option.Option(Timestamp)) {
+fn optional_timestamp_decoder() -> decode.Decoder(option.Option(Timestamp)) {
   decode.new_primitive_decoder("Timestamp", fn(data) {
     let default = option.None
 
-    case decode.run(dynamic.from(data), decode.string) {
+    case decode.run(data, decode.string) {
       Error(_) -> Ok(default)
       Ok(timestamp_string) ->
         case timestamp.parse_rfc3339(timestamp_string) {
@@ -148,7 +147,7 @@ fn timestamp_decoder() -> decode.Decoder(option.Option(Timestamp)) {
 fn changelog_commit_author_decoder() -> decode.Decoder(ChangelogCommitAuthor) {
   use name <- decode.field("name", decode.string)
   use email <- decode.field("email", decode.string)
-  use authoring_timestamp <- decode.field("date", timestamp_decoder())
+  use authoring_timestamp <- decode.field("date", optional_timestamp_decoder())
   decode.success(ChangelogCommitAuthor(name:, email:, authoring_timestamp:))
 }
 

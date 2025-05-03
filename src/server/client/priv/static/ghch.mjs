@@ -6211,12 +6211,12 @@ function tags_response_decoder() {
   let _pipe = tag_decoder();
   return list2(_pipe);
 }
-function timestamp_decoder() {
+function optional_timestamp_decoder() {
   return new_primitive_decoder(
     "Timestamp",
     (data) => {
       let default$ = new None();
-      let $ = run(identity(data), string4);
+      let $ = run(data, string4);
       if (!$.isOk()) {
         return new Ok(default$);
       } else {
@@ -6248,7 +6248,7 @@ function changelog_commit_author_decoder() {
         (email) => {
           return field2(
             "date",
-            timestamp_decoder(),
+            optional_timestamp_decoder(),
             (authoring_timestamp) => {
               return success(
                 new ChangelogCommitAuthor(name2, email, authoring_timestamp)
