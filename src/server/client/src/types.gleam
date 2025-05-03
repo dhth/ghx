@@ -351,6 +351,7 @@ fn get_author_color_classes() -> AuthorColorClasses {
 }
 
 pub type Section {
+  DebugSection
   OwnerSection
   ReposSection
   TagsSection
@@ -360,12 +361,17 @@ pub type Section {
 
 pub fn section_to_string(section: Section) -> String {
   case section {
+    DebugSection -> "debug"
     OwnerSection -> "owner"
     ReposSection -> "repos"
     TagsSection -> "tags"
     CommitsSection -> "commits"
     FilesSection -> "files"
   }
+}
+
+pub fn section_heading_id(section: Section) -> String {
+  { section |> section_to_string } <> "-heading"
 }
 
 pub fn section_id(section: Section) -> String {
