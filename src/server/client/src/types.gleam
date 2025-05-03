@@ -163,15 +163,14 @@ pub type ChangesFileStatus {
 
 pub fn file_status_to_string(status: ChangesFileStatus) -> String {
   case status {
-    Added -> "added"
-    Changed -> "changed"
-    Copied -> "copied"
-    Modified -> "modified"
-    Removed -> "removed"
-    Renamed -> "renamed"
-    Unchanged -> "unchangd"
+    Added -> "add"
+    Changed -> "chd"
+    Copied -> "cop"
+    Modified -> "mod"
+    Removed -> "remd"
+    Renamed -> "ren"
+    Unchanged -> "unc"
   }
-  |> string.pad_end(8, ".")
 }
 
 fn changes_file_status_decoder() -> decode.Decoder(ChangesFileStatus) {
@@ -401,8 +400,8 @@ pub fn init_model() -> Model {
       Model(
         config: Config(theme: Dark),
         state: ConfigLoaded(
-          user_name: "dhth" |> option.Some,
-          owner_type: User,
+          user_name: "neovim" |> option.Some,
+          owner_type: Org,
           fetching_repos: True,
         ),
         author_color_classes:,

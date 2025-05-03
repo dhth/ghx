@@ -580,12 +580,8 @@ video {
   margin-bottom: 0.5rem;
 }
 
-.ml-2 {
-  margin-left: 0.5rem;
-}
-
-.ml-4 {
-  margin-left: 1rem;
+.ml-auto {
+  margin-left: auto;
 }
 
 .mr-2 {
@@ -610,6 +606,10 @@ video {
 
 .mt-8 {
   margin-top: 2rem;
+}
+
+.block {
+  display: block;
 }
 
 .flex {
@@ -1297,6 +1297,19 @@ video {
 @media not all and (min-width: 640px) {
   .max-sm\:hidden {
     display: none;
+  }
+
+  .max-sm\:w-8 {
+    width: 2rem;
+  }
+
+  .max-sm\:w-full {
+    width: 100%;
+  }
+
+  .max-sm\:text-xs {
+    font-size: 0.75rem;
+    line-height: 1rem;
   }
 }
 

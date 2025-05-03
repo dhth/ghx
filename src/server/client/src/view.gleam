@@ -300,6 +300,13 @@ fn heading(theme: Theme) -> element.Element(Msg) {
           ),
         ])
     },
+    html.button(
+      [
+        attribute.class("ml-auto text-xl"),
+        event.on_click(types.UserChangedTheme),
+      ],
+      [element.text(theme |> types.theme_to_string)],
+    ),
   ])
 }
 
@@ -362,8 +369,7 @@ fn owner_selection_section(
   html.div(
     [
       attribute.class(
-        "mt-8 p-4 border-2 border-[#a594f9] border-opacity-50
-        border-dotted",
+        "mt-8 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted",
       ),
       attribute.id(types.OwnerSection |> types.section_id),
     ],
@@ -375,14 +381,17 @@ fn owner_selection_section(
         ],
         ["owner" |> element.text],
       ),
-      html.div([attribute.class("flex flex-wrap gap-2 items-center mt-2")], [
+      html.div([attribute.class("flex flex-wrap gap-4 items-center mt-2")], [
         html.input([
-          attribute.class("px-4 py-1 my-2 font-semibold " <> input_class),
+          attribute.class(
+            "px-2 py-1 my-2 font-semibold max-sm:w-full " <> input_class,
+          ),
           attribute.placeholder(placeholder),
           attribute.value(user_name |> option.unwrap("")),
           attribute.disabled(fetching_repos),
           event.on_input(types.UserEnteredUsernameInput),
         ]),
+        owner_type |> owner_type_selector,
         html.button(
           [
             attribute.id("fetch-repos"),
@@ -395,11 +404,6 @@ fn owner_selection_section(
             event.on_click(types.UserRequestedRepos),
           ],
           [element.text("fetch repos")],
-        ),
-        owner_type |> owner_type_selector,
-        html.button(
-          [event.on_click(types.UserChangedTheme), attribute.class("ml-4 py-1")],
-          [element.text(theme |> types.theme_to_string)],
         ),
       ]),
     ],
@@ -431,7 +435,7 @@ fn section_bg_class(section: types.Section, theme: Theme) -> String {
 
 fn owner_type_selector(owner_type: types.AccountType) -> element.Element(Msg) {
   html.div(
-    [attribute.class("flex flex-wrap gap-2 items-center ml-2")],
+    [attribute.class("flex flex-wrap gap-2 items-center")],
     types.owner_types()
       |> list.map(fn(at) {
         at
@@ -541,8 +545,8 @@ fn repo_selection_section(
       ),
       html.input([
         attribute.class(
-          "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 "
-          <> filter_class,
+          "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2
+          max-sm:w-full " <> filter_class,
         ),
         attribute.autocomplete("off"),
         attribute.id("filter-repos"),
@@ -599,7 +603,8 @@ fn repo_select_button(
     [
       attribute.id("reset-filter"),
       attribute.class(
-        "text-sm font-semibold mr-2 px-2 py-1 my-1 text-[#232634] " <> class,
+        "max-sm:text-xs text-sm font-semibold mr-2 px-2 py-1 my-1 text-[#232634] "
+        <> class,
       ),
       attribute.disabled(selected),
       event.on_click(types.RepoChosen(repo.name)),
@@ -839,7 +844,7 @@ fn commits_section(
           ),
           html.input([
             attribute.class(
-              "mt-4 font-semibold h-8 text-[#232634] placeholder-[#3d3d3d] pl-2 "
+              "mt-4 font-semibold h-8 text-[#232634] placeholder-[#3d3d3d] pl-2 max-sm:w-full "
               <> section_bg_class(types.CommitsSection, theme),
             ),
             attribute.autocomplete("off"),
@@ -850,7 +855,7 @@ fn commits_section(
             event.on_input(types.UserEnteredCommitsFilterQuery),
           ]),
           html.div(
-            [attribute.class("mt-4 overflow-x-auto")],
+            [attribute.class("mt-4 overflow-x-auto max-sm:text-xs")],
             case commits_filter_query {
               option.None -> commits
               option.Some(q) ->
@@ -1006,7 +1011,7 @@ fn files_section(
           ),
           html.input([
             attribute.class(
-              "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 "
+              "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 max-sm:w-full "
               <> section_bg_class(types.FilesSection, theme),
             ),
             attribute.autocomplete("off"),
@@ -1017,7 +1022,7 @@ fn files_section(
             event.on_input(types.UserEnteredFilesFilterQuery),
           ]),
           html.div(
-            [attribute.class("mt-4 overflow-x-auto")],
+            [attribute.class("mt-4 overflow-x-auto max-sm:text-xs")],
             case files_filter_query {
               option.None -> files
               option.Some(q) ->
@@ -1116,7 +1121,8 @@ fn file_change_stats(
     html.span(
       [
         attribute.class(
-          "px-2 py-1 text-sm font-semibold w-16 " <> additions_class,
+          "px-2 py-1 max-sm:text-xs text-sm font-semibold max-sm:w-8 w-16 "
+          <> additions_class,
         ),
       ],
       [additions_text |> element.text],
@@ -1124,7 +1130,8 @@ fn file_change_stats(
     html.span(
       [
         attribute.class(
-          "px-2 py-1 text-sm font-semibold w-16 " <> deletions_class,
+          "px-2 py-1 max-sm:text-xs text-sm font-semibold max-sm:w-8 w-16 "
+          <> deletions_class,
         ),
       ],
       [deletions_text |> element.text],
