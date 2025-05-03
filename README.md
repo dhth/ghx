@@ -5,8 +5,8 @@
   </p>
 </p>
 
-`ghch` is a *work-in-progress* tool to simplify the process of viewing changes
-for GitHub repositories.
+`ghch` provides an alternative to GitHub's UI for viewing commit logs between
+git tags.
 
 ![](https://github.com/user-attachments/assets/548484ac-7d3f-4261-8c59-cb84def173a6)
 ![](https://github.com/user-attachments/assets/af584b9f-281e-46fd-951f-75278b4d7c9f)
@@ -15,6 +15,18 @@ for GitHub repositories.
 > [!NOTE]
 > An unauthenticated public version of `ghch`'s web interface is running
 > at [https://ghch-public.tools.dhruvs.space](https://ghch-public.tools.dhruvs.space).
+
+🤔 Why does this exist?
+---
+
+I often need to view commit logs between two git tags for GitHub hosted
+repositories. While GitHub's UI allows comparing refs, doing it for git tags is
+a bit tedious. Additionally, comparing tags across multiple repositories
+involves a lot of clicks. To simplify this process, I built `ghch`.
+
+Everything that `ghch` does can be achieved using `git` locally. The goal is to
+access commit logs quickly without having to clone a repository, or pull
+changes, or run `git tag` to discover tags.
 
 ⚡️ Usage
 ---
