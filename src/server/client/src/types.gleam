@@ -6,6 +6,7 @@ import gleam/int
 import gleam/list
 import gleam/option
 import gleam/string
+import gleam/time/timestamp.{type Timestamp}
 import lustre_http
 import utils
 
@@ -94,23 +95,13 @@ pub fn repos_response_decoder() -> decode.Decoder(ReposResponse) {
   repo_decoder() |> decode.list
 }
 
-pub type Commit {
-  Commit(sha: String)
-}
-
-fn commit_decoder() -> decode.Decoder(Commit) {
-  use sha <- decode.field("sha", decode.string)
-  decode.success(Commit(sha:))
-}
-
 pub type Tag {
-  Tag(name: String, commit: Commit)
+  Tag(name: String)
 }
 
 fn tag_decoder() -> decode.Decoder(Tag) {
   use name <- decode.field("name", decode.string)
-  use commit <- decode.field("commit", commit_decoder())
-  decode.success(Tag(name:, commit:))
+  decode.success(Tag(name:))
 }
 
 pub type TagsResponse =
@@ -120,24 +111,44 @@ pub fn tags_response_decoder() -> decode.Decoder(TagsResponse) {
   tag_decoder() |> decode.list
 }
 
-pub type ChangelogCommitAuthor {
-  ChangelogCommitAuthor(name: String, email: String)
+pub type Author {
+  Author(
+    name: String,
+    email: String,
+    authoring_timestamp: option.Option(Timestamp),
+  )
 }
 
-fn changelog_commit_author_decoder() -> decode.Decoder(ChangelogCommitAuthor) {
+fn optional_timestamp_decoder() -> decode.Decoder(option.Option(Timestamp)) {
+  decode.new_primitive_decoder("Timestamp", fn(data) {
+    let default = option.None
+
+    case decode.run(data, decode.string) {
+      Error(_) -> Ok(default)
+      Ok(timestamp_string) ->
+        case timestamp.parse_rfc3339(timestamp_string) {
+          Error(_) -> Ok(default)
+          Ok(t) -> Ok(t |> option.Some)
+        }
+    }
+  })
+}
+
+fn author_decoder() -> decode.Decoder(Author) {
   use name <- decode.field("name", decode.string)
   use email <- decode.field("email", decode.string)
-  decode.success(ChangelogCommitAuthor(name:, email:))
+  use authoring_timestamp <- decode.field("date", optional_timestamp_decoder())
+  decode.success(Author(name:, email:, authoring_timestamp:))
 }
 
-pub type ChangelogCommitDetails {
-  ChangelogCommitDetails(author: ChangelogCommitAuthor, message: String)
+pub type CommitDetails {
+  CommitDetails(author: option.Option(Author), message: String)
 }
 
-fn changelog_commit_details_decoder() -> decode.Decoder(ChangelogCommitDetails) {
-  use author <- decode.field("author", changelog_commit_author_decoder())
+fn commit_details_decoder() -> decode.Decoder(CommitDetails) {
+  use author <- decode.field("author", decode.optional(author_decoder()))
   use message <- decode.field("message", decode.string)
-  decode.success(ChangelogCommitDetails(author:, message:))
+  decode.success(CommitDetails(author:, message:))
 }
 
 pub type ChangesFileStatus {
@@ -202,38 +213,28 @@ fn changes_file_item_decoder() -> decode.Decoder(ChangesFileItem) {
   ))
 }
 
-pub type ChangelogCommit {
-  ChangelogCommit(
-    sha: String,
-    details: ChangelogCommitDetails,
-    html_url: String,
-  )
+pub type Commit {
+  Commit(sha: String, details: CommitDetails, html_url: String)
 }
 
-fn changelog_commit_decoder() -> decode.Decoder(ChangelogCommit) {
+fn commit_decoder() -> decode.Decoder(Commit) {
   use sha <- decode.field("sha", decode.string)
-  use details <- decode.field("commit", changelog_commit_details_decoder())
+  use details <- decode.field("commit", commit_details_decoder())
   use html_url <- decode.field("html_url", decode.string)
-  decode.success(ChangelogCommit(sha:, details:, html_url:))
+  decode.success(Commit(sha:, details:, html_url:))
 }
 
-pub type ChangesResponse {
-  ChangelogResponse(
-    commits: List(ChangelogCommit),
-    files: option.Option(List(ChangesFileItem)),
-  )
+pub type Changes {
+  Changes(commits: List(Commit), files: option.Option(List(ChangesFileItem)))
 }
 
-pub fn changes_response_decoder() -> decode.Decoder(ChangesResponse) {
-  use commits <- decode.field(
-    "commits",
-    decode.list(changelog_commit_decoder()),
-  )
+pub fn changes_decoder() -> decode.Decoder(Changes) {
+  use commits <- decode.field("commits", decode.list(commit_decoder()))
   use files <- decode.field(
     "files",
     decode.optional(decode.list(changes_file_item_decoder())),
   )
-  decode.success(ChangelogResponse(commits:, files:))
+  decode.success(Changes(commits:, files:))
 }
 
 pub fn theme_to_string(theme: Theme) -> String {
@@ -325,7 +326,7 @@ pub type State {
     tags: TagsResponse,
     start_tag: String,
     end_tag: String,
-    changes: ChangesResponse,
+    changes: Changes,
     commits_filter: option.Option(String),
     files_filter: option.Option(String),
   )
@@ -417,9 +418,7 @@ pub type Msg {
   StartTagChosen(String)
   EndTagChosen(String)
   UserRequestedChangelog
-  ChangesFetched(
-    #(String, String, Result(ChangesResponse, lustre_http.HttpError)),
-  )
+  ChangesFetched(#(String, String, Result(Changes, lustre_http.HttpError)))
   UserRequestedToGoToSection(Section)
   UserEnteredCommitsFilterQuery(String)
   UserEnteredFilesFilterQuery(String)

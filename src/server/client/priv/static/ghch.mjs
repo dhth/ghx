@@ -272,6 +272,145 @@ function bitArrayPrintDeprecationWarning(name2, message) {
   );
   isBitArrayDeprecationMessagePrinted[name2] = true;
 }
+function bitArraySlice(bitArray, start3, end) {
+  end ??= bitArray.bitSize;
+  bitArrayValidateRange(bitArray, start3, end);
+  if (start3 === end) {
+    return new BitArray(new Uint8Array());
+  }
+  if (start3 === 0 && end === bitArray.bitSize) {
+    return bitArray;
+  }
+  start3 += bitArray.bitOffset;
+  end += bitArray.bitOffset;
+  const startByteIndex = Math.trunc(start3 / 8);
+  const endByteIndex = Math.trunc((end + 7) / 8);
+  const byteLength = endByteIndex - startByteIndex;
+  let buffer;
+  if (startByteIndex === 0 && byteLength === bitArray.rawBuffer.byteLength) {
+    buffer = bitArray.rawBuffer;
+  } else {
+    buffer = new Uint8Array(
+      bitArray.rawBuffer.buffer,
+      bitArray.rawBuffer.byteOffset + startByteIndex,
+      byteLength
+    );
+  }
+  return new BitArray(buffer, end - start3, start3 % 8);
+}
+function toBitArray(segments) {
+  if (segments.length === 0) {
+    return new BitArray(new Uint8Array());
+  }
+  if (segments.length === 1) {
+    const segment = segments[0];
+    if (segment instanceof BitArray) {
+      return segment;
+    }
+    if (segment instanceof Uint8Array) {
+      return new BitArray(segment);
+    }
+    return new BitArray(new Uint8Array(
+      /** @type {number[]} */
+      segments
+    ));
+  }
+  let bitSize = 0;
+  let areAllSegmentsNumbers = true;
+  for (const segment of segments) {
+    if (segment instanceof BitArray) {
+      bitSize += segment.bitSize;
+      areAllSegmentsNumbers = false;
+    } else if (segment instanceof Uint8Array) {
+      bitSize += segment.byteLength * 8;
+      areAllSegmentsNumbers = false;
+    } else {
+      bitSize += 8;
+    }
+  }
+  if (areAllSegmentsNumbers) {
+    return new BitArray(new Uint8Array(
+      /** @type {number[]} */
+      segments
+    ));
+  }
+  const buffer = new Uint8Array(Math.trunc((bitSize + 7) / 8));
+  let cursor = 0;
+  for (let segment of segments) {
+    const isCursorByteAligned = cursor % 8 === 0;
+    if (segment instanceof BitArray) {
+      if (isCursorByteAligned && segment.bitOffset === 0) {
+        buffer.set(segment.rawBuffer, cursor / 8);
+        cursor += segment.bitSize;
+        const trailingBitsCount = segment.bitSize % 8;
+        if (trailingBitsCount !== 0) {
+          const lastByteIndex = Math.trunc(cursor / 8);
+          buffer[lastByteIndex] >>= 8 - trailingBitsCount;
+          buffer[lastByteIndex] <<= 8 - trailingBitsCount;
+        }
+      } else {
+        appendUnalignedBits(
+          segment.rawBuffer,
+          segment.bitSize,
+          segment.bitOffset
+        );
+      }
+    } else if (segment instanceof Uint8Array) {
+      if (isCursorByteAligned) {
+        buffer.set(segment, cursor / 8);
+        cursor += segment.byteLength * 8;
+      } else {
+        appendUnalignedBits(segment, segment.byteLength * 8, 0);
+      }
+    } else {
+      if (isCursorByteAligned) {
+        buffer[cursor / 8] = segment;
+        cursor += 8;
+      } else {
+        appendUnalignedBits(new Uint8Array([segment]), 8, 0);
+      }
+    }
+  }
+  function appendUnalignedBits(unalignedBits, size, offset) {
+    if (size === 0) {
+      return;
+    }
+    const byteSize = Math.trunc(size + 7 / 8);
+    const highBitsCount = cursor % 8;
+    const lowBitsCount = 8 - highBitsCount;
+    let byteIndex = Math.trunc(cursor / 8);
+    for (let i = 0; i < byteSize; i++) {
+      let byte = bitArrayByteAt(unalignedBits, offset, i);
+      if (size < 8) {
+        byte >>= 8 - size;
+        byte <<= 8 - size;
+      }
+      buffer[byteIndex] |= byte >> highBitsCount;
+      let appendedBitsCount = size - Math.max(0, size - lowBitsCount);
+      size -= appendedBitsCount;
+      cursor += appendedBitsCount;
+      if (size === 0) {
+        break;
+      }
+      buffer[++byteIndex] = byte << lowBitsCount;
+      appendedBitsCount = size - Math.max(0, size - highBitsCount);
+      size -= appendedBitsCount;
+      cursor += appendedBitsCount;
+    }
+  }
+  return new BitArray(buffer, bitSize);
+}
+function bitArrayValidateRange(bitArray, start3, end) {
+  if (start3 < 0 || start3 > bitArray.bitSize || end < start3 || end > bitArray.bitSize) {
+    const msg = `Invalid bit array slice: start = ${start3}, end = ${end}, bit size = ${bitArray.bitSize}`;
+    throw new globalThis.Error(msg);
+  }
+}
+var utf8Encoder;
+function stringBits(string6) {
+  utf8Encoder ??= new TextEncoder();
+  return utf8Encoder.encode(string6);
+}
 var Result = class _Result extends CustomType {
   // @internal
   static isResult(data) {
@@ -429,6 +568,14 @@ function map(option2, fun) {
   if (option2 instanceof Some) {
     let x = option2[0];
     return new Some(fun(x));
+  } else {
+    return new None();
+  }
+}
+function then$(option2, fun) {
+  if (option2 instanceof Some) {
+    let x = option2[0];
+    return fun(x);
   } else {
     return new None();
   }
@@ -1291,6 +1438,12 @@ function trim_start(string6) {
 function trim_end(string6) {
   return string6.replace(trim_end_regex, "");
 }
+function bit_array_from_string(string6) {
+  return toBitArray([stringBits(string6)]);
+}
+function round(float4) {
+  return Math.round(float4);
+}
 function codepoint(int4) {
   return new UtfCodepoint(int4);
 }
@@ -1493,6 +1646,19 @@ function bit_array_inspect(bits, acc) {
     acc += `:size(${trailingBitsCount})`;
   }
   return acc;
+}
+
+// build/dev/javascript/gleam_stdlib/gleam/float.mjs
+function negate(x) {
+  return -1 * x;
+}
+function round2(x) {
+  let $ = x >= 0;
+  if ($) {
+    return round(x);
+  } else {
+    return 0 - round(negate(x));
+  }
 }
 
 // build/dev/javascript/gleam_stdlib/gleam/int.mjs
@@ -2232,7 +2398,7 @@ function try$(result, fun) {
     return new Error(e);
   }
 }
-function then$(result, fun) {
+function then$2(result, fun) {
   return try$(result, fun);
 }
 function unwrap2(result, default$) {
@@ -2427,7 +2593,7 @@ function map4(decoder, transformer) {
     }
   );
 }
-function then$2(decoder, next) {
+function then$3(decoder, next) {
   return new Decoder(
     (dynamic_data) => {
       let $ = decoder.function(dynamic_data);
@@ -2522,6 +2688,23 @@ function failure(zero, expected) {
   return new Decoder((d) => {
     return [zero, decode_error(expected, d)];
   });
+}
+function new_primitive_decoder(name2, decoding_function) {
+  return new Decoder(
+    (d) => {
+      let $ = decoding_function(d);
+      if ($.isOk()) {
+        let t = $[0];
+        return [t, toList([])];
+      } else {
+        let zero = $[0];
+        return [
+          zero,
+          toList([new DecodeError2(name2, classify_dynamic(d), toList([]))])
+        ];
+      }
+    }
+  );
 }
 var int2 = /* @__PURE__ */ new Decoder(decode_int2);
 function decode_string2(data) {
@@ -2764,7 +2947,7 @@ var UnableToDecode = class extends CustomType {
   }
 };
 function do_parse(json, decoder) {
-  return then$(
+  return then$2(
     decode(json),
     (dynamic_value) => {
       let _pipe = run(dynamic_value, decoder);
@@ -4603,14 +4786,14 @@ function to_uri(request) {
   );
 }
 function from_uri(uri) {
-  return then$(
+  return then$2(
     (() => {
       let _pipe = uri.scheme;
       let _pipe$1 = unwrap(_pipe, "");
       return scheme_from_string(_pipe$1);
     })(),
     (scheme) => {
-      return then$(
+      return then$2(
         (() => {
           let _pipe = uri.host;
           return to_result(_pipe, void 0);
@@ -4635,7 +4818,7 @@ function from_uri(uri) {
 function to(url) {
   let _pipe = url;
   let _pipe$1 = parse2(_pipe);
-  return then$(_pipe$1, from_uri);
+  return then$2(_pipe$1, from_uri);
 }
 
 // build/dev/javascript/gleam_http/gleam/http/response.mjs
@@ -4863,8 +5046,8 @@ function expect_json(decoder, to_msg) {
   return new ExpectTextResponse(
     (response) => {
       let _pipe = response;
-      let _pipe$1 = then$(_pipe, response_to_result);
-      let _pipe$2 = then$(
+      let _pipe$1 = then$2(_pipe, response_to_result);
+      let _pipe$2 = then$2(
         _pipe$1,
         (body2) => {
           let $ = parse(body2, decoder);
@@ -5038,6 +5221,495 @@ function setTimeout(delay, callback) {
   return globalThis.setTimeout(callback, delay);
 }
 
+// build/dev/javascript/gleam_time/gleam/time/duration.mjs
+var Duration = class extends CustomType {
+  constructor(seconds2, nanoseconds2) {
+    super();
+    this.seconds = seconds2;
+    this.nanoseconds = nanoseconds2;
+  }
+};
+function normalise(duration) {
+  let multiplier = 1e9;
+  let nanoseconds$1 = remainderInt(duration.nanoseconds, multiplier);
+  let overflow = duration.nanoseconds - nanoseconds$1;
+  let seconds$1 = duration.seconds + divideInt(overflow, multiplier);
+  let $ = nanoseconds$1 >= 0;
+  if ($) {
+    return new Duration(seconds$1, nanoseconds$1);
+  } else {
+    return new Duration(seconds$1 - 1, multiplier + nanoseconds$1);
+  }
+}
+function add3(left, right) {
+  let _pipe = new Duration(
+    left.seconds + right.seconds,
+    left.nanoseconds + right.nanoseconds
+  );
+  return normalise(_pipe);
+}
+function seconds(amount) {
+  return new Duration(amount, 0);
+}
+function nanoseconds(amount) {
+  let _pipe = new Duration(0, amount);
+  return normalise(_pipe);
+}
+function to_seconds(duration) {
+  let seconds$1 = identity(duration.seconds);
+  let nanoseconds$1 = identity(duration.nanoseconds);
+  return seconds$1 + divideFloat(nanoseconds$1, 1e9);
+}
+
+// build/dev/javascript/gleam_time/gleam_time_ffi.mjs
+function system_time() {
+  const now = Date.now();
+  const milliseconds = now % 1e3;
+  const nanoseconds2 = milliseconds * 1e6;
+  const seconds2 = (now - milliseconds) / 1e3;
+  return [seconds2, nanoseconds2];
+}
+
+// build/dev/javascript/gleam_time/gleam/time/timestamp.mjs
+var Timestamp = class extends CustomType {
+  constructor(seconds2, nanoseconds2) {
+    super();
+    this.seconds = seconds2;
+    this.nanoseconds = nanoseconds2;
+  }
+};
+function normalise2(timestamp) {
+  let multiplier = 1e9;
+  let nanoseconds2 = remainderInt(timestamp.nanoseconds, multiplier);
+  let overflow = timestamp.nanoseconds - nanoseconds2;
+  let seconds2 = timestamp.seconds + divideInt(overflow, multiplier);
+  let $ = nanoseconds2 >= 0;
+  if ($) {
+    return new Timestamp(seconds2, nanoseconds2);
+  } else {
+    return new Timestamp(seconds2 - 1, multiplier + nanoseconds2);
+  }
+}
+function system_time2() {
+  let $ = system_time();
+  let seconds2 = $[0];
+  let nanoseconds2 = $[1];
+  return normalise2(new Timestamp(seconds2, nanoseconds2));
+}
+function difference(left, right) {
+  let seconds2 = seconds(right.seconds - left.seconds);
+  let nanoseconds2 = nanoseconds(right.nanoseconds - left.nanoseconds);
+  return add3(seconds2, nanoseconds2);
+}
+function is_leap_year(year) {
+  return remainderInt(year, 4) === 0 && (remainderInt(year, 100) !== 0 || remainderInt(
+    year,
+    400
+  ) === 0);
+}
+function parse_sign(bytes) {
+  if (bytes.byteAt(0) === 43 && (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0)) {
+    let remaining_bytes = bitArraySlice(bytes, 8);
+    return new Ok(["+", remaining_bytes]);
+  } else if (bytes.byteAt(0) === 45 && (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0)) {
+    let remaining_bytes = bitArraySlice(bytes, 8);
+    return new Ok(["-", remaining_bytes]);
+  } else {
+    return new Error(void 0);
+  }
+}
+function accept_byte(bytes, value4) {
+  if (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0 && bytes.byteAt(0) === value4) {
+    let byte = bytes.byteAt(0);
+    let remaining_bytes = bitArraySlice(bytes, 8);
+    return new Ok(remaining_bytes);
+  } else {
+    return new Error(void 0);
+  }
+}
+function accept_empty(bytes) {
+  if (bytes.bitSize == 0) {
+    return new Ok(void 0);
+  } else {
+    return new Error(void 0);
+  }
+}
+function julian_day_from_ymd(year, month, day) {
+  let adjustment = divideInt(14 - month, 12);
+  let adjusted_year = year + 4800 - adjustment;
+  let adjusted_month = month + 12 * adjustment - 3;
+  return day + divideInt(153 * adjusted_month + 2, 5) + 365 * adjusted_year + divideInt(
+    adjusted_year,
+    4
+  ) - divideInt(adjusted_year, 100) + divideInt(adjusted_year, 400) - 32045;
+}
+var seconds_per_day = 86400;
+var seconds_per_hour = 3600;
+var seconds_per_minute = 60;
+function offset_to_seconds(sign, hours, minutes) {
+  let abs_seconds = hours * seconds_per_hour + minutes * seconds_per_minute;
+  if (sign === "-") {
+    return -abs_seconds;
+  } else {
+    return abs_seconds;
+  }
+}
+function julian_seconds_from_parts(year, month, day, hours, minutes, seconds2) {
+  let julian_day_seconds = julian_day_from_ymd(year, month, day) * seconds_per_day;
+  return julian_day_seconds + hours * seconds_per_hour + minutes * seconds_per_minute + seconds2;
+}
+var nanoseconds_per_second = 1e9;
+var byte_colon = 58;
+var byte_minus = 45;
+function do_parse_second_fraction_as_nanoseconds(loop$bytes, loop$acc, loop$power) {
+  while (true) {
+    let bytes = loop$bytes;
+    let acc = loop$acc;
+    let power3 = loop$power;
+    let power$1 = divideInt(power3, 10);
+    if (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0 && (48 <= bytes.byteAt(0) && bytes.byteAt(0) <= 57 && power$1 < 1)) {
+      let byte = bytes.byteAt(0);
+      let remaining_bytes = bitArraySlice(bytes, 8);
+      loop$bytes = remaining_bytes;
+      loop$acc = acc;
+      loop$power = power$1;
+    } else if (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0 && (48 <= bytes.byteAt(0) && bytes.byteAt(0) <= 57)) {
+      let byte = bytes.byteAt(0);
+      let remaining_bytes = bitArraySlice(bytes, 8);
+      let digit = byte - 48;
+      loop$bytes = remaining_bytes;
+      loop$acc = acc + digit * power$1;
+      loop$power = power$1;
+    } else {
+      return new Ok([acc, bytes]);
+    }
+  }
+}
+function parse_second_fraction_as_nanoseconds(bytes) {
+  if (bytes.byteAt(0) === 46 && (bytes.bitSize >= 16 && (bytes.bitSize - 16) % 8 === 0) && (48 <= bytes.byteAt(1) && bytes.byteAt(1) <= 57)) {
+    let byte = bytes.byteAt(1);
+    let remaining_bytes = bitArraySlice(bytes, 16);
+    return do_parse_second_fraction_as_nanoseconds(
+      toBitArray([byte, remaining_bytes]),
+      0,
+      nanoseconds_per_second
+    );
+  } else if (bytes.byteAt(0) === 46 && (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0)) {
+    return new Error(void 0);
+  } else {
+    return new Ok([0, bytes]);
+  }
+}
+function do_parse_digits(loop$bytes, loop$count, loop$acc, loop$k) {
+  while (true) {
+    let bytes = loop$bytes;
+    let count = loop$count;
+    let acc = loop$acc;
+    let k = loop$k;
+    if (k >= count) {
+      return new Ok([acc, bytes]);
+    } else if (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0 && (48 <= bytes.byteAt(0) && bytes.byteAt(0) <= 57)) {
+      let byte = bytes.byteAt(0);
+      let remaining_bytes = bitArraySlice(bytes, 8);
+      loop$bytes = remaining_bytes;
+      loop$count = count;
+      loop$acc = acc * 10 + (byte - 48);
+      loop$k = k + 1;
+    } else {
+      return new Error(void 0);
+    }
+  }
+}
+function parse_digits(bytes, count) {
+  return do_parse_digits(bytes, count, 0, 0);
+}
+function parse_year(bytes) {
+  return parse_digits(bytes, 4);
+}
+function parse_month(bytes) {
+  return try$(
+    parse_digits(bytes, 2),
+    (_use0) => {
+      let month = _use0[0];
+      let bytes$1 = _use0[1];
+      let $ = 1 <= month && month <= 12;
+      if ($) {
+        return new Ok([month, bytes$1]);
+      } else {
+        return new Error(void 0);
+      }
+    }
+  );
+}
+function parse_day(bytes, year, month) {
+  return try$(
+    parse_digits(bytes, 2),
+    (_use0) => {
+      let day = _use0[0];
+      let bytes$1 = _use0[1];
+      return try$(
+        (() => {
+          if (month === 1) {
+            return new Ok(31);
+          } else if (month === 3) {
+            return new Ok(31);
+          } else if (month === 5) {
+            return new Ok(31);
+          } else if (month === 7) {
+            return new Ok(31);
+          } else if (month === 8) {
+            return new Ok(31);
+          } else if (month === 10) {
+            return new Ok(31);
+          } else if (month === 12) {
+            return new Ok(31);
+          } else if (month === 4) {
+            return new Ok(30);
+          } else if (month === 6) {
+            return new Ok(30);
+          } else if (month === 9) {
+            return new Ok(30);
+          } else if (month === 11) {
+            return new Ok(30);
+          } else if (month === 2) {
+            let $ = is_leap_year(year);
+            if ($) {
+              return new Ok(29);
+            } else {
+              return new Ok(28);
+            }
+          } else {
+            return new Error(void 0);
+          }
+        })(),
+        (max_day) => {
+          let $ = 1 <= day && day <= max_day;
+          if ($) {
+            return new Ok([day, bytes$1]);
+          } else {
+            return new Error(void 0);
+          }
+        }
+      );
+    }
+  );
+}
+function parse_hours(bytes) {
+  return try$(
+    parse_digits(bytes, 2),
+    (_use0) => {
+      let hours = _use0[0];
+      let bytes$1 = _use0[1];
+      let $ = 0 <= hours && hours <= 23;
+      if ($) {
+        return new Ok([hours, bytes$1]);
+      } else {
+        return new Error(void 0);
+      }
+    }
+  );
+}
+function parse_minutes(bytes) {
+  return try$(
+    parse_digits(bytes, 2),
+    (_use0) => {
+      let minutes = _use0[0];
+      let bytes$1 = _use0[1];
+      let $ = 0 <= minutes && minutes <= 59;
+      if ($) {
+        return new Ok([minutes, bytes$1]);
+      } else {
+        return new Error(void 0);
+      }
+    }
+  );
+}
+function parse_seconds(bytes) {
+  return try$(
+    parse_digits(bytes, 2),
+    (_use0) => {
+      let seconds2 = _use0[0];
+      let bytes$1 = _use0[1];
+      let $ = 0 <= seconds2 && seconds2 <= 60;
+      if ($) {
+        return new Ok([seconds2, bytes$1]);
+      } else {
+        return new Error(void 0);
+      }
+    }
+  );
+}
+function parse_numeric_offset(bytes) {
+  return try$(
+    parse_sign(bytes),
+    (_use0) => {
+      let sign = _use0[0];
+      let bytes$1 = _use0[1];
+      return try$(
+        parse_hours(bytes$1),
+        (_use02) => {
+          let hours = _use02[0];
+          let bytes$2 = _use02[1];
+          return try$(
+            accept_byte(bytes$2, byte_colon),
+            (bytes2) => {
+              return try$(
+                parse_minutes(bytes2),
+                (_use03) => {
+                  let minutes = _use03[0];
+                  let bytes$12 = _use03[1];
+                  let offset_seconds = offset_to_seconds(sign, hours, minutes);
+                  return new Ok([offset_seconds, bytes$12]);
+                }
+              );
+            }
+          );
+        }
+      );
+    }
+  );
+}
+function parse_offset(bytes) {
+  if (bytes.byteAt(0) === 90 && (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0)) {
+    let remaining_bytes = bitArraySlice(bytes, 8);
+    return new Ok([0, remaining_bytes]);
+  } else if (bytes.byteAt(0) === 122 && (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0)) {
+    let remaining_bytes = bitArraySlice(bytes, 8);
+    return new Ok([0, remaining_bytes]);
+  } else {
+    return parse_numeric_offset(bytes);
+  }
+}
+function accept_date_time_separator(bytes) {
+  if (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0 && (bytes.byteAt(0) === 84 || bytes.byteAt(0) === 116)) {
+    let byte = bytes.byteAt(0);
+    let remaining_bytes = bitArraySlice(bytes, 8);
+    return new Ok(remaining_bytes);
+  } else {
+    return new Error(void 0);
+  }
+}
+var julian_seconds_unix_epoch = 210866803200;
+function from_date_time(year, month, day, hours, minutes, seconds2, second_fraction_as_nanoseconds, offset_seconds) {
+  let julian_seconds = julian_seconds_from_parts(
+    year,
+    month,
+    day,
+    hours,
+    minutes,
+    seconds2
+  );
+  let julian_seconds_since_epoch = julian_seconds - julian_seconds_unix_epoch;
+  let _pipe = new Timestamp(
+    julian_seconds_since_epoch - offset_seconds,
+    second_fraction_as_nanoseconds
+  );
+  return normalise2(_pipe);
+}
+function parse_rfc3339(input2) {
+  let bytes = bit_array_from_string(input2);
+  return try$(
+    parse_year(bytes),
+    (_use0) => {
+      let year = _use0[0];
+      let bytes$1 = _use0[1];
+      return try$(
+        accept_byte(bytes$1, byte_minus),
+        (bytes2) => {
+          return try$(
+            parse_month(bytes2),
+            (_use02) => {
+              let month = _use02[0];
+              let bytes$12 = _use02[1];
+              return try$(
+                accept_byte(bytes$12, byte_minus),
+                (bytes3) => {
+                  return try$(
+                    parse_day(bytes3, year, month),
+                    (_use03) => {
+                      let day = _use03[0];
+                      let bytes$13 = _use03[1];
+                      return try$(
+                        accept_date_time_separator(bytes$13),
+                        (bytes4) => {
+                          return try$(
+                            parse_hours(bytes4),
+                            (_use04) => {
+                              let hours = _use04[0];
+                              let bytes$14 = _use04[1];
+                              return try$(
+                                accept_byte(bytes$14, byte_colon),
+                                (bytes5) => {
+                                  return try$(
+                                    parse_minutes(bytes5),
+                                    (_use05) => {
+                                      let minutes = _use05[0];
+                                      let bytes$15 = _use05[1];
+                                      return try$(
+                                        accept_byte(bytes$15, byte_colon),
+                                        (bytes6) => {
+                                          return try$(
+                                            parse_seconds(bytes6),
+                                            (_use06) => {
+                                              let seconds2 = _use06[0];
+                                              let bytes$16 = _use06[1];
+                                              return try$(
+                                                parse_second_fraction_as_nanoseconds(
+                                                  bytes$16
+                                                ),
+                                                (_use07) => {
+                                                  let second_fraction_as_nanoseconds = _use07[0];
+                                                  let bytes$2 = _use07[1];
+                                                  return try$(
+                                                    parse_offset(bytes$2),
+                                                    (_use08) => {
+                                                      let offset_seconds = _use08[0];
+                                                      let bytes$3 = _use08[1];
+                                                      return try$(
+                                                        accept_empty(bytes$3),
+                                                        (_use09) => {
+                                                          return new Ok(
+                                                            from_date_time(
+                                                              year,
+                                                              month,
+                                                              day,
+                                                              hours,
+                                                              minutes,
+                                                              seconds2,
+                                                              second_fraction_as_nanoseconds,
+                                                              offset_seconds
+                                                            )
+                                                          );
+                                                        }
+                                                      );
+                                                    }
+                                                  );
+                                                }
+                                              );
+                                            }
+                                          );
+                                        }
+                                      );
+                                    }
+                                  );
+                                }
+                              );
+                            }
+                          );
+                        }
+                      );
+                    }
+                  );
+                }
+              );
+            }
+          );
+        }
+      );
+    }
+  );
+}
+
 // build/dev/javascript/ghch/utils.mjs
 function http_error_to_string(error) {
   if (error instanceof BadUrl) {
@@ -5090,6 +5762,44 @@ function simple_hash(input2) {
     return a2 * 31 + b;
   });
 }
+function humanize_duration(dur) {
+  let _block;
+  let _pipe = dur;
+  let _pipe$1 = to_seconds(_pipe);
+  _block = round2(_pipe$1);
+  let duration_secs = _block;
+  let $ = duration_secs < 60;
+  if ($) {
+    return (() => {
+      let _pipe$2 = duration_secs;
+      return to_string(_pipe$2);
+    })() + " seconds";
+  } else {
+    let duration_mins = divideInt(duration_secs, 60);
+    let $1 = duration_mins < 60;
+    if ($1) {
+      return (() => {
+        let _pipe$2 = duration_mins;
+        return to_string(_pipe$2);
+      })() + " mins";
+    } else {
+      let duration_hours = divideInt(duration_mins, 60);
+      let $2 = duration_hours < 24;
+      if ($2) {
+        return (() => {
+          let _pipe$2 = duration_hours;
+          return to_string(_pipe$2);
+        })() + " hours";
+      } else {
+        let duration_days = divideInt(duration_hours, 24);
+        return (() => {
+          let _pipe$2 = duration_days;
+          return to_string(_pipe$2);
+        })() + " days";
+      }
+    }
+  }
+}
 
 // build/dev/javascript/ghch/types.mjs
 var User = class extends CustomType {
@@ -5118,27 +5828,21 @@ var Repo = class extends CustomType {
     this.language = language;
   }
 };
-var Commit = class extends CustomType {
-  constructor(sha) {
-    super();
-    this.sha = sha;
-  }
-};
 var Tag = class extends CustomType {
-  constructor(name2, commit) {
+  constructor(name2) {
     super();
     this.name = name2;
-    this.commit = commit;
   }
 };
-var ChangelogCommitAuthor = class extends CustomType {
-  constructor(name2, email) {
+var Author = class extends CustomType {
+  constructor(name2, email, authoring_timestamp) {
     super();
     this.name = name2;
     this.email = email;
+    this.authoring_timestamp = authoring_timestamp;
   }
 };
-var ChangelogCommitDetails = class extends CustomType {
+var CommitDetails = class extends CustomType {
   constructor(author, message) {
     super();
     this.author = author;
@@ -5169,7 +5873,7 @@ var CommitFileItem = class extends CustomType {
     this.blob_url = blob_url;
   }
 };
-var ChangelogCommit = class extends CustomType {
+var Commit = class extends CustomType {
   constructor(sha, details, html_url) {
     super();
     this.sha = sha;
@@ -5177,7 +5881,7 @@ var ChangelogCommit = class extends CustomType {
     this.html_url = html_url;
   }
 };
-var ChangelogResponse = class extends CustomType {
+var Changes = class extends CustomType {
   constructor(commits, files) {
     super();
     this.commits = commits;
@@ -5391,7 +6095,7 @@ var UserEnteredFilesFilterQuery = class extends CustomType {
   }
 };
 function theme_decoder() {
-  return then$2(
+  return then$3(
     string4,
     (variant) => {
       if (variant === "light") {
@@ -5405,7 +6109,7 @@ function theme_decoder() {
   );
 }
 function owner_type_decoder() {
-  return then$2(
+  return then$3(
     string4,
     (variant) => {
       if (variant === "user") {
@@ -5480,27 +6184,12 @@ function repos_response_decoder() {
   let _pipe = repo_decoder();
   return list2(_pipe);
 }
-function commit_decoder() {
-  return field2(
-    "sha",
-    string4,
-    (sha) => {
-      return success(new Commit(sha));
-    }
-  );
-}
 function tag_decoder() {
   return field2(
     "name",
     string4,
     (name2) => {
-      return field2(
-        "commit",
-        commit_decoder(),
-        (commit) => {
-          return success(new Tag(name2, commit));
-        }
-      );
+      return success(new Tag(name2));
     }
   );
 }
@@ -5508,7 +6197,33 @@ function tags_response_decoder() {
   let _pipe = tag_decoder();
   return list2(_pipe);
 }
-function changelog_commit_author_decoder() {
+function optional_timestamp_decoder() {
+  return new_primitive_decoder(
+    "Timestamp",
+    (data) => {
+      let default$ = new None();
+      let $ = run(data, string4);
+      if (!$.isOk()) {
+        return new Ok(default$);
+      } else {
+        let timestamp_string = $[0];
+        let $1 = parse_rfc3339(timestamp_string);
+        if (!$1.isOk()) {
+          return new Ok(default$);
+        } else {
+          let t = $1[0];
+          return new Ok(
+            (() => {
+              let _pipe = t;
+              return new Some(_pipe);
+            })()
+          );
+        }
+      }
+    }
+  );
+}
+function author_decoder() {
   return field2(
     "name",
     string4,
@@ -5517,22 +6232,30 @@ function changelog_commit_author_decoder() {
         "email",
         string4,
         (email) => {
-          return success(new ChangelogCommitAuthor(name2, email));
+          return field2(
+            "date",
+            optional_timestamp_decoder(),
+            (authoring_timestamp) => {
+              return success(
+                new Author(name2, email, authoring_timestamp)
+              );
+            }
+          );
         }
       );
     }
   );
 }
-function changelog_commit_details_decoder() {
+function commit_details_decoder() {
   return field2(
     "author",
-    changelog_commit_author_decoder(),
+    optional(author_decoder()),
     (author) => {
       return field2(
         "message",
         string4,
         (message) => {
-          return success(new ChangelogCommitDetails(author, message));
+          return success(new CommitDetails(author, message));
         }
       );
     }
@@ -5559,7 +6282,7 @@ function file_status_to_string(status) {
   return pad_end(_pipe, 8, ".");
 }
 function changes_file_status_decoder() {
-  return then$2(
+  return then$3(
     string4,
     (variant) => {
       if (variant === "added") {
@@ -5623,22 +6346,20 @@ function changes_file_item_decoder() {
     }
   );
 }
-function changelog_commit_decoder() {
+function commit_decoder() {
   return field2(
     "sha",
     string4,
     (sha) => {
       return field2(
         "commit",
-        changelog_commit_details_decoder(),
+        commit_details_decoder(),
         (details) => {
           return field2(
             "html_url",
             string4,
             (html_url) => {
-              return success(
-                new ChangelogCommit(sha, details, html_url)
-              );
+              return success(new Commit(sha, details, html_url));
             }
           );
         }
@@ -5646,16 +6367,16 @@ function changelog_commit_decoder() {
     }
   );
 }
-function changes_response_decoder() {
+function changes_decoder() {
   return field2(
     "commits",
-    list2(changelog_commit_decoder()),
+    list2(commit_decoder()),
     (commits) => {
       return field2(
         "files",
         optional(list2(changes_file_item_decoder())),
         (files) => {
-          return success(new ChangelogResponse(commits, files));
+          return success(new Changes(commits, files));
         }
       );
     }
@@ -6162,7 +6883,7 @@ function changelog_endpoint(user_name, repo, start_tag, end_tag) {
 }
 function fetch_changes(user_name, repo, start_tag, end_tag) {
   let expect = expect_json(
-    changes_response_decoder(),
+    changes_decoder(),
     (result) => {
       return new ChangesFetched([start_tag, end_tag, result]);
     }
@@ -8568,42 +9289,61 @@ function filter_commit_predicate(query) {
         })()
       );
     })() || (() => {
-      let _pipe = commit.details.author.name;
-      let _pipe$1 = lowercase(_pipe);
-      return contains_string(
-        _pipe$1,
-        (() => {
-          let _pipe$2 = query;
-          return lowercase(_pipe$2);
-        })()
-      );
-    })() || (() => {
-      let _pipe = commit.details.author.email;
-      let _pipe$1 = lowercase(_pipe);
-      return contains_string(
-        _pipe$1,
-        (() => {
-          let _pipe$2 = query;
-          return lowercase(_pipe$2);
-        })()
-      );
+      let $ = commit.details.author;
+      if ($ instanceof None) {
+        return false;
+      } else {
+        let author = $[0];
+        return (() => {
+          let _pipe = author.name;
+          let _pipe$1 = lowercase(_pipe);
+          return contains_string(
+            _pipe$1,
+            (() => {
+              let _pipe$2 = query;
+              return lowercase(_pipe$2);
+            })()
+          );
+        })() || (() => {
+          let _pipe = author.email;
+          let _pipe$1 = lowercase(_pipe);
+          return contains_string(
+            _pipe$1,
+            (() => {
+              let _pipe$2 = query;
+              return lowercase(_pipe$2);
+            })()
+          );
+        })();
+      }
     })();
   };
 }
-function author_color_class(input2, colors, fallback) {
-  let hash = simple_hash(input2);
-  let _block;
-  let _pipe = colors;
-  _block = map_size(_pipe);
-  let num_colors = _block;
-  let _block$1;
-  let _pipe$1 = hash;
-  let _pipe$2 = remainder(_pipe$1, num_colors);
-  _block$1 = unwrap2(_pipe$2, 0);
-  let index5 = _block$1;
-  let _pipe$3 = colors;
-  let _pipe$4 = map_get(_pipe$3, index5);
-  return unwrap2(_pipe$4, fallback);
+function author_color_class(maybe_author, colors, fallback) {
+  if (maybe_author instanceof None) {
+    return fallback;
+  } else {
+    let author = maybe_author[0];
+    let hash = simple_hash(author.name);
+    let _block;
+    let _pipe = colors;
+    _block = map_size(_pipe);
+    let num_colors = _block;
+    let _block$1;
+    let _pipe$1 = hash;
+    let _pipe$2 = remainder(_pipe$1, num_colors);
+    _block$1 = unwrap2(_pipe$2, 0);
+    let index5 = _block$1;
+    let _pipe$3 = colors;
+    let _pipe$4 = map_get(_pipe$3, index5);
+    return unwrap2(_pipe$4, fallback);
+  }
+}
+function get_commit_relative_time(ts, now) {
+  return (() => {
+    let _pipe = difference(ts, now);
+    return humanize_duration(_pipe);
+  })() + " ago";
 }
 function commit_details(commit, author_color_class_store, theme) {
   let _block;
@@ -8611,30 +9351,33 @@ function commit_details(commit, author_color_class_store, theme) {
     _block = [
       "text-[#c77dff]",
       (() => {
-        let _pipe2 = commit.details.author.name;
+        let _pipe2 = commit.details.author;
         return author_color_class(
           _pipe2,
           author_color_class_store,
           "text-[#ff9500]"
         );
-      })()
+      })(),
+      "text-[#ff6d44]"
     ];
   } else {
     _block = [
       "text-[#995f6a]",
       (() => {
-        let _pipe2 = commit.details.author.name;
+        let _pipe2 = commit.details.author;
         return author_color_class(
           _pipe2,
           author_color_class_store,
           "text-[#941b0c]"
         );
-      })()
+      })(),
+      "text-[#2ec0f9]"
     ];
   }
   let $ = _block;
   let sha_class = $[0];
   let author_class = $[1];
+  let timestamp_class = $[2];
   let _block$1;
   let $1 = (() => {
     let _pipe2 = commit.sha;
@@ -8648,6 +9391,7 @@ function commit_details(commit, author_color_class_store, theme) {
     _block$1 = commit.sha;
   }
   let commit_hash = _block$1;
+  let now = system_time2();
   let _block$2;
   let _pipe = commit.details.message;
   let _pipe$1 = split2(_pipe, "\n");
@@ -8655,7 +9399,7 @@ function commit_details(commit, author_color_class_store, theme) {
   _block$2 = unwrap2(_pipe$2, " ");
   let commit_message_heading = _block$2;
   return p(
-    toList([class$("flex gap-4 items-center whitespace-nowrap mt-2")]),
+    toList([class$("flex gap-6 items-center whitespace-nowrap mt-2")]),
     toList([
       a(
         toList([href(commit.html_url), target("_blank")]),
@@ -8680,15 +9424,49 @@ function commit_details(commit, author_color_class_store, theme) {
           })()
         ])
       ),
-      span(
-        toList([class$(author_class)]),
-        toList([
-          (() => {
-            let _pipe$3 = commit.details.author.name;
-            return text(_pipe$3);
-          })()
-        ])
-      )
+      (() => {
+        let _pipe$3 = commit.details.author;
+        let _pipe$4 = map(
+          _pipe$3,
+          (author) => {
+            return span(
+              toList([class$(author_class)]),
+              toList([
+                (() => {
+                  let _pipe$42 = author.name;
+                  return text(_pipe$42);
+                })()
+              ])
+            );
+          }
+        );
+        return unwrap(_pipe$4, none2());
+      })(),
+      (() => {
+        let _pipe$3 = commit.details.author;
+        let _pipe$4 = then$(
+          _pipe$3,
+          (author) => {
+            let _pipe$42 = author.authoring_timestamp;
+            return map(
+              _pipe$42,
+              (ts) => {
+                return span(
+                  toList([class$(timestamp_class)]),
+                  toList([
+                    (() => {
+                      let _pipe$5 = ts;
+                      let _pipe$6 = get_commit_relative_time(_pipe$5, now);
+                      return text(_pipe$6);
+                    })()
+                  ])
+                );
+              }
+            );
+          }
+        );
+        return unwrap(_pipe$4, none2());
+      })()
     ])
   );
 }
@@ -8756,7 +9534,7 @@ function commits_section(commits, commits_filter_query, start_tag, end_tag, auth
           ])
         ),
         div(
-          toList([class$("my-4 overflow-x-auto")]),
+          toList([class$("mt-4 overflow-x-auto")]),
           (() => {
             let _pipe = _block;
             return map2(
@@ -9125,7 +9903,7 @@ function files_section(maybe_files, files_filter_query, theme) {
           ])
         ),
         div(
-          toList([class$("my-4 overflow-x-auto")]),
+          toList([class$("mt-4 overflow-x-auto")]),
           (() => {
             let _pipe = _block;
             return map2(

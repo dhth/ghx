@@ -5,6 +5,7 @@ import gleam/list
 import gleam/option
 import gleam/result
 import gleam/string
+import gleam/time/timestamp.{type Timestamp}
 import lustre/attribute
 import lustre/element
 import lustre/element/html
@@ -790,7 +791,7 @@ fn changes_error_section(
 }
 
 fn commits_section(
-  commits: List(types.ChangelogCommit),
+  commits: List(types.Commit),
   commits_filter_query: option.Option(String),
   start_tag: String,
   end_tag: String,
@@ -824,7 +825,7 @@ fn commits_section(
             event.on_input(types.UserEnteredCommitsFilterQuery),
           ]),
           html.div(
-            [attribute.class("my-4 overflow-x-auto")],
+            [attribute.class("mt-4 overflow-x-auto")],
             case commits_filter_query {
               option.None -> commits
               option.Some(q) ->
@@ -840,41 +841,47 @@ fn commits_section(
   }
 }
 
-fn filter_commit_predicate(query: String) -> fn(types.ChangelogCommit) -> Bool {
-  fn(commit: types.ChangelogCommit) {
+fn filter_commit_predicate(query: String) -> fn(types.Commit) -> Bool {
+  fn(commit: types.Commit) {
     {
       commit.details.message
       |> string.lowercase
       |> string.contains(query |> string.lowercase)
     }
-    || {
-      commit.details.author.name
-      |> string.lowercase
-      |> string.contains(query |> string.lowercase)
-    }
-    || {
-      commit.details.author.email
-      |> string.lowercase
-      |> string.contains(query |> string.lowercase)
+    || case commit.details.author {
+      option.None -> False
+      option.Some(author) ->
+        {
+          author.name
+          |> string.lowercase
+          |> string.contains(query |> string.lowercase)
+        }
+        || {
+          author.email
+          |> string.lowercase
+          |> string.contains(query |> string.lowercase)
+        }
     }
   }
 }
 
 fn commit_details(
-  commit: types.ChangelogCommit,
+  commit: types.Commit,
   author_color_class_store: types.AuthorColorClassStore,
   theme: Theme,
 ) -> element.Element(Msg) {
-  let #(sha_class, author_class) = case theme {
+  let #(sha_class, author_class, timestamp_class) = case theme {
     types.Dark -> #(
       "text-[#c77dff]",
-      commit.details.author.name
+      commit.details.author
         |> author_color_class(author_color_class_store, "text-[#ff9500]"),
+      "text-[#ff6d44]",
     )
     types.Light -> #(
       "text-[#995f6a]",
-      commit.details.author.name
+      commit.details.author
         |> author_color_class(author_color_class_store, "text-[#941b0c]"),
+      "text-[#2ec0f9]",
     )
   }
 
@@ -883,33 +890,58 @@ fn commit_details(
     _ -> commit.sha
   }
 
+  let now = timestamp.system_time()
+
   let commit_message_heading =
     commit.details.message
     |> string.split("\n")
     |> list.first
     |> result.unwrap(" ")
 
-  html.p([attribute.class("flex gap-4 items-center whitespace-nowrap mt-2")], [
+  html.p([attribute.class("flex gap-6 items-center whitespace-nowrap mt-2")], [
     html.a([attribute.href(commit.html_url), attribute.target("_blank")], [
       html.span([attribute.class(sha_class)], [commit_hash |> element.text]),
     ]),
     html.span([], [commit_message_heading |> element.text]),
-    html.span([attribute.class(author_class)], [
-      commit.details.author.name |> element.text,
-    ]),
+    commit.details.author
+      |> option.map(fn(author) {
+        html.span([attribute.class(author_class)], [author.name |> element.text])
+      })
+      |> option.unwrap(element.none()),
+    commit.details.author
+      |> option.then(fn(author) {
+        author.authoring_timestamp
+        |> option.map(fn(ts) {
+          html.span([attribute.class(timestamp_class)], [
+            ts
+            |> get_commit_relative_time(now)
+            |> element.text,
+          ])
+        })
+      })
+      |> option.unwrap(element.none()),
   ])
 }
 
 fn author_color_class(
-  input: String,
+  maybe_author: option.Option(types.Author),
   colors: types.AuthorColorClassStore,
   fallback: String,
 ) -> String {
-  let hash = utils.simple_hash(input)
-  let num_colors = colors |> dict.size
-  let index = hash |> int.remainder(num_colors) |> result.unwrap(0)
+  case maybe_author {
+    option.None -> fallback
+    option.Some(author) -> {
+      let hash = utils.simple_hash(author.name)
+      let num_colors = colors |> dict.size
+      let index = hash |> int.remainder(num_colors) |> result.unwrap(0)
 
-  colors |> dict.get(index) |> result.unwrap(fallback)
+      colors |> dict.get(index) |> result.unwrap(fallback)
+    }
+  }
+}
+
+fn get_commit_relative_time(ts: Timestamp, now: Timestamp) -> String {
+  { timestamp.difference(ts, now) |> utils.humanize_duration } <> " ago"
 }
 
 fn scrollbar_color(theme: Theme) -> String {
@@ -954,7 +986,7 @@ fn files_section(
             event.on_input(types.UserEnteredFilesFilterQuery),
           ]),
           html.div(
-            [attribute.class("my-4 overflow-x-auto")],
+            [attribute.class("mt-4 overflow-x-auto")],
             case files_filter_query {
               option.None -> files
               option.Some(q) ->
