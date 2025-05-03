@@ -2264,24 +2264,6 @@ function concat_loop(loop$strings, loop$accumulator) {
 function concat2(strings) {
   return concat_loop(strings, "");
 }
-function repeat_loop(loop$string, loop$times, loop$acc) {
-  while (true) {
-    let string6 = loop$string;
-    let times = loop$times;
-    let acc = loop$acc;
-    let $ = times <= 0;
-    if ($) {
-      return acc;
-    } else {
-      loop$string = string6;
-      loop$times = times - 1;
-      loop$acc = acc + string6;
-    }
-  }
-}
-function repeat(string6, times) {
-  return repeat_loop(string6, times, "");
-}
 function join_loop(loop$strings, loop$separator, loop$accumulator) {
   while (true) {
     let strings = loop$strings;
@@ -2305,22 +2287,6 @@ function join(strings, separator) {
     let first$1 = strings.head;
     let rest = strings.tail;
     return join_loop(rest, separator, first$1);
-  }
-}
-function padding(size, pad_string) {
-  let pad_string_length = string_length(pad_string);
-  let num_pads = divideInt(size, pad_string_length);
-  let extra = remainderInt(size, pad_string_length);
-  return repeat(pad_string, num_pads) + slice(pad_string, 0, extra);
-}
-function pad_end(string6, desired_length, pad_string) {
-  let current_length = string_length(string6);
-  let to_pad_length = desired_length - current_length;
-  let $ = to_pad_length <= 0;
-  if ($) {
-    return string6;
-  } else {
-    return string6 + padding(to_pad_length, pad_string);
   }
 }
 function trim(string6) {
@@ -5074,11 +5040,6 @@ function getElementById(id2) {
   return new Ok(found);
 }
 
-// build/dev/javascript/plinth/element_ffi.mjs
-function scrollIntoView(element2) {
-  element2.scrollIntoView({ behavior: "smooth", block: "nearest" });
-}
-
 // build/dev/javascript/plinth/window_ffi.mjs
 function self() {
   return globalThis;
@@ -5219,6 +5180,11 @@ async function import_(string6) {
 // build/dev/javascript/plinth/global_ffi.mjs
 function setTimeout(delay, callback) {
   return globalThis.setTimeout(callback, delay);
+}
+
+// build/dev/javascript/ghch/ffi/element_ffi.mjs
+function scrollIntoViewStart(element2) {
+  element2.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 // build/dev/javascript/gleam_time/gleam/time/duration.mjs
@@ -6264,24 +6230,21 @@ function commit_details_decoder() {
   );
 }
 function file_status_to_string(status) {
-  let _block;
   if (status instanceof Added) {
-    _block = "added";
+    return "add";
   } else if (status instanceof Changed) {
-    _block = "changed";
+    return "chd";
   } else if (status instanceof Copied) {
-    _block = "copied";
+    return "cop";
   } else if (status instanceof Modified) {
-    _block = "modified";
+    return "mod";
   } else if (status instanceof Removed) {
-    _block = "removed";
+    return "rem";
   } else if (status instanceof Renamed) {
-    _block = "renamed";
+    return "ren";
   } else {
-    _block = "unchangd";
+    return "unc";
   }
-  let _pipe = _block;
-  return pad_end(_pipe, 8, ".");
 }
 function changes_file_status_decoder() {
   return then$3(
@@ -6778,10 +6741,10 @@ function init_model() {
       new Config(new Dark()),
       new ConfigLoaded(
         (() => {
-          let _pipe = "dhth";
+          let _pipe = "neovim";
           return new Some(_pipe);
         })(),
-        new User(),
+        new Org(),
         true
       ),
       author_color_classes,
@@ -6802,7 +6765,7 @@ function scroll_element_into_view(id2) {
     } else {
       let e = $[0];
       let _pipe2 = e;
-      return scrollIntoView(_pipe2);
+      return scrollIntoViewStart(_pipe2);
     }
   };
   let _pipe = (_) => {
@@ -6865,7 +6828,7 @@ function fetch_repos(user_name, owner_type) {
   );
 }
 function fetch_repos_for_public_version() {
-  return fetch_repos("dhth", new User());
+  return fetch_repos("neovim", new Org());
 }
 function tags_endpoint(user_name, repo) {
   let _pipe = toList([base_url(), "repos", user_name, repo, "tags"]);
@@ -7990,7 +7953,12 @@ function update(model, msg) {
               _record.debug
             );
           })(),
-          none()
+          scroll_element_into_view(
+            (() => {
+              let _pipe = new TagsSection();
+              return section_id(_pipe);
+            })()
+          )
         ];
       }
     } else {
@@ -8389,7 +8357,7 @@ function update(model, msg) {
       model,
       (() => {
         let _pipe = section;
-        let _pipe$1 = section_heading_id(_pipe);
+        let _pipe$1 = section_id(_pipe);
         return scroll_element_into_view(_pipe$1);
       })()
     ];
@@ -8690,7 +8658,21 @@ function heading(theme) {
             ])
           );
         }
-      })()
+      })(),
+      button(
+        toList([
+          class$("ml-auto text-xl"),
+          on_click(new UserChangedTheme())
+        ]),
+        toList([
+          text(
+            (() => {
+              let _pipe = theme;
+              return theme_to_string(_pipe);
+            })()
+          )
+        ])
+      )
     ])
   );
 }
@@ -8807,7 +8789,7 @@ function owner_type_radio(owner_type, checked3) {
 }
 function owner_type_selector(owner_type) {
   return div(
-    toList([class$("flex flex-wrap gap-2 items-center ml-2")]),
+    toList([class$("flex flex-wrap gap-2 items-center")]),
     (() => {
       let _pipe = owner_types();
       return map2(
@@ -8845,7 +8827,7 @@ function owner_selection_section(user_name, owner_type, fetching_repos, theme) {
   return div(
     toList([
       class$(
-        "mt-8 p-4 border-2 border-[#a594f9] border-opacity-50\n        border-dotted"
+        "mt-8 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted"
       ),
       id(
         (() => {
@@ -8873,11 +8855,13 @@ function owner_selection_section(user_name, owner_type, fetching_repos, theme) {
         ])
       ),
       div(
-        toList([class$("flex flex-wrap gap-2 items-center mt-2")]),
+        toList([class$("flex flex-wrap gap-4 items-center mt-2")]),
         toList([
           input(
             toList([
-              class$("px-4 py-1 my-2 font-semibold " + input_class),
+              class$(
+                "px-2 py-1 my-2 font-semibold max-sm:w-full w-1/3 " + input_class
+              ),
               placeholder(placeholder2),
               value(
                 (() => {
@@ -8893,6 +8877,10 @@ function owner_selection_section(user_name, owner_type, fetching_repos, theme) {
               )
             ])
           ),
+          (() => {
+            let _pipe = owner_type;
+            return owner_type_selector(_pipe);
+          })(),
           button(
             toList([
               id("fetch-repos"),
@@ -8908,24 +8896,6 @@ function owner_selection_section(user_name, owner_type, fetching_repos, theme) {
               on_click(new UserRequestedRepos())
             ]),
             toList([text("fetch repos")])
-          ),
-          (() => {
-            let _pipe = owner_type;
-            return owner_type_selector(_pipe);
-          })(),
-          button(
-            toList([
-              on_click(new UserChangedTheme()),
-              class$("ml-4 py-1")
-            ]),
-            toList([
-              text(
-                (() => {
-                  let _pipe = theme;
-                  return theme_to_string(_pipe);
-                })()
-              )
-            ])
           )
         ])
       )
@@ -9016,7 +8986,7 @@ function repo_select_button(repo, selected2, theme) {
     toList([
       id("reset-filter"),
       class$(
-        "text-sm font-semibold mr-2 px-2 py-1 my-1 text-[#232634] " + class$2
+        "max-sm:text-xs text-sm font-semibold mr-2 px-2 py-1 my-1 text-[#232634] " + class$2
       ),
       disabled(selected2),
       on_click(new RepoChosen(repo.name))
@@ -9559,7 +9529,7 @@ function commits_section(commits, commits_filter_query, start_tag, end_tag, auth
         input(
           toList([
             class$(
-              "mt-4 font-semibold h-8 text-[#232634] placeholder-[#3d3d3d] pl-2 " + section_bg_class(
+              "mt-4 font-semibold h-8 text-[#232634] placeholder-[#3d3d3d] pl-2 max-sm:w-full w-1/3 " + section_bg_class(
                 new CommitsSection(),
                 theme
               )
@@ -9582,7 +9552,7 @@ function commits_section(commits, commits_filter_query, start_tag, end_tag, auth
           ])
         ),
         div(
-          toList([class$("mt-4 overflow-x-auto")]),
+          toList([class$("mt-4 overflow-x-auto max-sm:text-xs")]),
           (() => {
             let _pipe = _block;
             return map2(
@@ -9663,7 +9633,7 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
       input(
         toList([
           class$(
-            "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 " + filter_class
+            "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2\n          max-sm:w-full w-1/3 " + filter_class
           ),
           autocomplete("off"),
           id("filter-repos"),
@@ -9832,7 +9802,7 @@ function file_change_stats(additions, deletions, theme) {
       span(
         toList([
           class$(
-            "px-2 py-1 text-sm font-semibold w-16 " + additions_class
+            "px-2 py-1 max-sm:text-xs text-sm font-semibold max-sm:w-8 w-16 " + additions_class
           )
         ]),
         toList([
@@ -9845,7 +9815,7 @@ function file_change_stats(additions, deletions, theme) {
       span(
         toList([
           class$(
-            "px-2 py-1 text-sm font-semibold w-16 " + deletions_class
+            "px-2 py-1 max-sm:text-xs text-sm font-semibold max-sm:w-8 w-16 " + deletions_class
           )
         ]),
         toList([
@@ -9944,7 +9914,7 @@ function files_section(maybe_files, files_filter_query, theme) {
         input(
           toList([
             class$(
-              "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 " + section_bg_class(
+              "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 max-sm:w-full w-1/3 " + section_bg_class(
                 new FilesSection(),
                 theme
               )
@@ -9967,7 +9937,7 @@ function files_section(maybe_files, files_filter_query, theme) {
           ])
         ),
         div(
-          toList([class$("mt-4 overflow-x-auto")]),
+          toList([class$("mt-4 overflow-x-auto max-sm:text-xs")]),
           (() => {
             let _pipe = _block;
             return map2(

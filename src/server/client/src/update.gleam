@@ -349,7 +349,9 @@ pub fn update(model: Model, msg: Msg) -> #(Model, effect.Effect(Msg)) {
                   fetching_changes: False,
                 ),
               ),
-              effect.none(),
+              effects.scroll_element_into_view(
+                types.TagsSection |> types.section_id,
+              ),
             )
           }
         _ -> zero
@@ -573,7 +575,7 @@ pub fn update(model: Model, msg: Msg) -> #(Model, effect.Effect(Msg)) {
       }
     types.UserRequestedToGoToSection(section) -> #(
       model,
-      section |> types.section_heading_id |> effects.scroll_element_into_view,
+      section |> types.section_id |> effects.scroll_element_into_view,
     )
     types.UserEnteredCommitsFilterQuery(query) ->
       case state {

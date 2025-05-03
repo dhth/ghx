@@ -3,7 +3,7 @@ import gleam/string
 import lustre/effect
 import lustre_http
 import plinth/browser/document
-import plinth/browser/element
+import plinth/browser/element.{type Element}
 import plinth/browser/window
 import plinth/javascript/global
 import types
@@ -32,7 +32,7 @@ pub fn fetch_initial_config() -> effect.Effect(types.Msg) {
 }
 
 pub fn fetch_repos_for_public_version() -> effect.Effect(types.Msg) {
-  fetch_repos("dhth", types.User)
+  fetch_repos("neovim", types.Org)
 }
 
 pub fn fetch_repos(
@@ -111,7 +111,7 @@ pub fn scroll_element_into_view(id: String) -> effect.Effect(types.Msg) {
     case id |> document.get_element_by_id {
       Error(_) -> Nil
       Ok(e) -> {
-        e |> element.scroll_into_view
+        e |> scroll_into_view_start
       }
     }
   }
@@ -124,3 +124,6 @@ pub fn scroll_element_into_view(id: String) -> effect.Effect(types.Msg) {
   }
   |> effect.from
 }
+
+@external(javascript, "./ffi/element_ffi.mjs", "scrollIntoViewStart")
+pub fn scroll_into_view_start(element: Element) -> Nil
