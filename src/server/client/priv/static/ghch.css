@@ -565,6 +565,11 @@ video {
   margin-right: 1rem;
 }
 
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .my-1 {
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
@@ -1293,20 +1298,16 @@ video {
   .max-sm\:hidden {
     display: none;
   }
+}
 
-  .max-sm\:px-2 {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
+@media (min-width: 640px) {
+  .sm\:w-full {
+    width: 100%;
   }
 }
 
-@media (min-width: 1024px) {
-  .lg\:mx-auto {
-    margin-left: auto;
-    margin-right: auto;
-  }
-
-  .lg\:w-4\/5 {
+@media (min-width: 768px) {
+  .md\:w-4\/5 {
     width: 80%;
   }
 }

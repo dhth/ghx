@@ -20,13 +20,9 @@ type TagType {
 }
 
 pub fn view(model: Model) -> element.Element(Msg) {
-  html.div([attribute.class("" <> model.config.theme |> main_div_class)], [
+  html.div([attribute.class(model.config.theme |> main_div_class)], [
     html.div(
-      [
-        attribute.class(
-          "flex flex-col h-screen lg:w-4/5 max-sm:px-2 lg:mx-auto",
-        ),
-      ],
+      [attribute.class("flex flex-col h-screen sm:w-full md:w-4/5 mx-auto")],
       [
         model |> debug_section,
         model |> main_section,

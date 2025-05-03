@@ -10398,7 +10398,7 @@ function view(model) {
   return div(
     toList([
       class$(
-        "" + (() => {
+        (() => {
           let _pipe = model.config.theme;
           return main_div_class(_pipe);
         })()
@@ -10407,9 +10407,7 @@ function view(model) {
     toList([
       div(
         toList([
-          class$(
-            "flex flex-col h-screen lg:w-4/5 max-sm:px-2 lg:mx-auto"
-          )
+          class$("flex flex-col h-screen sm:w-full md:w-4/5 mx-auto")
         ]),
         toList([
           (() => {
