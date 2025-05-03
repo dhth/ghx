@@ -225,17 +225,11 @@ fn commit_decoder() -> decode.Decoder(Commit) {
 }
 
 pub type Changes {
-  Changes(
-    commits: List(Commit),
-    files: option.Option(List(ChangesFileItem)),
-  )
+  Changes(commits: List(Commit), files: option.Option(List(ChangesFileItem)))
 }
 
 pub fn changes_decoder() -> decode.Decoder(Changes) {
-  use commits <- decode.field(
-    "commits",
-    decode.list(commit_decoder()),
-  )
+  use commits <- decode.field("commits", decode.list(commit_decoder()))
   use files <- decode.field(
     "files",
     decode.optional(decode.list(changes_file_item_decoder())),
@@ -424,9 +418,7 @@ pub type Msg {
   StartTagChosen(String)
   EndTagChosen(String)
   UserRequestedChangelog
-  ChangesFetched(
-    #(String, String, Result(Changes, lustre_http.HttpError)),
-  )
+  ChangesFetched(#(String, String, Result(Changes, lustre_http.HttpError)))
   UserRequestedToGoToSection(Section)
   UserEnteredCommitsFilterQuery(String)
   UserEnteredFilesFilterQuery(String)
