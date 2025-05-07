@@ -31,10 +31,6 @@ pub fn fetch_initial_config() -> effect.Effect(types.Msg) {
   lustre_http.get(base_url() <> "/config", expect)
 }
 
-pub fn fetch_repos_for_public_version() -> effect.Effect(types.Msg) {
-  fetch_repos("neovim", types.Org)
-}
-
 pub fn fetch_repos(
   user_name: String,
   owner_type: types.AccountType,

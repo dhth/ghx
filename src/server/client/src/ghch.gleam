@@ -14,7 +14,7 @@ pub fn main() {
 fn init(_) -> #(Model, effect.Effect(Msg)) {
   let init_effect = case constants.public {
     False -> effects.fetch_initial_config()
-    True -> effects.fetch_repos_for_public_version()
+    True -> effect.none()
   }
   #(init_model(), init_effect)
 }

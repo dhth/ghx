@@ -400,9 +400,9 @@ pub fn init_model() -> Model {
       Model(
         config: Config(theme: Dark),
         state: ConfigLoaded(
-          user_name: "neovim" |> option.Some,
-          owner_type: Org,
-          fetching_repos: True,
+          user_name: option.None,
+          owner_type: User,
+          fetching_repos: False,
         ),
         author_color_classes:,
         debug: False,
