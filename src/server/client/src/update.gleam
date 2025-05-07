@@ -81,9 +81,10 @@ pub fn update(model: Model, msg: Msg) -> #(Model, effect.Effect(Msg)) {
       }
     }
     types.UserEnteredUsernameInput(uname) -> {
-      let user_name = case uname {
-        "https://github.com/" <> u -> u
-        u -> u
+      let user_name = case uname |> string.trim {
+        "" -> option.None
+        "https://github.com/" <> u -> u |> option.Some
+        u -> u |> option.Some
       }
 
       case state {
@@ -97,7 +98,7 @@ pub fn update(model: Model, msg: Msg) -> #(Model, effect.Effect(Msg)) {
           Model(
             ..model,
             state: types.ConfigLoaded(
-              user_name: user_name |> option.Some,
+              user_name:,
               owner_type: owner_type,
               fetching_repos: False,
             ),

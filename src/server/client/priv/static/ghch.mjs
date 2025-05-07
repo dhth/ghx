@@ -6739,14 +6739,7 @@ function init_model() {
   } else {
     return new Model2(
       new Config(new Dark()),
-      new ConfigLoaded(
-        (() => {
-          let _pipe = "neovim";
-          return new Some(_pipe);
-        })(),
-        new Org(),
-        true
-      ),
+      new ConfigLoaded(new None(), new User(), false),
       author_color_classes,
       false
     );
@@ -6826,9 +6819,6 @@ function fetch_repos(user_name, owner_type) {
     })(),
     expect
   );
-}
-function fetch_repos_for_public_version() {
-  return fetch_repos("neovim", new Org());
 }
 function tags_endpoint(user_name, repo) {
   let _pipe = toList([base_url(), "repos", user_name, repo, "tags"]);
@@ -7094,12 +7084,20 @@ function update(model, msg) {
   } else if (msg instanceof UserEnteredUsernameInput) {
     let uname = msg[0];
     let _block;
-    if (uname.startsWith("https://github.com/")) {
-      let u = uname.slice(19);
-      _block = u;
+    let $ = (() => {
+      let _pipe = uname;
+      return trim(_pipe);
+    })();
+    if ($ === "") {
+      _block = new None();
+    } else if ($.startsWith("https://github.com/")) {
+      let u = $.slice(19);
+      let _pipe = u;
+      _block = new Some(_pipe);
     } else {
-      let u = uname;
-      _block = u;
+      let u = $;
+      let _pipe = u;
+      _block = new Some(_pipe);
     }
     let user_name = _block;
     if (state instanceof ConfigLoaded) {
@@ -7109,14 +7107,7 @@ function update(model, msg) {
           let _record = model;
           return new Model2(
             _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type,
-              false
-            ),
+            new ConfigLoaded(user_name, owner_type, false),
             _record.author_color_classes,
             _record.debug
           );
@@ -7130,14 +7121,7 @@ function update(model, msg) {
           let _record = model;
           return new Model2(
             _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type,
-              false
-            ),
+            new ConfigLoaded(user_name, owner_type, false),
             _record.author_color_classes,
             _record.debug
           );
@@ -7151,14 +7135,7 @@ function update(model, msg) {
           let _record = model;
           return new Model2(
             _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type,
-              false
-            ),
+            new ConfigLoaded(user_name, owner_type, false),
             _record.author_color_classes,
             _record.debug
           );
@@ -7172,14 +7149,7 @@ function update(model, msg) {
           let _record = model;
           return new Model2(
             _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type,
-              false
-            ),
+            new ConfigLoaded(user_name, owner_type, false),
             _record.author_color_classes,
             _record.debug
           );
@@ -7193,14 +7163,7 @@ function update(model, msg) {
           let _record = model;
           return new Model2(
             _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type,
-              false
-            ),
+            new ConfigLoaded(user_name, owner_type, false),
             _record.author_color_classes,
             _record.debug
           );
@@ -7214,14 +7177,7 @@ function update(model, msg) {
           let _record = model;
           return new Model2(
             _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type,
-              false
-            ),
+            new ConfigLoaded(user_name, owner_type, false),
             _record.author_color_classes,
             _record.debug
           );
@@ -7235,14 +7191,7 @@ function update(model, msg) {
           let _record = model;
           return new Model2(
             _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type,
-              false
-            ),
+            new ConfigLoaded(user_name, owner_type, false),
             _record.author_color_classes,
             _record.debug
           );
@@ -10405,7 +10354,7 @@ function init2(_) {
   if (!$) {
     _block = fetch_initial_config();
   } else {
-    _block = fetch_repos_for_public_version();
+    _block = none();
   }
   let init_effect = _block;
   return [init_model(), init_effect];
