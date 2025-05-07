@@ -14,15 +14,15 @@ git tags.
 
 > [!NOTE]
 > An unauthenticated public version of `ghch`'s web interface is running
-> at [https://ghch-public.tools.dhruvs.space](https://ghch-public.tools.dhruvs.space).
+> at [https://ghch.handytools.store](https://ghch.handytools.store).
 
 🤔 Why does this exist?
 ---
 
 I often need to view commit logs between two git tags for GitHub hosted
 repositories. While GitHub's UI allows comparing refs, doing it for git tags is
-a bit tedious. Additionally, comparing tags across multiple repositories
-involves a lot of clicks. To simplify this process, I built `ghch`.
+a bit tedious. Additionally, comparing tags for multiple repositories involves a
+lot of clicks. To simplify this process, I built `ghch`.
 
 Everything that `ghch` does can be achieved locally using `git`; the goal is to
 access commit logs quickly without having to clone a repository, or pull
