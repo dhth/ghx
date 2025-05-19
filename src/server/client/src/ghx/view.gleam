@@ -1,4 +1,6 @@
-import constants
+import ghx/constants
+import ghx/types.{type Model, type Msg, type Tag, type Theme, display_model}
+import ghx/utils.{http_error_to_string}
 import gleam/dict
 import gleam/int
 import gleam/list
@@ -11,8 +13,6 @@ import lustre/element
 import lustre/element/html
 import lustre/event
 import lustre_http
-import types.{type Model, type Msg, type Tag, type Theme, display_model}
-import utils.{http_error_to_string}
 
 type TagType {
   Start
@@ -277,7 +277,7 @@ fn heading(theme: Theme) -> element.Element(Msg) {
 
   html.div([attribute.class("flex gap-4 items-center")], [
     html.p([attribute.class("text-4xl font-semibold " <> heading_class)], [
-      "ghch" |> element.text,
+      "ghx" |> element.text,
     ]),
     case constants.public {
       False -> element.none()
@@ -294,7 +294,7 @@ fn heading(theme: Theme) -> element.Element(Msg) {
               ),
             ],
             [
-              "Github might rate limit you after a while; use the command line version of ghch to make authenticated calls or to fetch non-public data"
+              "Github might rate limit you after a while; use the command line version of ghx to make authenticated calls or to fetch non-public data"
               |> element.text,
             ],
           ),

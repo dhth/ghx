@@ -30,7 +30,7 @@ impl AppError {
                 }
                 AuthTokenError::CouldntFindGhExecutable => Some(
                     r#"
-ghch depends on gh (https://github.com/cli/cli) to obtain an auth token for you.
+ghx depends on gh (https://github.com/cli/cli) to obtain an auth token for you.
 If you don't want to dely on gh, set the environment variable GH_TOKEN with a valid auth token."#
                         .trim()
                         .into(),

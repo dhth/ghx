@@ -8,8 +8,8 @@ use reqwest::Error as ReqwestError;
 use reqwest::Response as ReqwestResponse;
 
 const HTML: &[u8] = include_bytes!("client/index.html");
-const JS: &[u8] = include_bytes!("client/priv/static/ghch.mjs");
-const CSS: &[u8] = include_bytes!("client/priv/static/ghch.css");
+const JS: &[u8] = include_bytes!("client/priv/static/ghx.mjs");
+const CSS: &[u8] = include_bytes!("client/priv/static/ghx.css");
 const CUSTOM_CSS: &[u8] = include_bytes!("client/priv/static/custom.css");
 const FAVICON: &[u8] = include_bytes!("client/priv/static/favicon.png");
 

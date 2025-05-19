@@ -39,11 +39,11 @@ pub async fn run_server(
     let app = Router::new()
         .route("/", get(move || get_static_asset(AssetType::Html)))
         .route(
-            "/priv/static/ghch.mjs",
+            "/priv/static/ghx.mjs",
             get(move || get_static_asset(AssetType::Js)),
         )
         .route(
-            "/priv/static/ghch.css",
+            "/priv/static/ghx.css",
             get(move || get_static_asset(AssetType::Css)),
         )
         .route(

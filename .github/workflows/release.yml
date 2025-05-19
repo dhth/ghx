@@ -1,0 +1,46 @@
+name: release
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  GLEAM_VERSION: '1.10.0'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Set up Gleam
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27.0"
+          gleam-version: ${{ env.GLEAM_VERSION }}
+          rebar3-version: "3"
+      - name: Build app
+        run: |
+          cd src/server/client
+          gleam deps download
+          sed -i 's|pub const public = False|pub const public = True|' src/constants.gleam
+          gleam run -m lustre/dev build app --minify
+      - name: Copy output to dist
+        run: |
+          mkdir -p dist
+          cp src/server/client/index.html dist
+          cp -r src/server/client/priv dist
+      - name: Update path in index.html to use minified app
+        run: |
+          sed -i 's|priv/static/ghx.mjs|priv/static/ghx.min.mjs|' dist/index.html
+          sed -i 's|priv/static/ghx.css|priv/static/ghx.min.css|' dist/index.html
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy dist --prod --token=${{ secrets.VERCEL_TOKEN }} --yes
