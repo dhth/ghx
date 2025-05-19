@@ -1,4 +1,4 @@
-name: preview
+name: preview-public-version
 
 on:
   push:
