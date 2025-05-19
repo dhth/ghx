@@ -1,4 +1,5 @@
-import constants
+import ghx/constants
+import ghx/utils
 import gleam/bool
 import gleam/dict.{type Dict}
 import gleam/dynamic/decode
@@ -8,7 +9,6 @@ import gleam/option
 import gleam/string
 import gleam/time/timestamp.{type Timestamp}
 import lustre_http
-import utils
 
 const author_colors_dark = [
   "text-[#fd780b]", "text-[#a882a7]", "text-[#b798f0]", "text-[#59d412]",

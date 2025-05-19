@@ -1,4 +1,5 @@
-import constants
+import ghx/constants
+import ghx/types
 import gleam/string
 import lustre/effect
 import lustre_http
@@ -6,7 +7,6 @@ import plinth/browser/document
 import plinth/browser/element.{type Element}
 import plinth/browser/window
 import plinth/javascript/global
-import types
 
 const dev = False
 

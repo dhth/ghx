@@ -1,11 +1,11 @@
 <p align="center">
-  <h1 align="center">ghch</h1>
+  <h1 align="center">ghx</h1>
   <p align="center">
-    <a href="https://github.com/dhth/ghch/actions/workflows/build-gleam.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/dhth/ghch/build-gleam.yml?style=flat-square"></a>
+    <a href="https://github.com/dhth/ghx/actions/workflows/build-gleam.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/dhth/ghx/build-gleam.yml?style=flat-square"></a>
   </p>
 </p>
 
-`ghch` provides an alternative to GitHub's UI for viewing commit logs between
+`ghx` provides an alternative to GitHub's UI for viewing commit logs between
 git tags.
 
 ![](https://github.com/user-attachments/assets/548484ac-7d3f-4261-8c59-cb84def173a6)
@@ -13,8 +13,8 @@ git tags.
 ![](https://github.com/user-attachments/assets/74803101-eb63-4837-adac-f3fe9c9c1a76)
 
 > [!NOTE]
-> An unauthenticated public version of `ghch`'s web interface is running
-> at [https://ghch.handytools.store](https://ghch.handytools.store).
+> An unauthenticated public version of `ghx`'s web interface is running
+> at [https://ghx.handytools.store](https://ghx.handytools.store).
 
 🤔 Why does this exist?
 ---
@@ -22,9 +22,9 @@ git tags.
 I often need to view commit logs between two git tags for GitHub hosted
 repositories. While GitHub's UI allows comparing refs, doing it for git tags is
 a bit tedious. Additionally, comparing tags for multiple repositories involves a
-lot of clicks. To simplify this process, I built `ghch`.
+lot of clicks. To simplify this process, I built `ghx`.
 
-Everything that `ghch` does can be achieved locally using `git`; the goal is to
+Everything that `ghx` does can be achieved locally using `git`; the goal is to
 access commit logs quickly without having to clone a repository, or pull
 changes, or run `git tag` to discover tags.
 
@@ -32,10 +32,10 @@ changes, or run `git tag` to discover tags.
 ---
 
 ```text
-$ ghch serve -h
-Serve ghch's web interface
+$ ghx serve -h
+Serve ghx's web interface
 
-Usage: ghch serve [OPTIONS]
+Usage: ghx serve [OPTIONS]
 
 Options:
   -o, --owner <STRING>       Owner to show results for
@@ -49,7 +49,7 @@ Options:
 🔑 Authentication
 ---
 
-You can have `ghch` make authenticated calls to GitHub on your behalf in either
+You can have `ghx` make authenticated calls to GitHub on your behalf in either
 of two ways:
 
 - Have an authenticated instance of [gh](https://github.com/cli/cli) available

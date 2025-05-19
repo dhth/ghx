@@ -4,7 +4,7 @@ use clap::Parser;
 use clap::Subcommand;
 
 #[derive(Parser)]
-/// ghch simplifies viewing changes for GitHub repositories
+/// ghx simplifies viewing changes for GitHub repositories
 pub struct Args {
     #[command(subcommand)]
     pub command: GhChCommand,
@@ -12,7 +12,7 @@ pub struct Args {
 
 #[derive(Subcommand, Debug)]
 pub enum GhChCommand {
-    /// Serve ghch's web interface
+    /// Serve ghx's web interface
     #[command()]
     Serve {
         /// Owner to show results for

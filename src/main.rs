@@ -21,7 +21,7 @@ async fn main() {
 ------
 
 This error is unexpected.
-Let @dhth know about this via https://github.com/dhth/ghch/issues (mention the error code E{}).",
+Let @dhth know about this via https://github.com/dhth/ghx/issues (mention the error code E{}).",
                 c
             );
         }

@@ -1,10 +1,10 @@
-import constants
-import effects
+import ghx/constants
+import ghx/effects
+import ghx/types.{type Model, type Msg, init_model}
+import ghx/update
+import ghx/view
 import lustre
 import lustre/effect
-import types.{type Model, type Msg, init_model}
-import update
-import view
 
 pub fn main() {
   let app = lustre.application(init, update.update, view.view)

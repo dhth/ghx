@@ -1,10 +1,10 @@
 [package]
-name = "ghch"
+name = "ghx"
 version = "0.1.0"
 edition = "2024"
 authors = ["Dhruv Thakur"]
-repository = "https://github.com/dhth/ghch"
-description = "ghch simplifies viewing changelogs for GitHub repositories"
+repository = "https://github.com/dhth/ghx"
+description = "ghx simplifies viewing changelogs for GitHub repositories"
 license = "MIT"
 keywords = [
     "cli",

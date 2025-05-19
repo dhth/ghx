@@ -3829,7 +3829,7 @@ function start2(app, selector, flags) {
   );
 }
 
-// build/dev/javascript/ghx/constants.mjs
+// build/dev/javascript/ghx/ghx/constants.mjs
 var public$ = false;
 var head = "HEAD";
 
@@ -5182,11 +5182,6 @@ function setTimeout(delay, callback) {
   return globalThis.setTimeout(callback, delay);
 }
 
-// build/dev/javascript/ghx/ffi/element_ffi.mjs
-function scrollIntoViewStart(element2) {
-  element2.scrollIntoView({ behavior: "smooth", block: "start" });
-}
-
 // build/dev/javascript/gleam_time/gleam/time/duration.mjs
 var Duration = class extends CustomType {
   constructor(seconds2, nanoseconds2) {
@@ -5676,7 +5671,7 @@ function parse_rfc3339(input2) {
   );
 }
 
-// build/dev/javascript/ghx/utils.mjs
+// build/dev/javascript/ghx/ghx/utils.mjs
 function http_error_to_string(error) {
   if (error instanceof BadUrl) {
     let u = error[0];
@@ -5767,7 +5762,7 @@ function humanize_duration(dur) {
   }
 }
 
-// build/dev/javascript/ghx/types.mjs
+// build/dev/javascript/ghx/ghx/types.mjs
 var User = class extends CustomType {
 };
 var Org = class extends CustomType {
@@ -6746,7 +6741,12 @@ function init_model() {
   }
 }
 
-// build/dev/javascript/ghx/effects.mjs
+// build/dev/javascript/ghx/ghx/ffi/element_ffi.mjs
+function scrollIntoViewStart(element2) {
+  element2.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+// build/dev/javascript/ghx/ghx/effects.mjs
 function scroll_element_into_view(id2) {
   let scroll_fn = () => {
     let $ = (() => {
@@ -6857,7 +6857,7 @@ function fetch_changes(user_name, repo, start_tag, end_tag) {
   );
 }
 
-// build/dev/javascript/ghx/update.mjs
+// build/dev/javascript/ghx/ghx/update.mjs
 function update(model, msg) {
   let zero = [model, none()];
   let state = model.state;
@@ -8481,7 +8481,7 @@ function on_check(msg) {
   );
 }
 
-// build/dev/javascript/ghx/view.mjs
+// build/dev/javascript/ghx/ghx/view.mjs
 var Start = class extends CustomType {
 };
 var End = class extends CustomType {

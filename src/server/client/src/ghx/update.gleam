@@ -1,9 +1,9 @@
-import constants
-import effects.{fetch_changes, fetch_repos, fetch_tags}
+import ghx/constants
+import ghx/effects.{fetch_changes, fetch_repos, fetch_tags}
+import ghx/types.{type Model, type Msg, Config, Model, get_next_theme}
 import gleam/option
 import gleam/string
 import lustre/effect
-import types.{type Model, type Msg, Config, Model, get_next_theme}
 
 pub fn update(model: Model, msg: Msg) -> #(Model, effect.Effect(Msg)) {
   let zero = #(model, effect.none())
