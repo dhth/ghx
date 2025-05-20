@@ -8,9 +8,9 @@
 `ghx` provides an alternative to GitHub's UI for viewing commit logs between
 git tags.
 
-![](https://github.com/user-attachments/assets/548484ac-7d3f-4261-8c59-cb84def173a6)
-![](https://github.com/user-attachments/assets/af584b9f-281e-46fd-951f-75278b4d7c9f)
-![](https://github.com/user-attachments/assets/74803101-eb63-4837-adac-f3fe9c9c1a76)
+![](https://tools.dhruvs.space/images/ghx/1.png)
+![](https://tools.dhruvs.space/images/ghx/2.png)
+![](https://tools.dhruvs.space/images/ghx/3.png)
 
 > [!NOTE]
 > An unauthenticated public version of `ghx`'s web interface is running
