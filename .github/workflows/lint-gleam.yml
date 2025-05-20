@@ -1,8 +1,6 @@
 name: lint-gleam
 
 on:
-  push:
-    branches: ["main"]
   pull_request:
     paths:
       - "src/server/client/**"
