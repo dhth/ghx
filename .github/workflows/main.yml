@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
 
 env:
   CARGO_TERM_COLOR: always
@@ -72,8 +71,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: [build-rust, lint-and-build-gleam]
     environment: staging
-    concurrency:
-      group: deploy-staging
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -90,8 +87,6 @@ jobs:
     needs: [deploy-staging]
     runs-on: ubuntu-latest
     environment: prod
-    concurrency:
-      group: deploy-prod
     steps:
       - name: Checkout
         uses: actions/checkout@v4
