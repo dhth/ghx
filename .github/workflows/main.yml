@@ -1,0 +1,105 @@
+name: main
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  GLEAM_VERSION: '1.10.0'
+
+jobs:
+  lint-rust:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          components: clippy, rustfmt
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+      - name: Lint
+        run: cargo clippy
+
+  build-rust:
+    needs: [lint-rust]
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Build
+        run: cargo build
+
+  lint-and-build-gleam:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ensure dev flag is set to False
+        run: |
+          if grep -q "const dev = True" src/server/client/src/effects.gleam; then
+            echo "dev flag is set to True"
+            false
+          fi
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: "27.1"
+          gleam-version: ${{ env.GLEAM_VERSION }}
+          rebar3-version: "3"
+      - name: Lint
+        run: |
+          cd src/server/client
+          gleam format src --check
+      - name: Compile gleam to js
+        run: |
+          cd src/server/client
+          gleam run -m lustre/dev build app
+      - name: Ensure compiled files haven't changed
+        run: |
+          if git --no-pager diff --name-only | grep -q "priv/static"; then
+            echo "compiled files have changed; compile them again"
+            git --no-pager diff --name-only
+            false
+          fi
+
+  deploy-staging:
+    runs-on: ubuntu-latest
+    needs: [build-rust, lint-and-build-gleam]
+    environment: staging
+    concurrency:
+      group: deploy-staging
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+      - name: Deploy
+        uses: ./.github/actions/deploy-on-vercel
+        with:
+          environment: preview
+          gleam_version: ${{ env.GLEAM_VERSION }}
+          vercel_org_id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel_project_id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel_token: ${{ secrets.VERCEL_TOKEN }}
+
+  deploy-prod:
+    needs: [deploy-staging]
+    runs-on: ubuntu-latest
+    environment: prod
+    concurrency:
+      group: deploy-prod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy
+        uses: ./.github/actions/deploy-on-vercel
+        with:
+          environment: production
+          gleam_version: ${{ env.GLEAM_VERSION }}
+          vercel_org_id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel_project_id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel_token: ${{ secrets.VERCEL_TOKEN }}

@@ -4,6 +4,9 @@ inputs:
   environment:
     description: 'Environment'
     required: true
+  gleam_version:
+    description: 'Gleam version'
+    required: true
   vercel_org_id:
     description: 'Vercel org ID'
     required: true
@@ -30,7 +33,7 @@ runs:
       uses: erlef/setup-beam@v1
       with:
         otp-version: "27.0"
-        gleam-version: "1.10.0"
+        gleam-version: ${{ inputs.gleam_version }}
         rebar3-version: "3"
     - name: Build app
       shell: bash

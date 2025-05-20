@@ -1,8 +1,6 @@
 name: lint-rust
 
 on:
-  push:
-    branches: ["main"]
   pull_request:
     paths:
       - "*Cargo.*"
