@@ -2,5 +2,5 @@
 *.ez
 /build
 erl_crash.dump
-priv/static/ghch.min.css
-priv/static/ghch.min.mjs
+priv/static/ghx.min.css
+priv/static/ghx.min.mjs

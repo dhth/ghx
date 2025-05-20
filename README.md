@@ -2,6 +2,7 @@
   <h1 align="center">ghx</h1>
   <p align="center">
     <a href="https://github.com/dhth/ghx/actions/workflows/build-gleam.yml"><img alt="Build status" src="https://img.shields.io/github/actions/workflow/status/dhth/ghx/build-gleam.yml?style=flat-square"></a>
+    <a href="https://github.com/dhth/ghx/actions/workflows/release-public-version.yml"><img alt="Release public version" src="https://img.shields.io/github/actions/workflow/status/dhth/ghx/release-public-version.yml?style=flat-square&label=release-public-version"></a>
   </p>
 </p>
 
