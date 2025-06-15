@@ -1,4 +1,5 @@
 name: deploy-on-vercel
+description: Deploy on Vercel
 
 inputs:
   environment:
