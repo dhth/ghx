@@ -41,6 +41,7 @@ runs:
       run: |
         cd src/server/client
         gleam deps download
+        gleam run -m lustre/dev add tailwind
         sed -i 's|pub const public = False|pub const public = True|' src/ghx/constants.gleam
         gleam run -m lustre/dev build app --minify
     - name: Copy output to dist

@@ -108,6 +108,7 @@ jobs:
       - name: Compile gleam to js
         run: |
           cd src/server/client
+          gleam run -m lustre/dev add tailwind
           gleam run -m lustre/dev build app
       - name: Ensure compiled files haven't changed
         run: |
