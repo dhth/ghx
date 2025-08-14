@@ -77,7 +77,7 @@ fn main_section(model: Model) -> element.Element(Msg) {
   html.div(
     [
       attribute.class("flex-1 overflow-y-scroll pt-8 px-4"),
-      attribute.style([
+      attribute.styles([
         #("scrollbar-color", theme |> scrollbar_color),
         #("scrollbar-width", "thin"),
       ]),
@@ -558,7 +558,7 @@ fn repo_selection_section(
       html.div(
         [
           attribute.class("flex-wrap mt-2 overflow-y-scroll max-h-60"),
-          attribute.style([
+          attribute.styles([
             #("scrollbar-color", theme |> scrollbar_color),
             #("scrollbar-width", "thin"),
           ]),
@@ -603,7 +603,7 @@ fn repo_select_button(
     [
       attribute.id("reset-filter"),
       attribute.class(
-        "max-sm:text-xs text-sm font-semibold mr-2 px-2 py-1 my-1 text-[#232634] "
+        "max-sm:text-xs text-sm font-semibold mr-2 px-2 py-1 my-1 "
         <> class,
       ),
       attribute.disabled(selected),
@@ -995,7 +995,7 @@ fn files_section(
           attribute.class(
             "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted",
           ),
-          attribute.style([
+          attribute.styles([
             #("scrollbar-color", theme |> scrollbar_color),
             #("scrollbar-width", "thin"),
           ]),

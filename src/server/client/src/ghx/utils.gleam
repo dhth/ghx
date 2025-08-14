@@ -27,7 +27,6 @@ pub fn http_error_to_string(error: lustre_http.HttpError) -> String {
           |> string.join(", ")
         json.UnexpectedByte(_) -> "unexpected byte"
         json.UnexpectedEndOfInput -> "unexpected end of input"
-        json.UnexpectedFormat(_) -> "unexpected format"
         json.UnexpectedSequence(_) -> "unexpected sequence"
       }
     lustre_http.NetworkError -> "network error"

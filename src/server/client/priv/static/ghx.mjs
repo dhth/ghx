@@ -44,11 +44,11 @@ var List = class {
     return length4 - 1;
   }
 };
-function prepend(element2, tail) {
-  return new NonEmpty(element2, tail);
+function prepend(element4, tail) {
+  return new NonEmpty(element4, tail);
 }
-function toList(elements2, tail) {
-  return List.fromArray(elements2, tail);
+function toList(elements, tail) {
+  return List.fromArray(elements, tail);
 }
 var ListIterator = class {
   #current;
@@ -258,8 +258,8 @@ function bitArrayByteAt(buffer, bitOffset, index5) {
   }
 }
 var UtfCodepoint = class {
-  constructor(value4) {
-    this.value = value4;
+  constructor(value3) {
+    this.value = value3;
   }
 };
 var isBitArrayDeprecationMessagePrinted = {};
@@ -272,18 +272,18 @@ function bitArrayPrintDeprecationWarning(name2, message) {
   );
   isBitArrayDeprecationMessagePrinted[name2] = true;
 }
-function bitArraySlice(bitArray, start3, end) {
+function bitArraySlice(bitArray, start4, end) {
   end ??= bitArray.bitSize;
-  bitArrayValidateRange(bitArray, start3, end);
-  if (start3 === end) {
+  bitArrayValidateRange(bitArray, start4, end);
+  if (start4 === end) {
     return new BitArray(new Uint8Array());
   }
-  if (start3 === 0 && end === bitArray.bitSize) {
+  if (start4 === 0 && end === bitArray.bitSize) {
     return bitArray;
   }
-  start3 += bitArray.bitOffset;
+  start4 += bitArray.bitOffset;
   end += bitArray.bitOffset;
-  const startByteIndex = Math.trunc(start3 / 8);
+  const startByteIndex = Math.trunc(start4 / 8);
   const endByteIndex = Math.trunc((end + 7) / 8);
   const byteLength = endByteIndex - startByteIndex;
   let buffer;
@@ -296,7 +296,7 @@ function bitArraySlice(bitArray, start3, end) {
       byteLength
     );
   }
-  return new BitArray(buffer, end - start3, start3 % 8);
+  return new BitArray(buffer, end - start4, start4 % 8);
 }
 function toBitArray(segments) {
   if (segments.length === 0) {
@@ -371,38 +371,38 @@ function toBitArray(segments) {
       }
     }
   }
-  function appendUnalignedBits(unalignedBits, size, offset) {
-    if (size === 0) {
+  function appendUnalignedBits(unalignedBits, size2, offset) {
+    if (size2 === 0) {
       return;
     }
-    const byteSize = Math.trunc(size + 7 / 8);
+    const byteSize = Math.trunc(size2 + 7 / 8);
     const highBitsCount = cursor % 8;
     const lowBitsCount = 8 - highBitsCount;
     let byteIndex = Math.trunc(cursor / 8);
     for (let i = 0; i < byteSize; i++) {
       let byte = bitArrayByteAt(unalignedBits, offset, i);
-      if (size < 8) {
-        byte >>= 8 - size;
-        byte <<= 8 - size;
+      if (size2 < 8) {
+        byte >>= 8 - size2;
+        byte <<= 8 - size2;
       }
       buffer[byteIndex] |= byte >> highBitsCount;
-      let appendedBitsCount = size - Math.max(0, size - lowBitsCount);
-      size -= appendedBitsCount;
+      let appendedBitsCount = size2 - Math.max(0, size2 - lowBitsCount);
+      size2 -= appendedBitsCount;
       cursor += appendedBitsCount;
-      if (size === 0) {
+      if (size2 === 0) {
         break;
       }
       buffer[++byteIndex] = byte << lowBitsCount;
-      appendedBitsCount = size - Math.max(0, size - highBitsCount);
-      size -= appendedBitsCount;
+      appendedBitsCount = size2 - Math.max(0, size2 - highBitsCount);
+      size2 -= appendedBitsCount;
       cursor += appendedBitsCount;
     }
   }
   return new BitArray(buffer, bitSize);
 }
-function bitArrayValidateRange(bitArray, start3, end) {
-  if (start3 < 0 || start3 > bitArray.bitSize || end < start3 || end > bitArray.bitSize) {
-    const msg = `Invalid bit array slice: start = ${start3}, end = ${end}, bit size = ${bitArray.bitSize}`;
+function bitArrayValidateRange(bitArray, start4, end) {
+  if (start4 < 0 || start4 > bitArray.bitSize || end < start4 || end > bitArray.bitSize) {
+    const msg = `Invalid bit array slice: start = ${start4}, end = ${end}, bit size = ${bitArray.bitSize}`;
     throw new globalThis.Error(msg);
   }
 }
@@ -418,9 +418,9 @@ var Result = class _Result extends CustomType {
   }
 };
 var Ok = class extends Result {
-  constructor(value4) {
+  constructor(value3) {
     super();
-    this[0] = value4;
+    this[0] = value3;
   }
   // @internal
   isOk() {
@@ -438,10 +438,10 @@ var Error = class extends Result {
   }
 };
 function isEqual(x, y) {
-  let values2 = [x, y];
-  while (values2.length) {
-    let a2 = values2.pop();
-    let b = values2.pop();
+  let values3 = [x, y];
+  while (values3.length) {
+    let a2 = values3.pop();
+    let b = values3.pop();
     if (a2 === b) continue;
     if (!isObject(a2) || !isObject(b)) return false;
     let unequal = !structurallyCompatibleObjects(a2, b) || unequalDates(a2, b) || unequalBuffers(a2, b) || unequalArrays(a2, b) || unequalMaps(a2, b) || unequalSets(a2, b) || unequalRegExps(a2, b);
@@ -454,18 +454,21 @@ function isEqual(x, y) {
       } catch {
       }
     }
-    let [keys2, get2] = getters(a2);
-    for (let k of keys2(a2)) {
-      values2.push(get2(a2, k), get2(b, k));
+    let [keys2, get3] = getters(a2);
+    const ka = keys2(a2);
+    const kb = keys2(b);
+    if (ka.length !== kb.length) return false;
+    for (let k of ka) {
+      values3.push(get3(a2, k), get3(b, k));
     }
   }
   return true;
 }
-function getters(object3) {
-  if (object3 instanceof Map) {
+function getters(object4) {
+  if (object4 instanceof Map) {
     return [(x) => x.keys(), (x, y) => x.get(y)];
   } else {
-    let extra = object3 instanceof globalThis.Error ? ["message"] : [];
+    let extra = object4 instanceof globalThis.Error ? ["message"] : [];
     return [(x) => [...extra, ...Object.keys(x)], (x, y) => x[y]];
   }
 }
@@ -514,9 +517,10 @@ function divideFloat(a2, b) {
     return a2 / b;
   }
 }
-function makeError(variant, module, line, fn, message, extra) {
+function makeError(variant, file, module, line, fn, message, extra) {
   let error = new globalThis.Error(message);
   error.gleam_error = variant;
+  error.file = file;
   error.module = module;
   error.line = line;
   error.function = fn;
@@ -525,19 +529,11 @@ function makeError(variant, module, line, fn, message, extra) {
   return error;
 }
 
-// build/dev/javascript/gleam_stdlib/gleam/order.mjs
-var Lt = class extends CustomType {
-};
-var Eq = class extends CustomType {
-};
-var Gt = class extends CustomType {
-};
-
 // build/dev/javascript/gleam_stdlib/gleam/option.mjs
 var Some = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 var None = class extends CustomType {
@@ -569,7 +565,7 @@ function map(option2, fun) {
     let x = option2[0];
     return new Some(fun(x));
   } else {
-    return new None();
+    return option2;
   }
 }
 function then$(option2, fun) {
@@ -577,12 +573,12 @@ function then$(option2, fun) {
     let x = option2[0];
     return fun(x);
   } else {
-    return new None();
+    return option2;
   }
 }
-function or(first3, second) {
-  if (first3 instanceof Some) {
-    return first3;
+function or(first2, second) {
+  if (first2 instanceof Some) {
+    return first2;
   } else {
     return second;
   }
@@ -781,36 +777,36 @@ function createNode(shift, key1, val1, key2hash, key2, val2) {
     addedLeaf
   );
 }
-function assoc(root, shift, hash, key2, val, addedLeaf) {
-  switch (root.type) {
+function assoc(root3, shift, hash, key2, val, addedLeaf) {
+  switch (root3.type) {
     case ARRAY_NODE:
-      return assocArray(root, shift, hash, key2, val, addedLeaf);
+      return assocArray(root3, shift, hash, key2, val, addedLeaf);
     case INDEX_NODE:
-      return assocIndex(root, shift, hash, key2, val, addedLeaf);
+      return assocIndex(root3, shift, hash, key2, val, addedLeaf);
     case COLLISION_NODE:
-      return assocCollision(root, shift, hash, key2, val, addedLeaf);
+      return assocCollision(root3, shift, hash, key2, val, addedLeaf);
   }
 }
-function assocArray(root, shift, hash, key2, val, addedLeaf) {
+function assocArray(root3, shift, hash, key2, val, addedLeaf) {
   const idx = mask(hash, shift);
-  const node = root.array[idx];
+  const node = root3.array[idx];
   if (node === void 0) {
     addedLeaf.val = true;
     return {
       type: ARRAY_NODE,
-      size: root.size + 1,
-      array: cloneAndSet(root.array, idx, { type: ENTRY, k: key2, v: val })
+      size: root3.size + 1,
+      array: cloneAndSet(root3.array, idx, { type: ENTRY, k: key2, v: val })
     };
   }
   if (node.type === ENTRY) {
     if (isEqual(key2, node.k)) {
       if (val === node.v) {
-        return root;
+        return root3;
       }
       return {
         type: ARRAY_NODE,
-        size: root.size,
-        array: cloneAndSet(root.array, idx, {
+        size: root3.size,
+        array: cloneAndSet(root3.array, idx, {
           type: ENTRY,
           k: key2,
           v: val
@@ -820,9 +816,9 @@ function assocArray(root, shift, hash, key2, val, addedLeaf) {
     addedLeaf.val = true;
     return {
       type: ARRAY_NODE,
-      size: root.size,
+      size: root3.size,
       array: cloneAndSet(
-        root.array,
+        root3.array,
         idx,
         createNode(shift + SHIFT, node.k, node.v, hash, key2, val)
       )
@@ -830,39 +826,39 @@ function assocArray(root, shift, hash, key2, val, addedLeaf) {
   }
   const n = assoc(node, shift + SHIFT, hash, key2, val, addedLeaf);
   if (n === node) {
-    return root;
+    return root3;
   }
   return {
     type: ARRAY_NODE,
-    size: root.size,
-    array: cloneAndSet(root.array, idx, n)
+    size: root3.size,
+    array: cloneAndSet(root3.array, idx, n)
   };
 }
-function assocIndex(root, shift, hash, key2, val, addedLeaf) {
+function assocIndex(root3, shift, hash, key2, val, addedLeaf) {
   const bit = bitpos(hash, shift);
-  const idx = index(root.bitmap, bit);
-  if ((root.bitmap & bit) !== 0) {
-    const node = root.array[idx];
+  const idx = index(root3.bitmap, bit);
+  if ((root3.bitmap & bit) !== 0) {
+    const node = root3.array[idx];
     if (node.type !== ENTRY) {
       const n = assoc(node, shift + SHIFT, hash, key2, val, addedLeaf);
       if (n === node) {
-        return root;
+        return root3;
       }
       return {
         type: INDEX_NODE,
-        bitmap: root.bitmap,
-        array: cloneAndSet(root.array, idx, n)
+        bitmap: root3.bitmap,
+        array: cloneAndSet(root3.array, idx, n)
       };
     }
     const nodeKey = node.k;
     if (isEqual(key2, nodeKey)) {
       if (val === node.v) {
-        return root;
+        return root3;
       }
       return {
         type: INDEX_NODE,
-        bitmap: root.bitmap,
-        array: cloneAndSet(root.array, idx, {
+        bitmap: root3.bitmap,
+        array: cloneAndSet(root3.array, idx, {
           type: ENTRY,
           k: key2,
           v: val
@@ -872,24 +868,24 @@ function assocIndex(root, shift, hash, key2, val, addedLeaf) {
     addedLeaf.val = true;
     return {
       type: INDEX_NODE,
-      bitmap: root.bitmap,
+      bitmap: root3.bitmap,
       array: cloneAndSet(
-        root.array,
+        root3.array,
         idx,
         createNode(shift + SHIFT, nodeKey, node.v, hash, key2, val)
       )
     };
   } else {
-    const n = root.array.length;
+    const n = root3.array.length;
     if (n >= MAX_INDEX_NODE) {
       const nodes = new Array(32);
       const jdx = mask(hash, shift);
       nodes[jdx] = assocIndex(EMPTY, shift + SHIFT, hash, key2, val, addedLeaf);
       let j = 0;
-      let bitmap = root.bitmap;
+      let bitmap = root3.bitmap;
       for (let i = 0; i < 32; i++) {
         if ((bitmap & 1) !== 0) {
-          const node = root.array[j++];
+          const node = root3.array[j++];
           nodes[i] = node;
         }
         bitmap = bitmap >>> 1;
@@ -900,7 +896,7 @@ function assocIndex(root, shift, hash, key2, val, addedLeaf) {
         array: nodes
       };
     } else {
-      const newArray = spliceIn(root.array, idx, {
+      const newArray = spliceIn(root3.array, idx, {
         type: ENTRY,
         k: key2,
         v: val
@@ -908,39 +904,39 @@ function assocIndex(root, shift, hash, key2, val, addedLeaf) {
       addedLeaf.val = true;
       return {
         type: INDEX_NODE,
-        bitmap: root.bitmap | bit,
+        bitmap: root3.bitmap | bit,
         array: newArray
       };
     }
   }
 }
-function assocCollision(root, shift, hash, key2, val, addedLeaf) {
-  if (hash === root.hash) {
-    const idx = collisionIndexOf(root, key2);
+function assocCollision(root3, shift, hash, key2, val, addedLeaf) {
+  if (hash === root3.hash) {
+    const idx = collisionIndexOf(root3, key2);
     if (idx !== -1) {
-      const entry = root.array[idx];
+      const entry = root3.array[idx];
       if (entry.v === val) {
-        return root;
+        return root3;
       }
       return {
         type: COLLISION_NODE,
         hash,
-        array: cloneAndSet(root.array, idx, { type: ENTRY, k: key2, v: val })
+        array: cloneAndSet(root3.array, idx, { type: ENTRY, k: key2, v: val })
       };
     }
-    const size = root.array.length;
+    const size2 = root3.array.length;
     addedLeaf.val = true;
     return {
       type: COLLISION_NODE,
       hash,
-      array: cloneAndSet(root.array, size, { type: ENTRY, k: key2, v: val })
+      array: cloneAndSet(root3.array, size2, { type: ENTRY, k: key2, v: val })
     };
   }
   return assoc(
     {
       type: INDEX_NODE,
-      bitmap: bitpos(root.hash, shift),
-      array: [root]
+      bitmap: bitpos(root3.hash, shift),
+      array: [root3]
     },
     shift,
     hash,
@@ -949,28 +945,28 @@ function assocCollision(root, shift, hash, key2, val, addedLeaf) {
     addedLeaf
   );
 }
-function collisionIndexOf(root, key2) {
-  const size = root.array.length;
-  for (let i = 0; i < size; i++) {
-    if (isEqual(key2, root.array[i].k)) {
+function collisionIndexOf(root3, key2) {
+  const size2 = root3.array.length;
+  for (let i = 0; i < size2; i++) {
+    if (isEqual(key2, root3.array[i].k)) {
       return i;
     }
   }
   return -1;
 }
-function find(root, shift, hash, key2) {
-  switch (root.type) {
+function find(root3, shift, hash, key2) {
+  switch (root3.type) {
     case ARRAY_NODE:
-      return findArray(root, shift, hash, key2);
+      return findArray(root3, shift, hash, key2);
     case INDEX_NODE:
-      return findIndex(root, shift, hash, key2);
+      return findIndex(root3, shift, hash, key2);
     case COLLISION_NODE:
-      return findCollision(root, key2);
+      return findCollision(root3, key2);
   }
 }
-function findArray(root, shift, hash, key2) {
+function findArray(root3, shift, hash, key2) {
   const idx = mask(hash, shift);
-  const node = root.array[idx];
+  const node = root3.array[idx];
   if (node === void 0) {
     return void 0;
   }
@@ -982,13 +978,13 @@ function findArray(root, shift, hash, key2) {
   }
   return void 0;
 }
-function findIndex(root, shift, hash, key2) {
+function findIndex(root3, shift, hash, key2) {
   const bit = bitpos(hash, shift);
-  if ((root.bitmap & bit) === 0) {
+  if ((root3.bitmap & bit) === 0) {
     return void 0;
   }
-  const idx = index(root.bitmap, bit);
-  const node = root.array[idx];
+  const idx = index(root3.bitmap, bit);
+  const node = root3.array[idx];
   if (node.type !== ENTRY) {
     return find(node, shift + SHIFT, hash, key2);
   }
@@ -997,44 +993,44 @@ function findIndex(root, shift, hash, key2) {
   }
   return void 0;
 }
-function findCollision(root, key2) {
-  const idx = collisionIndexOf(root, key2);
+function findCollision(root3, key2) {
+  const idx = collisionIndexOf(root3, key2);
   if (idx < 0) {
     return void 0;
   }
-  return root.array[idx];
+  return root3.array[idx];
 }
-function without(root, shift, hash, key2) {
-  switch (root.type) {
+function without(root3, shift, hash, key2) {
+  switch (root3.type) {
     case ARRAY_NODE:
-      return withoutArray(root, shift, hash, key2);
+      return withoutArray(root3, shift, hash, key2);
     case INDEX_NODE:
-      return withoutIndex(root, shift, hash, key2);
+      return withoutIndex(root3, shift, hash, key2);
     case COLLISION_NODE:
-      return withoutCollision(root, key2);
+      return withoutCollision(root3, key2);
   }
 }
-function withoutArray(root, shift, hash, key2) {
+function withoutArray(root3, shift, hash, key2) {
   const idx = mask(hash, shift);
-  const node = root.array[idx];
+  const node = root3.array[idx];
   if (node === void 0) {
-    return root;
+    return root3;
   }
   let n = void 0;
   if (node.type === ENTRY) {
     if (!isEqual(node.k, key2)) {
-      return root;
+      return root3;
     }
   } else {
     n = without(node, shift + SHIFT, hash, key2);
     if (n === node) {
-      return root;
+      return root3;
     }
   }
   if (n === void 0) {
-    if (root.size <= MIN_ARRAY_NODE) {
-      const arr = root.array;
-      const out = new Array(root.size - 1);
+    if (root3.size <= MIN_ARRAY_NODE) {
+      const arr = root3.array;
+      const out = new Array(root3.size - 1);
       let i = 0;
       let j = 0;
       let bitmap = 0;
@@ -1065,77 +1061,77 @@ function withoutArray(root, shift, hash, key2) {
     }
     return {
       type: ARRAY_NODE,
-      size: root.size - 1,
-      array: cloneAndSet(root.array, idx, n)
+      size: root3.size - 1,
+      array: cloneAndSet(root3.array, idx, n)
     };
   }
   return {
     type: ARRAY_NODE,
-    size: root.size,
-    array: cloneAndSet(root.array, idx, n)
+    size: root3.size,
+    array: cloneAndSet(root3.array, idx, n)
   };
 }
-function withoutIndex(root, shift, hash, key2) {
+function withoutIndex(root3, shift, hash, key2) {
   const bit = bitpos(hash, shift);
-  if ((root.bitmap & bit) === 0) {
-    return root;
+  if ((root3.bitmap & bit) === 0) {
+    return root3;
   }
-  const idx = index(root.bitmap, bit);
-  const node = root.array[idx];
+  const idx = index(root3.bitmap, bit);
+  const node = root3.array[idx];
   if (node.type !== ENTRY) {
     const n = without(node, shift + SHIFT, hash, key2);
     if (n === node) {
-      return root;
+      return root3;
     }
     if (n !== void 0) {
       return {
         type: INDEX_NODE,
-        bitmap: root.bitmap,
-        array: cloneAndSet(root.array, idx, n)
+        bitmap: root3.bitmap,
+        array: cloneAndSet(root3.array, idx, n)
       };
     }
-    if (root.bitmap === bit) {
+    if (root3.bitmap === bit) {
       return void 0;
     }
     return {
       type: INDEX_NODE,
-      bitmap: root.bitmap ^ bit,
-      array: spliceOut(root.array, idx)
+      bitmap: root3.bitmap ^ bit,
+      array: spliceOut(root3.array, idx)
     };
   }
   if (isEqual(key2, node.k)) {
-    if (root.bitmap === bit) {
+    if (root3.bitmap === bit) {
       return void 0;
     }
     return {
       type: INDEX_NODE,
-      bitmap: root.bitmap ^ bit,
-      array: spliceOut(root.array, idx)
+      bitmap: root3.bitmap ^ bit,
+      array: spliceOut(root3.array, idx)
     };
   }
-  return root;
+  return root3;
 }
-function withoutCollision(root, key2) {
-  const idx = collisionIndexOf(root, key2);
+function withoutCollision(root3, key2) {
+  const idx = collisionIndexOf(root3, key2);
   if (idx < 0) {
-    return root;
+    return root3;
   }
-  if (root.array.length === 1) {
+  if (root3.array.length === 1) {
     return void 0;
   }
   return {
     type: COLLISION_NODE,
-    hash: root.hash,
-    array: spliceOut(root.array, idx)
+    hash: root3.hash,
+    array: spliceOut(root3.array, idx)
   };
 }
-function forEach(root, fn) {
-  if (root === void 0) {
+function forEach(root3, fn) {
+  if (root3 === void 0) {
     return;
   }
-  const items = root.array;
-  const size = items.length;
-  for (let i = 0; i < size; i++) {
+  const items = root3.array;
+  const size2 = items.length;
+  for (let i = 0; i < size2; i++) {
     const item = items[i];
     if (item === void 0) {
       continue;
@@ -1181,9 +1177,9 @@ var Dict = class _Dict {
    * @param {undefined | Node<K,V>} root
    * @param {number} size
    */
-  constructor(root, size) {
-    this.root = root;
-    this.size = size;
+  constructor(root3, size2) {
+    this.root = root3;
+    this.size = size2;
   }
   /**
    * @template NotFound
@@ -1208,8 +1204,8 @@ var Dict = class _Dict {
    */
   set(key2, val) {
     const addedLeaf = { val: false };
-    const root = this.root === void 0 ? EMPTY : this.root;
-    const newRoot = assoc(root, 0, getHash(key2), key2, val, addedLeaf);
+    const root3 = this.root === void 0 ? EMPTY : this.root;
+    const newRoot = assoc(root3, 0, getHash(key2), key2, val, addedLeaf);
     if (newRoot === this.root) {
       return this;
     }
@@ -1292,6 +1288,936 @@ var Dict = class _Dict {
 };
 var unequalDictSymbol = /* @__PURE__ */ Symbol();
 
+// build/dev/javascript/gleam_stdlib/gleam/order.mjs
+var Lt = class extends CustomType {
+};
+var Eq = class extends CustomType {
+};
+var Gt = class extends CustomType {
+};
+
+// build/dev/javascript/gleam_stdlib/gleam/float.mjs
+function negate(x) {
+  return -1 * x;
+}
+function round2(x) {
+  let $ = x >= 0;
+  if ($) {
+    return round(x);
+  } else {
+    return 0 - round(negate(x));
+  }
+}
+
+// build/dev/javascript/gleam_stdlib/gleam/int.mjs
+function remainder(dividend, divisor) {
+  if (divisor === 0) {
+    return new Error(void 0);
+  } else {
+    let divisor$1 = divisor;
+    return new Ok(remainderInt(dividend, divisor$1));
+  }
+}
+
+// build/dev/javascript/gleam_stdlib/gleam/list.mjs
+var Ascending = class extends CustomType {
+};
+var Descending = class extends CustomType {
+};
+function length_loop(loop$list, loop$count) {
+  while (true) {
+    let list4 = loop$list;
+    let count = loop$count;
+    if (list4 instanceof Empty) {
+      return count;
+    } else {
+      let list$1 = list4.tail;
+      loop$list = list$1;
+      loop$count = count + 1;
+    }
+  }
+}
+function length(list4) {
+  return length_loop(list4, 0);
+}
+function reverse_and_prepend(loop$prefix, loop$suffix) {
+  while (true) {
+    let prefix = loop$prefix;
+    let suffix = loop$suffix;
+    if (prefix instanceof Empty) {
+      return suffix;
+    } else {
+      let first$1 = prefix.head;
+      let rest$1 = prefix.tail;
+      loop$prefix = rest$1;
+      loop$suffix = prepend(first$1, suffix);
+    }
+  }
+}
+function reverse(list4) {
+  return reverse_and_prepend(list4, toList([]));
+}
+function first(list4) {
+  if (list4 instanceof Empty) {
+    return new Error(void 0);
+  } else {
+    let first$1 = list4.head;
+    return new Ok(first$1);
+  }
+}
+function filter_loop(loop$list, loop$fun, loop$acc) {
+  while (true) {
+    let list4 = loop$list;
+    let fun = loop$fun;
+    let acc = loop$acc;
+    if (list4 instanceof Empty) {
+      return reverse(acc);
+    } else {
+      let first$1 = list4.head;
+      let rest$1 = list4.tail;
+      let _block;
+      let $ = fun(first$1);
+      if ($) {
+        _block = prepend(first$1, acc);
+      } else {
+        _block = acc;
+      }
+      let new_acc = _block;
+      loop$list = rest$1;
+      loop$fun = fun;
+      loop$acc = new_acc;
+    }
+  }
+}
+function filter(list4, predicate) {
+  return filter_loop(list4, predicate, toList([]));
+}
+function map_loop(loop$list, loop$fun, loop$acc) {
+  while (true) {
+    let list4 = loop$list;
+    let fun = loop$fun;
+    let acc = loop$acc;
+    if (list4 instanceof Empty) {
+      return reverse(acc);
+    } else {
+      let first$1 = list4.head;
+      let rest$1 = list4.tail;
+      loop$list = rest$1;
+      loop$fun = fun;
+      loop$acc = prepend(fun(first$1), acc);
+    }
+  }
+}
+function map2(list4, fun) {
+  return map_loop(list4, fun, toList([]));
+}
+function index_map_loop(loop$list, loop$fun, loop$index, loop$acc) {
+  while (true) {
+    let list4 = loop$list;
+    let fun = loop$fun;
+    let index5 = loop$index;
+    let acc = loop$acc;
+    if (list4 instanceof Empty) {
+      return reverse(acc);
+    } else {
+      let first$1 = list4.head;
+      let rest$1 = list4.tail;
+      let acc$1 = prepend(fun(first$1, index5), acc);
+      loop$list = rest$1;
+      loop$fun = fun;
+      loop$index = index5 + 1;
+      loop$acc = acc$1;
+    }
+  }
+}
+function index_map(list4, fun) {
+  return index_map_loop(list4, fun, 0, toList([]));
+}
+function append_loop(loop$first, loop$second) {
+  while (true) {
+    let first2 = loop$first;
+    let second = loop$second;
+    if (first2 instanceof Empty) {
+      return second;
+    } else {
+      let first$1 = first2.head;
+      let rest$1 = first2.tail;
+      loop$first = rest$1;
+      loop$second = prepend(first$1, second);
+    }
+  }
+}
+function append(first2, second) {
+  return append_loop(reverse(first2), second);
+}
+function prepend2(list4, item) {
+  return prepend(item, list4);
+}
+function fold(loop$list, loop$initial, loop$fun) {
+  while (true) {
+    let list4 = loop$list;
+    let initial = loop$initial;
+    let fun = loop$fun;
+    if (list4 instanceof Empty) {
+      return initial;
+    } else {
+      let first$1 = list4.head;
+      let rest$1 = list4.tail;
+      loop$list = rest$1;
+      loop$initial = fun(initial, first$1);
+      loop$fun = fun;
+    }
+  }
+}
+function sequences(loop$list, loop$compare, loop$growing, loop$direction, loop$prev, loop$acc) {
+  while (true) {
+    let list4 = loop$list;
+    let compare5 = loop$compare;
+    let growing = loop$growing;
+    let direction = loop$direction;
+    let prev = loop$prev;
+    let acc = loop$acc;
+    let growing$1 = prepend(prev, growing);
+    if (list4 instanceof Empty) {
+      if (direction instanceof Ascending) {
+        return prepend(reverse(growing$1), acc);
+      } else {
+        return prepend(growing$1, acc);
+      }
+    } else {
+      let new$1 = list4.head;
+      let rest$1 = list4.tail;
+      let $ = compare5(prev, new$1);
+      if (direction instanceof Ascending) {
+        if ($ instanceof Lt) {
+          loop$list = rest$1;
+          loop$compare = compare5;
+          loop$growing = growing$1;
+          loop$direction = direction;
+          loop$prev = new$1;
+          loop$acc = acc;
+        } else if ($ instanceof Eq) {
+          loop$list = rest$1;
+          loop$compare = compare5;
+          loop$growing = growing$1;
+          loop$direction = direction;
+          loop$prev = new$1;
+          loop$acc = acc;
+        } else {
+          let _block;
+          if (direction instanceof Ascending) {
+            _block = prepend(reverse(growing$1), acc);
+          } else {
+            _block = prepend(growing$1, acc);
+          }
+          let acc$1 = _block;
+          if (rest$1 instanceof Empty) {
+            return prepend(toList([new$1]), acc$1);
+          } else {
+            let next = rest$1.head;
+            let rest$2 = rest$1.tail;
+            let _block$1;
+            let $1 = compare5(new$1, next);
+            if ($1 instanceof Lt) {
+              _block$1 = new Ascending();
+            } else if ($1 instanceof Eq) {
+              _block$1 = new Ascending();
+            } else {
+              _block$1 = new Descending();
+            }
+            let direction$1 = _block$1;
+            loop$list = rest$2;
+            loop$compare = compare5;
+            loop$growing = toList([new$1]);
+            loop$direction = direction$1;
+            loop$prev = next;
+            loop$acc = acc$1;
+          }
+        }
+      } else if ($ instanceof Lt) {
+        let _block;
+        if (direction instanceof Ascending) {
+          _block = prepend(reverse(growing$1), acc);
+        } else {
+          _block = prepend(growing$1, acc);
+        }
+        let acc$1 = _block;
+        if (rest$1 instanceof Empty) {
+          return prepend(toList([new$1]), acc$1);
+        } else {
+          let next = rest$1.head;
+          let rest$2 = rest$1.tail;
+          let _block$1;
+          let $1 = compare5(new$1, next);
+          if ($1 instanceof Lt) {
+            _block$1 = new Ascending();
+          } else if ($1 instanceof Eq) {
+            _block$1 = new Ascending();
+          } else {
+            _block$1 = new Descending();
+          }
+          let direction$1 = _block$1;
+          loop$list = rest$2;
+          loop$compare = compare5;
+          loop$growing = toList([new$1]);
+          loop$direction = direction$1;
+          loop$prev = next;
+          loop$acc = acc$1;
+        }
+      } else if ($ instanceof Eq) {
+        let _block;
+        if (direction instanceof Ascending) {
+          _block = prepend(reverse(growing$1), acc);
+        } else {
+          _block = prepend(growing$1, acc);
+        }
+        let acc$1 = _block;
+        if (rest$1 instanceof Empty) {
+          return prepend(toList([new$1]), acc$1);
+        } else {
+          let next = rest$1.head;
+          let rest$2 = rest$1.tail;
+          let _block$1;
+          let $1 = compare5(new$1, next);
+          if ($1 instanceof Lt) {
+            _block$1 = new Ascending();
+          } else if ($1 instanceof Eq) {
+            _block$1 = new Ascending();
+          } else {
+            _block$1 = new Descending();
+          }
+          let direction$1 = _block$1;
+          loop$list = rest$2;
+          loop$compare = compare5;
+          loop$growing = toList([new$1]);
+          loop$direction = direction$1;
+          loop$prev = next;
+          loop$acc = acc$1;
+        }
+      } else {
+        loop$list = rest$1;
+        loop$compare = compare5;
+        loop$growing = growing$1;
+        loop$direction = direction;
+        loop$prev = new$1;
+        loop$acc = acc;
+      }
+    }
+  }
+}
+function merge_ascendings(loop$list1, loop$list2, loop$compare, loop$acc) {
+  while (true) {
+    let list1 = loop$list1;
+    let list22 = loop$list2;
+    let compare5 = loop$compare;
+    let acc = loop$acc;
+    if (list1 instanceof Empty) {
+      let list4 = list22;
+      return reverse_and_prepend(list4, acc);
+    } else if (list22 instanceof Empty) {
+      let list4 = list1;
+      return reverse_and_prepend(list4, acc);
+    } else {
+      let first1 = list1.head;
+      let rest1 = list1.tail;
+      let first2 = list22.head;
+      let rest2 = list22.tail;
+      let $ = compare5(first1, first2);
+      if ($ instanceof Lt) {
+        loop$list1 = rest1;
+        loop$list2 = list22;
+        loop$compare = compare5;
+        loop$acc = prepend(first1, acc);
+      } else if ($ instanceof Eq) {
+        loop$list1 = list1;
+        loop$list2 = rest2;
+        loop$compare = compare5;
+        loop$acc = prepend(first2, acc);
+      } else {
+        loop$list1 = list1;
+        loop$list2 = rest2;
+        loop$compare = compare5;
+        loop$acc = prepend(first2, acc);
+      }
+    }
+  }
+}
+function merge_ascending_pairs(loop$sequences, loop$compare, loop$acc) {
+  while (true) {
+    let sequences2 = loop$sequences;
+    let compare5 = loop$compare;
+    let acc = loop$acc;
+    if (sequences2 instanceof Empty) {
+      return reverse(acc);
+    } else {
+      let $ = sequences2.tail;
+      if ($ instanceof Empty) {
+        let sequence = sequences2.head;
+        return reverse(prepend(reverse(sequence), acc));
+      } else {
+        let ascending1 = sequences2.head;
+        let ascending2 = $.head;
+        let rest$1 = $.tail;
+        let descending = merge_ascendings(
+          ascending1,
+          ascending2,
+          compare5,
+          toList([])
+        );
+        loop$sequences = rest$1;
+        loop$compare = compare5;
+        loop$acc = prepend(descending, acc);
+      }
+    }
+  }
+}
+function merge_descendings(loop$list1, loop$list2, loop$compare, loop$acc) {
+  while (true) {
+    let list1 = loop$list1;
+    let list22 = loop$list2;
+    let compare5 = loop$compare;
+    let acc = loop$acc;
+    if (list1 instanceof Empty) {
+      let list4 = list22;
+      return reverse_and_prepend(list4, acc);
+    } else if (list22 instanceof Empty) {
+      let list4 = list1;
+      return reverse_and_prepend(list4, acc);
+    } else {
+      let first1 = list1.head;
+      let rest1 = list1.tail;
+      let first2 = list22.head;
+      let rest2 = list22.tail;
+      let $ = compare5(first1, first2);
+      if ($ instanceof Lt) {
+        loop$list1 = list1;
+        loop$list2 = rest2;
+        loop$compare = compare5;
+        loop$acc = prepend(first2, acc);
+      } else if ($ instanceof Eq) {
+        loop$list1 = rest1;
+        loop$list2 = list22;
+        loop$compare = compare5;
+        loop$acc = prepend(first1, acc);
+      } else {
+        loop$list1 = rest1;
+        loop$list2 = list22;
+        loop$compare = compare5;
+        loop$acc = prepend(first1, acc);
+      }
+    }
+  }
+}
+function merge_descending_pairs(loop$sequences, loop$compare, loop$acc) {
+  while (true) {
+    let sequences2 = loop$sequences;
+    let compare5 = loop$compare;
+    let acc = loop$acc;
+    if (sequences2 instanceof Empty) {
+      return reverse(acc);
+    } else {
+      let $ = sequences2.tail;
+      if ($ instanceof Empty) {
+        let sequence = sequences2.head;
+        return reverse(prepend(reverse(sequence), acc));
+      } else {
+        let descending1 = sequences2.head;
+        let descending2 = $.head;
+        let rest$1 = $.tail;
+        let ascending = merge_descendings(
+          descending1,
+          descending2,
+          compare5,
+          toList([])
+        );
+        loop$sequences = rest$1;
+        loop$compare = compare5;
+        loop$acc = prepend(ascending, acc);
+      }
+    }
+  }
+}
+function merge_all(loop$sequences, loop$direction, loop$compare) {
+  while (true) {
+    let sequences2 = loop$sequences;
+    let direction = loop$direction;
+    let compare5 = loop$compare;
+    if (sequences2 instanceof Empty) {
+      return sequences2;
+    } else if (direction instanceof Ascending) {
+      let $ = sequences2.tail;
+      if ($ instanceof Empty) {
+        let sequence = sequences2.head;
+        return sequence;
+      } else {
+        let sequences$1 = merge_ascending_pairs(sequences2, compare5, toList([]));
+        loop$sequences = sequences$1;
+        loop$direction = new Descending();
+        loop$compare = compare5;
+      }
+    } else {
+      let $ = sequences2.tail;
+      if ($ instanceof Empty) {
+        let sequence = sequences2.head;
+        return reverse(sequence);
+      } else {
+        let sequences$1 = merge_descending_pairs(sequences2, compare5, toList([]));
+        loop$sequences = sequences$1;
+        loop$direction = new Ascending();
+        loop$compare = compare5;
+      }
+    }
+  }
+}
+function sort(list4, compare5) {
+  if (list4 instanceof Empty) {
+    return list4;
+  } else {
+    let $ = list4.tail;
+    if ($ instanceof Empty) {
+      return list4;
+    } else {
+      let x = list4.head;
+      let y = $.head;
+      let rest$1 = $.tail;
+      let _block;
+      let $1 = compare5(x, y);
+      if ($1 instanceof Lt) {
+        _block = new Ascending();
+      } else if ($1 instanceof Eq) {
+        _block = new Ascending();
+      } else {
+        _block = new Descending();
+      }
+      let direction = _block;
+      let sequences$1 = sequences(
+        rest$1,
+        compare5,
+        toList([x]),
+        direction,
+        y,
+        toList([])
+      );
+      return merge_all(sequences$1, new Ascending(), compare5);
+    }
+  }
+}
+
+// build/dev/javascript/gleam_stdlib/gleam/string.mjs
+function compare3(a2, b) {
+  let $ = a2 === b;
+  if ($) {
+    return new Eq();
+  } else {
+    let $1 = less_than(a2, b);
+    if ($1) {
+      return new Lt();
+    } else {
+      return new Gt();
+    }
+  }
+}
+function slice(string6, idx, len) {
+  let $ = len < 0;
+  if ($) {
+    return "";
+  } else {
+    let $1 = idx < 0;
+    if ($1) {
+      let translated_idx = string_length(string6) + idx;
+      let $2 = translated_idx < 0;
+      if ($2) {
+        return "";
+      } else {
+        return string_slice(string6, translated_idx, len);
+      }
+    } else {
+      return string_slice(string6, idx, len);
+    }
+  }
+}
+function concat_loop(loop$strings, loop$accumulator) {
+  while (true) {
+    let strings = loop$strings;
+    let accumulator = loop$accumulator;
+    if (strings instanceof Empty) {
+      return accumulator;
+    } else {
+      let string6 = strings.head;
+      let strings$1 = strings.tail;
+      loop$strings = strings$1;
+      loop$accumulator = accumulator + string6;
+    }
+  }
+}
+function concat2(strings) {
+  return concat_loop(strings, "");
+}
+function join_loop(loop$strings, loop$separator, loop$accumulator) {
+  while (true) {
+    let strings = loop$strings;
+    let separator = loop$separator;
+    let accumulator = loop$accumulator;
+    if (strings instanceof Empty) {
+      return accumulator;
+    } else {
+      let string6 = strings.head;
+      let strings$1 = strings.tail;
+      loop$strings = strings$1;
+      loop$separator = separator;
+      loop$accumulator = accumulator + separator + string6;
+    }
+  }
+}
+function join(strings, separator) {
+  if (strings instanceof Empty) {
+    return "";
+  } else {
+    let first$1 = strings.head;
+    let rest = strings.tail;
+    return join_loop(rest, separator, first$1);
+  }
+}
+function trim(string6) {
+  let _pipe = string6;
+  let _pipe$1 = trim_start(_pipe);
+  return trim_end(_pipe$1);
+}
+function split2(x, substring) {
+  if (substring === "") {
+    return graphemes(x);
+  } else {
+    let _pipe = x;
+    let _pipe$1 = identity(_pipe);
+    let _pipe$2 = split(_pipe$1, substring);
+    return map2(_pipe$2, identity);
+  }
+}
+function do_to_utf_codepoints(string6) {
+  let _pipe = string6;
+  let _pipe$1 = string_to_codepoint_integer_list(_pipe);
+  return map2(_pipe$1, codepoint);
+}
+function to_utf_codepoints(string6) {
+  return do_to_utf_codepoints(string6);
+}
+function inspect2(term) {
+  let _pipe = inspect(term);
+  return identity(_pipe);
+}
+
+// build/dev/javascript/gleam_stdlib/gleam/dynamic/decode.mjs
+var DecodeError = class extends CustomType {
+  constructor(expected, found, path) {
+    super();
+    this.expected = expected;
+    this.found = found;
+    this.path = path;
+  }
+};
+var Decoder = class extends CustomType {
+  constructor(function$) {
+    super();
+    this.function = function$;
+  }
+};
+function run(data, decoder) {
+  let $ = decoder.function(data);
+  let maybe_invalid_data;
+  let errors;
+  maybe_invalid_data = $[0];
+  errors = $[1];
+  if (errors instanceof Empty) {
+    return new Ok(maybe_invalid_data);
+  } else {
+    return new Error(errors);
+  }
+}
+function success(data) {
+  return new Decoder((_) => {
+    return [data, toList([])];
+  });
+}
+function map3(decoder, transformer) {
+  return new Decoder(
+    (d) => {
+      let $ = decoder.function(d);
+      let data;
+      let errors;
+      data = $[0];
+      errors = $[1];
+      return [transformer(data), errors];
+    }
+  );
+}
+function then$2(decoder, next) {
+  return new Decoder(
+    (dynamic_data) => {
+      let $ = decoder.function(dynamic_data);
+      let data;
+      let errors;
+      data = $[0];
+      errors = $[1];
+      let decoder$1 = next(data);
+      let $1 = decoder$1.function(dynamic_data);
+      let layer;
+      let data$1;
+      layer = $1;
+      data$1 = $1[0];
+      if (errors instanceof Empty) {
+        return layer;
+      } else {
+        return [data$1, errors];
+      }
+    }
+  );
+}
+function run_decoders(loop$data, loop$failure, loop$decoders) {
+  while (true) {
+    let data = loop$data;
+    let failure2 = loop$failure;
+    let decoders = loop$decoders;
+    if (decoders instanceof Empty) {
+      return failure2;
+    } else {
+      let decoder = decoders.head;
+      let decoders$1 = decoders.tail;
+      let $ = decoder.function(data);
+      let layer;
+      let errors;
+      layer = $;
+      errors = $[1];
+      if (errors instanceof Empty) {
+        return layer;
+      } else {
+        loop$data = data;
+        loop$failure = failure2;
+        loop$decoders = decoders$1;
+      }
+    }
+  }
+}
+function one_of(first2, alternatives) {
+  return new Decoder(
+    (dynamic_data) => {
+      let $ = first2.function(dynamic_data);
+      let layer;
+      let errors;
+      layer = $;
+      errors = $[1];
+      if (errors instanceof Empty) {
+        return layer;
+      } else {
+        return run_decoders(dynamic_data, layer, alternatives);
+      }
+    }
+  );
+}
+function optional(inner) {
+  return new Decoder(
+    (data) => {
+      let $ = is_null(data);
+      if ($) {
+        return [new None(), toList([])];
+      } else {
+        let $1 = inner.function(data);
+        let data$1;
+        let errors;
+        data$1 = $1[0];
+        errors = $1[1];
+        return [new Some(data$1), errors];
+      }
+    }
+  );
+}
+function decode_error(expected, found) {
+  return toList([
+    new DecodeError(expected, classify_dynamic(found), toList([]))
+  ]);
+}
+function run_dynamic_function(data, name2, f) {
+  let $ = f(data);
+  if ($ instanceof Ok) {
+    let data$1 = $[0];
+    return [data$1, toList([])];
+  } else {
+    let zero = $[0];
+    return [
+      zero,
+      toList([new DecodeError(name2, classify_dynamic(data), toList([]))])
+    ];
+  }
+}
+function decode_bool(data) {
+  let $ = isEqual(identity(true), data);
+  if ($) {
+    return [true, toList([])];
+  } else {
+    let $1 = isEqual(identity(false), data);
+    if ($1) {
+      return [false, toList([])];
+    } else {
+      return [false, decode_error("Bool", data)];
+    }
+  }
+}
+function decode_int(data) {
+  return run_dynamic_function(data, "Int", int);
+}
+function failure(zero, expected) {
+  return new Decoder((d) => {
+    return [zero, decode_error(expected, d)];
+  });
+}
+function new_primitive_decoder(name2, decoding_function) {
+  return new Decoder(
+    (d) => {
+      let $ = decoding_function(d);
+      if ($ instanceof Ok) {
+        let t = $[0];
+        return [t, toList([])];
+      } else {
+        let zero = $[0];
+        return [
+          zero,
+          toList([new DecodeError(name2, classify_dynamic(d), toList([]))])
+        ];
+      }
+    }
+  );
+}
+var bool = /* @__PURE__ */ new Decoder(decode_bool);
+var int2 = /* @__PURE__ */ new Decoder(decode_int);
+function decode_string(data) {
+  return run_dynamic_function(data, "String", string2);
+}
+var string3 = /* @__PURE__ */ new Decoder(decode_string);
+function list2(inner) {
+  return new Decoder(
+    (data) => {
+      return list(
+        data,
+        inner.function,
+        (p2, k) => {
+          return push_path(p2, toList([k]));
+        },
+        0,
+        toList([])
+      );
+    }
+  );
+}
+function push_path(layer, path) {
+  let decoder = one_of(
+    string3,
+    toList([
+      (() => {
+        let _pipe = int2;
+        return map3(_pipe, to_string);
+      })()
+    ])
+  );
+  let path$1 = map2(
+    path,
+    (key2) => {
+      let key$1 = identity(key2);
+      let $ = run(key$1, decoder);
+      if ($ instanceof Ok) {
+        let key$2 = $[0];
+        return key$2;
+      } else {
+        return "<" + classify_dynamic(key$1) + ">";
+      }
+    }
+  );
+  let errors = map2(
+    layer[1],
+    (error) => {
+      return new DecodeError(
+        error.expected,
+        error.found,
+        append(path$1, error.path)
+      );
+    }
+  );
+  return [layer[0], errors];
+}
+function index3(loop$path, loop$position, loop$inner, loop$data, loop$handle_miss) {
+  while (true) {
+    let path = loop$path;
+    let position = loop$position;
+    let inner = loop$inner;
+    let data = loop$data;
+    let handle_miss = loop$handle_miss;
+    if (path instanceof Empty) {
+      let _pipe = inner(data);
+      return push_path(_pipe, reverse(position));
+    } else {
+      let key2 = path.head;
+      let path$1 = path.tail;
+      let $ = index2(data, key2);
+      if ($ instanceof Ok) {
+        let $1 = $[0];
+        if ($1 instanceof Some) {
+          let data$1 = $1[0];
+          loop$path = path$1;
+          loop$position = prepend(key2, position);
+          loop$inner = inner;
+          loop$data = data$1;
+          loop$handle_miss = handle_miss;
+        } else {
+          return handle_miss(data, prepend(key2, position));
+        }
+      } else {
+        let kind = $[0];
+        let $1 = inner(data);
+        let default$;
+        default$ = $1[0];
+        let _pipe = [
+          default$,
+          toList([new DecodeError(kind, classify_dynamic(data), toList([]))])
+        ];
+        return push_path(_pipe, reverse(position));
+      }
+    }
+  }
+}
+function subfield(field_path, field_decoder, next) {
+  return new Decoder(
+    (data) => {
+      let $ = index3(
+        field_path,
+        toList([]),
+        field_decoder.function,
+        data,
+        (data2, position) => {
+          let $12 = field_decoder.function(data2);
+          let default$;
+          default$ = $12[0];
+          let _pipe = [
+            default$,
+            toList([new DecodeError("Field", "Nothing", toList([]))])
+          ];
+          return push_path(_pipe, reverse(position));
+        }
+      );
+      let out;
+      let errors1;
+      out = $[0];
+      errors1 = $[1];
+      let $1 = next(out).function(data);
+      let out$1;
+      let errors2;
+      out$1 = $1[0];
+      errors2 = $1[1];
+      return [out$1, append(errors1, errors2)];
+    }
+  );
+}
+function field(field_name, field_decoder, next) {
+  return subfield(toList([field_name]), field_decoder, next);
+}
+
 // build/dev/javascript/gleam_stdlib/gleam_stdlib.mjs
 var Nil = void 0;
 var NOT_FOUND = {};
@@ -1300,19 +2226,6 @@ function identity(x) {
 }
 function to_string(term) {
   return term.toString();
-}
-function float_to_string(float4) {
-  const string6 = float4.toString().replace("+", "");
-  if (string6.indexOf(".") >= 0) {
-    return string6;
-  } else {
-    const index5 = string6.indexOf("e");
-    if (index5 >= 0) {
-      return string6.slice(0, index5) + ".0" + string6.slice(index5);
-    } else {
-      return string6 + ".0";
-    }
-  }
 }
 function string_length(string6) {
   if (string6 === "") {
@@ -1344,20 +2257,6 @@ function graphemes_iterator(string6) {
     return segmenter.segment(string6)[Symbol.iterator]();
   }
 }
-function pop_grapheme(string6) {
-  let first3;
-  const iterator = graphemes_iterator(string6);
-  if (iterator) {
-    first3 = iterator.next().value?.segment;
-  } else {
-    first3 = string6.match(/./su)?.[0];
-  }
-  if (first3) {
-    return new Ok([first3, string6.slice(first3.length)]);
-  } else {
-    return new Error(Nil);
-  }
-}
 function pop_codeunit(str) {
   return [str.charCodeAt(0) | 0, str.slice(1)];
 }
@@ -1369,13 +2268,6 @@ function less_than(a2, b) {
 }
 function split(xs, pattern) {
   return List.fromArray(xs.split(pattern));
-}
-function concat(xs) {
-  let result = "";
-  for (const x of xs) {
-    result = result + x;
-  }
-  return result;
 }
 function string_slice(string6, idx, len) {
   if (len <= 0 || idx >= string6.length) {
@@ -1441,11 +2333,11 @@ function trim_end(string6) {
 function bit_array_from_string(string6) {
   return toBitArray([stringBits(string6)]);
 }
-function round(float4) {
-  return Math.round(float4);
+function round(float2) {
+  return Math.round(float2);
 }
-function codepoint(int4) {
-  return new UtfCodepoint(int4);
+function codepoint(int5) {
+  return new UtfCodepoint(int5);
 }
 function string_to_codepoint_integer_list(string6) {
   return List.fromArray(Array.from(string6).map((item) => item.codePointAt(0)));
@@ -1456,21 +2348,18 @@ function utf_codepoint_to_int(utf_codepoint) {
 function new_map() {
   return Dict.new();
 }
-function map_size(map7) {
-  return map7.size;
+function map_size(map6) {
+  return map6.size;
 }
-function map_to_list(map7) {
-  return List.fromArray(map7.entries());
-}
-function map_get(map7, key2) {
-  const value4 = map7.get(key2, NOT_FOUND);
-  if (value4 === NOT_FOUND) {
+function map_get(map6, key2) {
+  const value3 = map6.get(key2, NOT_FOUND);
+  if (value3 === NOT_FOUND) {
     return new Error(Nil);
   }
-  return new Ok(value4);
+  return new Ok(value3);
 }
-function map_insert(key2, value4, map7) {
-  return map7.set(key2, value4);
+function map_insert(key2, value3, map6) {
+  return map6.set(key2, value3);
 }
 function classify_dynamic(data) {
   if (typeof data === "string") {
@@ -1488,11 +2377,11 @@ function classify_dynamic(data) {
   } else if (Number.isInteger(data)) {
     return "Int";
   } else if (Array.isArray(data)) {
-    return `Tuple of ${data.length} elements`;
+    return `Array`;
   } else if (typeof data === "number") {
     return "Float";
   } else if (data === null) {
-    return "Null";
+    return "Nil";
   } else if (data === void 0) {
     return "Nil";
   } else {
@@ -1500,973 +2389,176 @@ function classify_dynamic(data) {
     return type.charAt(0).toUpperCase() + type.slice(1);
   }
 }
-function decoder_error(expected, got) {
-  return decoder_error_no_classify(expected, classify_dynamic(got));
-}
-function decoder_error_no_classify(expected, got) {
-  return new Error(
-    List.fromArray([new DecodeError(expected, got, List.fromArray([]))])
-  );
-}
-function decode_string(data) {
-  return typeof data === "string" ? new Ok(data) : decoder_error("String", data);
-}
-function decode_int(data) {
-  return Number.isInteger(data) ? new Ok(data) : decoder_error("Int", data);
-}
-function decode_bool(data) {
-  return typeof data === "boolean" ? new Ok(data) : decoder_error("Bool", data);
-}
-function decode_field(value4, name2) {
-  const not_a_map_error = () => decoder_error("Dict", value4);
-  if (value4 instanceof Dict || value4 instanceof WeakMap || value4 instanceof Map) {
-    const entry = map_get(value4, name2);
-    return new Ok(entry.isOk() ? new Some(entry[0]) : new None());
-  } else if (value4 === null) {
-    return not_a_map_error();
-  } else if (Object.getPrototypeOf(value4) == Object.prototype) {
-    return try_get_field(value4, name2, () => new Ok(new None()));
-  } else {
-    return try_get_field(value4, name2, not_a_map_error);
-  }
-}
-function try_get_field(value4, field3, or_else) {
-  try {
-    return field3 in value4 ? new Ok(new Some(value4[field3])) : or_else();
-  } catch {
-    return or_else();
-  }
-}
 function inspect(v) {
-  const t = typeof v;
-  if (v === true) return "True";
-  if (v === false) return "False";
-  if (v === null) return "//js(null)";
-  if (v === void 0) return "Nil";
-  if (t === "string") return inspectString(v);
-  if (t === "bigint" || Number.isInteger(v)) return v.toString();
-  if (t === "number") return float_to_string(v);
-  if (Array.isArray(v)) return `#(${v.map(inspect).join(", ")})`;
-  if (v instanceof List) return inspectList(v);
-  if (v instanceof UtfCodepoint) return inspectUtfCodepoint(v);
-  if (v instanceof BitArray) return `<<${bit_array_inspect(v, "")}>>`;
-  if (v instanceof CustomType) return inspectCustomType(v);
-  if (v instanceof Dict) return inspectDict(v);
-  if (v instanceof Set) return `//js(Set(${[...v].map(inspect).join(", ")}))`;
-  if (v instanceof RegExp) return `//js(${v})`;
-  if (v instanceof Date) return `//js(Date("${v.toISOString()}"))`;
-  if (v instanceof Function) {
-    const args = [];
-    for (const i of Array(v.length).keys())
-      args.push(String.fromCharCode(i + 97));
-    return `//fn(${args.join(", ")}) { ... }`;
-  }
-  return inspectObject(v);
+  return new Inspector().inspect(v);
 }
-function inspectString(str) {
-  let new_str = '"';
-  for (let i = 0; i < str.length; i++) {
-    const char = str[i];
-    switch (char) {
-      case "\n":
-        new_str += "\\n";
-        break;
-      case "\r":
-        new_str += "\\r";
-        break;
-      case "	":
-        new_str += "\\t";
-        break;
-      case "\f":
-        new_str += "\\f";
-        break;
-      case "\\":
-        new_str += "\\\\";
-        break;
-      case '"':
-        new_str += '\\"';
-        break;
-      default:
-        if (char < " " || char > "~" && char < "\xA0") {
-          new_str += "\\u{" + char.charCodeAt(0).toString(16).toUpperCase().padStart(4, "0") + "}";
-        } else {
-          new_str += char;
-        }
+function float_to_string(float2) {
+  const string6 = float2.toString().replace("+", "");
+  if (string6.indexOf(".") >= 0) {
+    return string6;
+  } else {
+    const index5 = string6.indexOf("e");
+    if (index5 >= 0) {
+      return string6.slice(0, index5) + ".0" + string6.slice(index5);
+    } else {
+      return string6 + ".0";
     }
   }
-  new_str += '"';
-  return new_str;
 }
-function inspectDict(map7) {
-  let body2 = "dict.from_list([";
-  let first3 = true;
-  map7.forEach((value4, key2) => {
-    if (!first3) body2 = body2 + ", ";
-    body2 = body2 + "#(" + inspect(key2) + ", " + inspect(value4) + ")";
-    first3 = false;
-  });
-  return body2 + "])";
-}
-function inspectObject(v) {
-  const name2 = Object.getPrototypeOf(v)?.constructor?.name || "Object";
-  const props = [];
-  for (const k of Object.keys(v)) {
-    props.push(`${inspect(k)}: ${inspect(v[k])}`);
+var Inspector = class {
+  #references = /* @__PURE__ */ new Set();
+  inspect(v) {
+    const t = typeof v;
+    if (v === true) return "True";
+    if (v === false) return "False";
+    if (v === null) return "//js(null)";
+    if (v === void 0) return "Nil";
+    if (t === "string") return this.#string(v);
+    if (t === "bigint" || Number.isInteger(v)) return v.toString();
+    if (t === "number") return float_to_string(v);
+    if (v instanceof UtfCodepoint) return this.#utfCodepoint(v);
+    if (v instanceof BitArray) return this.#bit_array(v);
+    if (v instanceof RegExp) return `//js(${v})`;
+    if (v instanceof Date) return `//js(Date("${v.toISOString()}"))`;
+    if (v instanceof globalThis.Error) return `//js(${v.toString()})`;
+    if (v instanceof Function) {
+      const args = [];
+      for (const i of Array(v.length).keys())
+        args.push(String.fromCharCode(i + 97));
+      return `//fn(${args.join(", ")}) { ... }`;
+    }
+    if (this.#references.size === this.#references.add(v).size) {
+      return "//js(circular reference)";
+    }
+    let printed;
+    if (Array.isArray(v)) {
+      printed = `#(${v.map((v2) => this.inspect(v2)).join(", ")})`;
+    } else if (v instanceof List) {
+      printed = this.#list(v);
+    } else if (v instanceof CustomType) {
+      printed = this.#customType(v);
+    } else if (v instanceof Dict) {
+      printed = this.#dict(v);
+    } else if (v instanceof Set) {
+      return `//js(Set(${[...v].map((v2) => this.inspect(v2)).join(", ")}))`;
+    } else {
+      printed = this.#object(v);
+    }
+    this.#references.delete(v);
+    return printed;
   }
-  const body2 = props.length ? " " + props.join(", ") + " " : "";
-  const head2 = name2 === "Object" ? "" : name2 + " ";
-  return `//js(${head2}{${body2}})`;
-}
-function inspectCustomType(record) {
-  const props = Object.keys(record).map((label2) => {
-    const value4 = inspect(record[label2]);
-    return isNaN(parseInt(label2)) ? `${label2}: ${value4}` : value4;
-  }).join(", ");
-  return props ? `${record.constructor.name}(${props})` : record.constructor.name;
-}
-function inspectList(list3) {
-  return `[${list3.toArray().map(inspect).join(", ")}]`;
-}
-function inspectUtfCodepoint(codepoint2) {
-  return `//utfcodepoint(${String.fromCodePoint(codepoint2.value)})`;
-}
-function bit_array_inspect(bits, acc) {
-  if (bits.bitSize === 0) {
+  #object(v) {
+    const name2 = Object.getPrototypeOf(v)?.constructor?.name || "Object";
+    const props = [];
+    for (const k of Object.keys(v)) {
+      props.push(`${this.inspect(k)}: ${this.inspect(v[k])}`);
+    }
+    const body2 = props.length ? " " + props.join(", ") + " " : "";
+    const head2 = name2 === "Object" ? "" : name2 + " ";
+    return `//js(${head2}{${body2}})`;
+  }
+  #dict(map6) {
+    let body2 = "dict.from_list([";
+    let first2 = true;
+    map6.forEach((value3, key2) => {
+      if (!first2) body2 = body2 + ", ";
+      body2 = body2 + "#(" + this.inspect(key2) + ", " + this.inspect(value3) + ")";
+      first2 = false;
+    });
+    return body2 + "])";
+  }
+  #customType(record) {
+    const props = Object.keys(record).map((label2) => {
+      const value3 = this.inspect(record[label2]);
+      return isNaN(parseInt(label2)) ? `${label2}: ${value3}` : value3;
+    }).join(", ");
+    return props ? `${record.constructor.name}(${props})` : record.constructor.name;
+  }
+  #list(list4) {
+    if (list4 instanceof Empty) {
+      return "[]";
+    }
+    let char_out = 'charlist.from_string("';
+    let list_out = "[";
+    let current = list4;
+    while (current instanceof NonEmpty) {
+      let element4 = current.head;
+      current = current.tail;
+      if (list_out !== "[") {
+        list_out += ", ";
+      }
+      list_out += this.inspect(element4);
+      if (char_out) {
+        if (Number.isInteger(element4) && element4 >= 32 && element4 <= 126) {
+          char_out += String.fromCharCode(element4);
+        } else {
+          char_out = null;
+        }
+      }
+    }
+    if (char_out) {
+      return char_out + '")';
+    } else {
+      return list_out + "]";
+    }
+  }
+  #string(str) {
+    let new_str = '"';
+    for (let i = 0; i < str.length; i++) {
+      const char = str[i];
+      switch (char) {
+        case "\n":
+          new_str += "\\n";
+          break;
+        case "\r":
+          new_str += "\\r";
+          break;
+        case "	":
+          new_str += "\\t";
+          break;
+        case "\f":
+          new_str += "\\f";
+          break;
+        case "\\":
+          new_str += "\\\\";
+          break;
+        case '"':
+          new_str += '\\"';
+          break;
+        default:
+          if (char < " " || char > "~" && char < "\xA0") {
+            new_str += "\\u{" + char.charCodeAt(0).toString(16).toUpperCase().padStart(4, "0") + "}";
+          } else {
+            new_str += char;
+          }
+      }
+    }
+    new_str += '"';
+    return new_str;
+  }
+  #utfCodepoint(codepoint2) {
+    return `//utfcodepoint(${String.fromCodePoint(codepoint2.value)})`;
+  }
+  #bit_array(bits) {
+    if (bits.bitSize === 0) {
+      return "<<>>";
+    }
+    let acc = "<<";
+    for (let i = 0; i < bits.byteSize - 1; i++) {
+      acc += bits.byteAt(i).toString();
+      acc += ", ";
+    }
+    if (bits.byteSize * 8 === bits.bitSize) {
+      acc += bits.byteAt(bits.byteSize - 1).toString();
+    } else {
+      const trailingBitsCount = bits.bitSize % 8;
+      acc += bits.byteAt(bits.byteSize - 1) >> 8 - trailingBitsCount;
+      acc += `:size(${trailingBitsCount})`;
+    }
+    acc += ">>";
     return acc;
   }
-  for (let i = 0; i < bits.byteSize - 1; i++) {
-    acc += bits.byteAt(i).toString();
-    acc += ", ";
-  }
-  if (bits.byteSize * 8 === bits.bitSize) {
-    acc += bits.byteAt(bits.byteSize - 1).toString();
-  } else {
-    const trailingBitsCount = bits.bitSize % 8;
-    acc += bits.byteAt(bits.byteSize - 1) >> 8 - trailingBitsCount;
-    acc += `:size(${trailingBitsCount})`;
-  }
-  return acc;
-}
-
-// build/dev/javascript/gleam_stdlib/gleam/float.mjs
-function negate(x) {
-  return -1 * x;
-}
-function round2(x) {
-  let $ = x >= 0;
-  if ($) {
-    return round(x);
-  } else {
-    return 0 - round(negate(x));
-  }
-}
-
-// build/dev/javascript/gleam_stdlib/gleam/int.mjs
-function remainder(dividend, divisor) {
-  if (divisor === 0) {
-    return new Error(void 0);
-  } else {
-    let divisor$1 = divisor;
-    return new Ok(remainderInt(dividend, divisor$1));
-  }
-}
-
-// build/dev/javascript/gleam_stdlib/gleam/dict.mjs
-function insert(dict2, key2, value4) {
-  return map_insert(key2, value4, dict2);
-}
-function from_list_loop(loop$list, loop$initial) {
-  while (true) {
-    let list3 = loop$list;
-    let initial = loop$initial;
-    if (list3.hasLength(0)) {
-      return initial;
-    } else {
-      let key2 = list3.head[0];
-      let value4 = list3.head[1];
-      let rest = list3.tail;
-      loop$list = rest;
-      loop$initial = insert(initial, key2, value4);
-    }
-  }
-}
-function from_list(list3) {
-  return from_list_loop(list3, new_map());
-}
-function reverse_and_concat(loop$remaining, loop$accumulator) {
-  while (true) {
-    let remaining = loop$remaining;
-    let accumulator = loop$accumulator;
-    if (remaining.hasLength(0)) {
-      return accumulator;
-    } else {
-      let first3 = remaining.head;
-      let rest = remaining.tail;
-      loop$remaining = rest;
-      loop$accumulator = prepend(first3, accumulator);
-    }
-  }
-}
-function do_keys_loop(loop$list, loop$acc) {
-  while (true) {
-    let list3 = loop$list;
-    let acc = loop$acc;
-    if (list3.hasLength(0)) {
-      return reverse_and_concat(acc, toList([]));
-    } else {
-      let key2 = list3.head[0];
-      let rest = list3.tail;
-      loop$list = rest;
-      loop$acc = prepend(key2, acc);
-    }
-  }
-}
-function keys(dict2) {
-  return do_keys_loop(map_to_list(dict2), toList([]));
-}
-
-// build/dev/javascript/gleam_stdlib/gleam/list.mjs
-var Ascending = class extends CustomType {
 };
-var Descending = class extends CustomType {
-};
-function length_loop(loop$list, loop$count) {
-  while (true) {
-    let list3 = loop$list;
-    let count = loop$count;
-    if (list3.atLeastLength(1)) {
-      let list$1 = list3.tail;
-      loop$list = list$1;
-      loop$count = count + 1;
-    } else {
-      return count;
-    }
-  }
-}
-function length(list3) {
-  return length_loop(list3, 0);
-}
-function reverse_and_prepend(loop$prefix, loop$suffix) {
-  while (true) {
-    let prefix = loop$prefix;
-    let suffix = loop$suffix;
-    if (prefix.hasLength(0)) {
-      return suffix;
-    } else {
-      let first$1 = prefix.head;
-      let rest$1 = prefix.tail;
-      loop$prefix = rest$1;
-      loop$suffix = prepend(first$1, suffix);
-    }
-  }
-}
-function reverse(list3) {
-  return reverse_and_prepend(list3, toList([]));
-}
-function first(list3) {
-  if (list3.hasLength(0)) {
-    return new Error(void 0);
-  } else {
-    let first$1 = list3.head;
-    return new Ok(first$1);
-  }
-}
-function filter_loop(loop$list, loop$fun, loop$acc) {
-  while (true) {
-    let list3 = loop$list;
-    let fun = loop$fun;
-    let acc = loop$acc;
-    if (list3.hasLength(0)) {
-      return reverse(acc);
-    } else {
-      let first$1 = list3.head;
-      let rest$1 = list3.tail;
-      let _block;
-      let $ = fun(first$1);
-      if ($) {
-        _block = prepend(first$1, acc);
-      } else {
-        _block = acc;
-      }
-      let new_acc = _block;
-      loop$list = rest$1;
-      loop$fun = fun;
-      loop$acc = new_acc;
-    }
-  }
-}
-function filter(list3, predicate) {
-  return filter_loop(list3, predicate, toList([]));
-}
-function map_loop(loop$list, loop$fun, loop$acc) {
-  while (true) {
-    let list3 = loop$list;
-    let fun = loop$fun;
-    let acc = loop$acc;
-    if (list3.hasLength(0)) {
-      return reverse(acc);
-    } else {
-      let first$1 = list3.head;
-      let rest$1 = list3.tail;
-      loop$list = rest$1;
-      loop$fun = fun;
-      loop$acc = prepend(fun(first$1), acc);
-    }
-  }
-}
-function map2(list3, fun) {
-  return map_loop(list3, fun, toList([]));
-}
-function index_map_loop(loop$list, loop$fun, loop$index, loop$acc) {
-  while (true) {
-    let list3 = loop$list;
-    let fun = loop$fun;
-    let index5 = loop$index;
-    let acc = loop$acc;
-    if (list3.hasLength(0)) {
-      return reverse(acc);
-    } else {
-      let first$1 = list3.head;
-      let rest$1 = list3.tail;
-      let acc$1 = prepend(fun(first$1, index5), acc);
-      loop$list = rest$1;
-      loop$fun = fun;
-      loop$index = index5 + 1;
-      loop$acc = acc$1;
-    }
-  }
-}
-function index_map(list3, fun) {
-  return index_map_loop(list3, fun, 0, toList([]));
-}
-function append_loop(loop$first, loop$second) {
-  while (true) {
-    let first3 = loop$first;
-    let second = loop$second;
-    if (first3.hasLength(0)) {
-      return second;
-    } else {
-      let first$1 = first3.head;
-      let rest$1 = first3.tail;
-      loop$first = rest$1;
-      loop$second = prepend(first$1, second);
-    }
-  }
-}
-function append(first3, second) {
-  return append_loop(reverse(first3), second);
-}
-function prepend2(list3, item) {
-  return prepend(item, list3);
-}
-function fold(loop$list, loop$initial, loop$fun) {
-  while (true) {
-    let list3 = loop$list;
-    let initial = loop$initial;
-    let fun = loop$fun;
-    if (list3.hasLength(0)) {
-      return initial;
-    } else {
-      let first$1 = list3.head;
-      let rest$1 = list3.tail;
-      loop$list = rest$1;
-      loop$initial = fun(initial, first$1);
-      loop$fun = fun;
-    }
-  }
-}
-function index_fold_loop(loop$over, loop$acc, loop$with, loop$index) {
-  while (true) {
-    let over = loop$over;
-    let acc = loop$acc;
-    let with$ = loop$with;
-    let index5 = loop$index;
-    if (over.hasLength(0)) {
-      return acc;
-    } else {
-      let first$1 = over.head;
-      let rest$1 = over.tail;
-      loop$over = rest$1;
-      loop$acc = with$(acc, first$1, index5);
-      loop$with = with$;
-      loop$index = index5 + 1;
-    }
-  }
-}
-function index_fold(list3, initial, fun) {
-  return index_fold_loop(list3, initial, fun, 0);
-}
-function sequences(loop$list, loop$compare, loop$growing, loop$direction, loop$prev, loop$acc) {
-  while (true) {
-    let list3 = loop$list;
-    let compare4 = loop$compare;
-    let growing = loop$growing;
-    let direction = loop$direction;
-    let prev = loop$prev;
-    let acc = loop$acc;
-    let growing$1 = prepend(prev, growing);
-    if (list3.hasLength(0)) {
-      if (direction instanceof Ascending) {
-        return prepend(reverse(growing$1), acc);
-      } else {
-        return prepend(growing$1, acc);
-      }
-    } else {
-      let new$1 = list3.head;
-      let rest$1 = list3.tail;
-      let $ = compare4(prev, new$1);
-      if ($ instanceof Gt && direction instanceof Descending) {
-        loop$list = rest$1;
-        loop$compare = compare4;
-        loop$growing = growing$1;
-        loop$direction = direction;
-        loop$prev = new$1;
-        loop$acc = acc;
-      } else if ($ instanceof Lt && direction instanceof Ascending) {
-        loop$list = rest$1;
-        loop$compare = compare4;
-        loop$growing = growing$1;
-        loop$direction = direction;
-        loop$prev = new$1;
-        loop$acc = acc;
-      } else if ($ instanceof Eq && direction instanceof Ascending) {
-        loop$list = rest$1;
-        loop$compare = compare4;
-        loop$growing = growing$1;
-        loop$direction = direction;
-        loop$prev = new$1;
-        loop$acc = acc;
-      } else if ($ instanceof Gt && direction instanceof Ascending) {
-        let _block;
-        if (direction instanceof Ascending) {
-          _block = prepend(reverse(growing$1), acc);
-        } else {
-          _block = prepend(growing$1, acc);
-        }
-        let acc$1 = _block;
-        if (rest$1.hasLength(0)) {
-          return prepend(toList([new$1]), acc$1);
-        } else {
-          let next = rest$1.head;
-          let rest$2 = rest$1.tail;
-          let _block$1;
-          let $1 = compare4(new$1, next);
-          if ($1 instanceof Lt) {
-            _block$1 = new Ascending();
-          } else if ($1 instanceof Eq) {
-            _block$1 = new Ascending();
-          } else {
-            _block$1 = new Descending();
-          }
-          let direction$1 = _block$1;
-          loop$list = rest$2;
-          loop$compare = compare4;
-          loop$growing = toList([new$1]);
-          loop$direction = direction$1;
-          loop$prev = next;
-          loop$acc = acc$1;
-        }
-      } else if ($ instanceof Lt && direction instanceof Descending) {
-        let _block;
-        if (direction instanceof Ascending) {
-          _block = prepend(reverse(growing$1), acc);
-        } else {
-          _block = prepend(growing$1, acc);
-        }
-        let acc$1 = _block;
-        if (rest$1.hasLength(0)) {
-          return prepend(toList([new$1]), acc$1);
-        } else {
-          let next = rest$1.head;
-          let rest$2 = rest$1.tail;
-          let _block$1;
-          let $1 = compare4(new$1, next);
-          if ($1 instanceof Lt) {
-            _block$1 = new Ascending();
-          } else if ($1 instanceof Eq) {
-            _block$1 = new Ascending();
-          } else {
-            _block$1 = new Descending();
-          }
-          let direction$1 = _block$1;
-          loop$list = rest$2;
-          loop$compare = compare4;
-          loop$growing = toList([new$1]);
-          loop$direction = direction$1;
-          loop$prev = next;
-          loop$acc = acc$1;
-        }
-      } else {
-        let _block;
-        if (direction instanceof Ascending) {
-          _block = prepend(reverse(growing$1), acc);
-        } else {
-          _block = prepend(growing$1, acc);
-        }
-        let acc$1 = _block;
-        if (rest$1.hasLength(0)) {
-          return prepend(toList([new$1]), acc$1);
-        } else {
-          let next = rest$1.head;
-          let rest$2 = rest$1.tail;
-          let _block$1;
-          let $1 = compare4(new$1, next);
-          if ($1 instanceof Lt) {
-            _block$1 = new Ascending();
-          } else if ($1 instanceof Eq) {
-            _block$1 = new Ascending();
-          } else {
-            _block$1 = new Descending();
-          }
-          let direction$1 = _block$1;
-          loop$list = rest$2;
-          loop$compare = compare4;
-          loop$growing = toList([new$1]);
-          loop$direction = direction$1;
-          loop$prev = next;
-          loop$acc = acc$1;
-        }
-      }
-    }
-  }
-}
-function merge_ascendings(loop$list1, loop$list2, loop$compare, loop$acc) {
-  while (true) {
-    let list1 = loop$list1;
-    let list22 = loop$list2;
-    let compare4 = loop$compare;
-    let acc = loop$acc;
-    if (list1.hasLength(0)) {
-      let list3 = list22;
-      return reverse_and_prepend(list3, acc);
-    } else if (list22.hasLength(0)) {
-      let list3 = list1;
-      return reverse_and_prepend(list3, acc);
-    } else {
-      let first1 = list1.head;
-      let rest1 = list1.tail;
-      let first22 = list22.head;
-      let rest2 = list22.tail;
-      let $ = compare4(first1, first22);
-      if ($ instanceof Lt) {
-        loop$list1 = rest1;
-        loop$list2 = list22;
-        loop$compare = compare4;
-        loop$acc = prepend(first1, acc);
-      } else if ($ instanceof Gt) {
-        loop$list1 = list1;
-        loop$list2 = rest2;
-        loop$compare = compare4;
-        loop$acc = prepend(first22, acc);
-      } else {
-        loop$list1 = list1;
-        loop$list2 = rest2;
-        loop$compare = compare4;
-        loop$acc = prepend(first22, acc);
-      }
-    }
-  }
-}
-function merge_ascending_pairs(loop$sequences, loop$compare, loop$acc) {
-  while (true) {
-    let sequences2 = loop$sequences;
-    let compare4 = loop$compare;
-    let acc = loop$acc;
-    if (sequences2.hasLength(0)) {
-      return reverse(acc);
-    } else if (sequences2.hasLength(1)) {
-      let sequence = sequences2.head;
-      return reverse(prepend(reverse(sequence), acc));
-    } else {
-      let ascending1 = sequences2.head;
-      let ascending2 = sequences2.tail.head;
-      let rest$1 = sequences2.tail.tail;
-      let descending = merge_ascendings(
-        ascending1,
-        ascending2,
-        compare4,
-        toList([])
-      );
-      loop$sequences = rest$1;
-      loop$compare = compare4;
-      loop$acc = prepend(descending, acc);
-    }
-  }
-}
-function merge_descendings(loop$list1, loop$list2, loop$compare, loop$acc) {
-  while (true) {
-    let list1 = loop$list1;
-    let list22 = loop$list2;
-    let compare4 = loop$compare;
-    let acc = loop$acc;
-    if (list1.hasLength(0)) {
-      let list3 = list22;
-      return reverse_and_prepend(list3, acc);
-    } else if (list22.hasLength(0)) {
-      let list3 = list1;
-      return reverse_and_prepend(list3, acc);
-    } else {
-      let first1 = list1.head;
-      let rest1 = list1.tail;
-      let first22 = list22.head;
-      let rest2 = list22.tail;
-      let $ = compare4(first1, first22);
-      if ($ instanceof Lt) {
-        loop$list1 = list1;
-        loop$list2 = rest2;
-        loop$compare = compare4;
-        loop$acc = prepend(first22, acc);
-      } else if ($ instanceof Gt) {
-        loop$list1 = rest1;
-        loop$list2 = list22;
-        loop$compare = compare4;
-        loop$acc = prepend(first1, acc);
-      } else {
-        loop$list1 = rest1;
-        loop$list2 = list22;
-        loop$compare = compare4;
-        loop$acc = prepend(first1, acc);
-      }
-    }
-  }
-}
-function merge_descending_pairs(loop$sequences, loop$compare, loop$acc) {
-  while (true) {
-    let sequences2 = loop$sequences;
-    let compare4 = loop$compare;
-    let acc = loop$acc;
-    if (sequences2.hasLength(0)) {
-      return reverse(acc);
-    } else if (sequences2.hasLength(1)) {
-      let sequence = sequences2.head;
-      return reverse(prepend(reverse(sequence), acc));
-    } else {
-      let descending1 = sequences2.head;
-      let descending2 = sequences2.tail.head;
-      let rest$1 = sequences2.tail.tail;
-      let ascending = merge_descendings(
-        descending1,
-        descending2,
-        compare4,
-        toList([])
-      );
-      loop$sequences = rest$1;
-      loop$compare = compare4;
-      loop$acc = prepend(ascending, acc);
-    }
-  }
-}
-function merge_all(loop$sequences, loop$direction, loop$compare) {
-  while (true) {
-    let sequences2 = loop$sequences;
-    let direction = loop$direction;
-    let compare4 = loop$compare;
-    if (sequences2.hasLength(0)) {
-      return toList([]);
-    } else if (sequences2.hasLength(1) && direction instanceof Ascending) {
-      let sequence = sequences2.head;
-      return sequence;
-    } else if (sequences2.hasLength(1) && direction instanceof Descending) {
-      let sequence = sequences2.head;
-      return reverse(sequence);
-    } else if (direction instanceof Ascending) {
-      let sequences$1 = merge_ascending_pairs(sequences2, compare4, toList([]));
-      loop$sequences = sequences$1;
-      loop$direction = new Descending();
-      loop$compare = compare4;
-    } else {
-      let sequences$1 = merge_descending_pairs(sequences2, compare4, toList([]));
-      loop$sequences = sequences$1;
-      loop$direction = new Ascending();
-      loop$compare = compare4;
-    }
-  }
-}
-function sort(list3, compare4) {
-  if (list3.hasLength(0)) {
-    return toList([]);
-  } else if (list3.hasLength(1)) {
-    let x = list3.head;
-    return toList([x]);
-  } else {
-    let x = list3.head;
-    let y = list3.tail.head;
-    let rest$1 = list3.tail.tail;
-    let _block;
-    let $ = compare4(x, y);
-    if ($ instanceof Lt) {
-      _block = new Ascending();
-    } else if ($ instanceof Eq) {
-      _block = new Ascending();
-    } else {
-      _block = new Descending();
-    }
-    let direction = _block;
-    let sequences$1 = sequences(
-      rest$1,
-      compare4,
-      toList([x]),
-      direction,
-      y,
-      toList([])
-    );
-    return merge_all(sequences$1, new Ascending(), compare4);
-  }
-}
-
-// build/dev/javascript/gleam_stdlib/gleam/string.mjs
-function compare3(a2, b) {
-  let $ = a2 === b;
-  if ($) {
-    return new Eq();
-  } else {
-    let $1 = less_than(a2, b);
-    if ($1) {
-      return new Lt();
-    } else {
-      return new Gt();
-    }
-  }
-}
-function slice(string6, idx, len) {
-  let $ = len < 0;
-  if ($) {
-    return "";
-  } else {
-    let $1 = idx < 0;
-    if ($1) {
-      let translated_idx = string_length(string6) + idx;
-      let $2 = translated_idx < 0;
-      if ($2) {
-        return "";
-      } else {
-        return string_slice(string6, translated_idx, len);
-      }
-    } else {
-      return string_slice(string6, idx, len);
-    }
-  }
-}
-function concat_loop(loop$strings, loop$accumulator) {
-  while (true) {
-    let strings = loop$strings;
-    let accumulator = loop$accumulator;
-    if (strings.atLeastLength(1)) {
-      let string6 = strings.head;
-      let strings$1 = strings.tail;
-      loop$strings = strings$1;
-      loop$accumulator = accumulator + string6;
-    } else {
-      return accumulator;
-    }
-  }
-}
-function concat2(strings) {
-  return concat_loop(strings, "");
-}
-function join_loop(loop$strings, loop$separator, loop$accumulator) {
-  while (true) {
-    let strings = loop$strings;
-    let separator = loop$separator;
-    let accumulator = loop$accumulator;
-    if (strings.hasLength(0)) {
-      return accumulator;
-    } else {
-      let string6 = strings.head;
-      let strings$1 = strings.tail;
-      loop$strings = strings$1;
-      loop$separator = separator;
-      loop$accumulator = accumulator + separator + string6;
-    }
-  }
-}
-function join(strings, separator) {
-  if (strings.hasLength(0)) {
-    return "";
-  } else {
-    let first$1 = strings.head;
-    let rest = strings.tail;
-    return join_loop(rest, separator, first$1);
-  }
-}
-function trim(string6) {
-  let _pipe = string6;
-  let _pipe$1 = trim_start(_pipe);
-  return trim_end(_pipe$1);
-}
-function drop_start(loop$string, loop$num_graphemes) {
-  while (true) {
-    let string6 = loop$string;
-    let num_graphemes = loop$num_graphemes;
-    let $ = num_graphemes > 0;
-    if (!$) {
-      return string6;
-    } else {
-      let $1 = pop_grapheme(string6);
-      if ($1.isOk()) {
-        let string$1 = $1[0][1];
-        loop$string = string$1;
-        loop$num_graphemes = num_graphemes - 1;
-      } else {
-        return string6;
-      }
-    }
-  }
-}
-function split2(x, substring) {
-  if (substring === "") {
-    return graphemes(x);
-  } else {
-    let _pipe = x;
-    let _pipe$1 = identity(_pipe);
-    let _pipe$2 = split(_pipe$1, substring);
-    return map2(_pipe$2, identity);
-  }
-}
-function do_to_utf_codepoints(string6) {
-  let _pipe = string6;
-  let _pipe$1 = string_to_codepoint_integer_list(_pipe);
-  return map2(_pipe$1, codepoint);
-}
-function to_utf_codepoints(string6) {
-  return do_to_utf_codepoints(string6);
-}
-function inspect2(term) {
-  let _pipe = inspect(term);
-  return identity(_pipe);
-}
-
-// build/dev/javascript/gleam_stdlib/gleam/result.mjs
-function map3(result, fun) {
-  if (result.isOk()) {
-    let x = result[0];
-    return new Ok(fun(x));
-  } else {
-    let e = result[0];
-    return new Error(e);
-  }
-}
-function map_error(result, fun) {
-  if (result.isOk()) {
-    let x = result[0];
-    return new Ok(x);
-  } else {
-    let error = result[0];
-    return new Error(fun(error));
-  }
-}
-function try$(result, fun) {
-  if (result.isOk()) {
-    let x = result[0];
-    return fun(x);
-  } else {
-    let e = result[0];
-    return new Error(e);
-  }
-}
-function then$2(result, fun) {
-  return try$(result, fun);
-}
-function unwrap2(result, default$) {
-  if (result.isOk()) {
-    let v = result[0];
-    return v;
-  } else {
-    return default$;
-  }
-}
-
-// build/dev/javascript/gleam_stdlib/gleam/dynamic.mjs
-var DecodeError = class extends CustomType {
-  constructor(expected, found, path) {
-    super();
-    this.expected = expected;
-    this.found = found;
-    this.path = path;
-  }
-};
-function map_errors(result, f) {
-  return map_error(
-    result,
-    (_capture) => {
-      return map2(_capture, f);
-    }
-  );
-}
-function string2(data) {
-  return decode_string(data);
-}
-function bool(data) {
-  return decode_bool(data);
-}
-function do_any(decoders) {
-  return (data) => {
-    if (decoders.hasLength(0)) {
-      return new Error(
-        toList([new DecodeError("another type", classify_dynamic(data), toList([]))])
-      );
-    } else {
-      let decoder = decoders.head;
-      let decoders$1 = decoders.tail;
-      let $ = decoder(data);
-      if ($.isOk()) {
-        let decoded = $[0];
-        return new Ok(decoded);
-      } else {
-        return do_any(decoders$1)(data);
-      }
-    }
-  };
-}
-function push_path(error, name2) {
-  let name$1 = identity(name2);
-  let decoder = do_any(
-    toList([
-      decode_string,
-      (x) => {
-        return map3(decode_int(x), to_string);
-      }
-    ])
-  );
-  let _block;
-  let $ = decoder(name$1);
-  if ($.isOk()) {
-    let name$22 = $[0];
-    _block = name$22;
-  } else {
-    let _pipe = toList(["<", classify_dynamic(name$1), ">"]);
-    let _pipe$1 = concat(_pipe);
-    _block = identity(_pipe$1);
-  }
-  let name$2 = _block;
-  let _record = error;
-  return new DecodeError(
-    _record.expected,
-    _record.found,
-    prepend(name$2, error.path)
-  );
-}
-function field(name2, inner_type) {
-  return (value4) => {
-    let missing_field_error = new DecodeError("field", "nothing", toList([]));
-    return try$(
-      decode_field(value4, name2),
-      (maybe_inner) => {
-        let _pipe = maybe_inner;
-        let _pipe$1 = to_result(_pipe, toList([missing_field_error]));
-        let _pipe$2 = try$(_pipe$1, inner_type);
-        return map_errors(
-          _pipe$2,
-          (_capture) => {
-            return push_path(_capture, name2);
-          }
-        );
-      }
-    );
-  };
-}
-
-// build/dev/javascript/gleam_stdlib/gleam_stdlib_decode_ffi.mjs
 function index2(data, key2) {
   if (data instanceof Dict || data instanceof WeakMap || data instanceof Map) {
     const token = {};
@@ -2477,8 +2569,8 @@ function index2(data, key2) {
   const key_is_int = Number.isInteger(key2);
   if (key_is_int && key2 >= 0 && key2 < 8 && data instanceof List) {
     let i = 0;
-    for (const value4 of data) {
-      if (i === key2) return new Ok(new Some(value4));
+    for (const value3 of data) {
+      if (i === key2) return new Ok(new Some(value3));
       i++;
     }
     return new Error("Indexable");
@@ -2491,12 +2583,12 @@ function index2(data, key2) {
 }
 function list(data, decode2, pushPath, index5, emptyList) {
   if (!(data instanceof List || Array.isArray(data))) {
-    const error = new DecodeError2("List", classify_dynamic(data), emptyList);
+    const error = new DecodeError("List", classify_dynamic(data), emptyList);
     return [emptyList, List.fromArray([error])];
   }
   const decoded = [];
-  for (const element2 of data) {
-    const layer = decode2(element2);
+  for (const element4 of data) {
+    const layer = decode2(element4);
     const [out, errors] = layer;
     if (errors instanceof NonEmpty) {
       const [_, errors2] = pushPath(layer, index5.toString());
@@ -2511,7 +2603,7 @@ function int(data) {
   if (Number.isInteger(data)) return new Ok(data);
   return new Error(0);
 }
-function string3(data) {
+function string2(data) {
   if (typeof data === "string") return new Ok(data);
   return new Error("");
 }
@@ -2519,288 +2611,64 @@ function is_null(data) {
   return data === null || data === void 0;
 }
 
-// build/dev/javascript/gleam_stdlib/gleam/dynamic/decode.mjs
-var DecodeError2 = class extends CustomType {
-  constructor(expected, found, path) {
-    super();
-    this.expected = expected;
-    this.found = found;
-    this.path = path;
-  }
-};
-var Decoder = class extends CustomType {
-  constructor(function$) {
-    super();
-    this.function = function$;
-  }
-};
-function run(data, decoder) {
-  let $ = decoder.function(data);
-  let maybe_invalid_data = $[0];
-  let errors = $[1];
-  if (errors.hasLength(0)) {
-    return new Ok(maybe_invalid_data);
-  } else {
-    return new Error(errors);
-  }
+// build/dev/javascript/gleam_stdlib/gleam/dict.mjs
+function insert(dict3, key2, value3) {
+  return map_insert(key2, value3, dict3);
 }
-function success(data) {
-  return new Decoder((_) => {
-    return [data, toList([])];
-  });
-}
-function map4(decoder, transformer) {
-  return new Decoder(
-    (d) => {
-      let $ = decoder.function(d);
-      let data = $[0];
-      let errors = $[1];
-      return [transformer(data), errors];
-    }
-  );
-}
-function then$3(decoder, next) {
-  return new Decoder(
-    (dynamic_data) => {
-      let $ = decoder.function(dynamic_data);
-      let data = $[0];
-      let errors = $[1];
-      let decoder$1 = next(data);
-      let $1 = decoder$1.function(dynamic_data);
-      let layer = $1;
-      let data$1 = $1[0];
-      if (errors.hasLength(0)) {
-        return layer;
-      } else {
-        return [data$1, errors];
-      }
-    }
-  );
-}
-function run_decoders(loop$data, loop$failure, loop$decoders) {
+function from_list_loop(loop$list, loop$initial) {
   while (true) {
-    let data = loop$data;
-    let failure2 = loop$failure;
-    let decoders = loop$decoders;
-    if (decoders.hasLength(0)) {
-      return failure2;
+    let list4 = loop$list;
+    let initial = loop$initial;
+    if (list4 instanceof Empty) {
+      return initial;
     } else {
-      let decoder = decoders.head;
-      let decoders$1 = decoders.tail;
-      let $ = decoder.function(data);
-      let layer = $;
-      let errors = $[1];
-      if (errors.hasLength(0)) {
-        return layer;
-      } else {
-        loop$data = data;
-        loop$failure = failure2;
-        loop$decoders = decoders$1;
-      }
+      let rest = list4.tail;
+      let key2 = list4.head[0];
+      let value3 = list4.head[1];
+      loop$list = rest;
+      loop$initial = insert(initial, key2, value3);
     }
   }
 }
-function one_of(first3, alternatives) {
-  return new Decoder(
-    (dynamic_data) => {
-      let $ = first3.function(dynamic_data);
-      let layer = $;
-      let errors = $[1];
-      if (errors.hasLength(0)) {
-        return layer;
-      } else {
-        return run_decoders(dynamic_data, layer, alternatives);
-      }
-    }
-  );
+function from_list(list4) {
+  return from_list_loop(list4, new_map());
 }
-function optional(inner) {
-  return new Decoder(
-    (data) => {
-      let $ = is_null(data);
-      if ($) {
-        return [new None(), toList([])];
-      } else {
-        let $1 = inner.function(data);
-        let data$1 = $1[0];
-        let errors = $1[1];
-        return [new Some(data$1), errors];
-      }
-    }
-  );
-}
-function decode_error(expected, found) {
-  return toList([
-    new DecodeError2(expected, classify_dynamic(found), toList([]))
-  ]);
-}
-function run_dynamic_function(data, name2, f) {
-  let $ = f(data);
-  if ($.isOk()) {
-    let data$1 = $[0];
-    return [data$1, toList([])];
+
+// build/dev/javascript/gleam_stdlib/gleam/result.mjs
+function map_error(result, fun) {
+  if (result instanceof Ok) {
+    return result;
   } else {
-    let zero = $[0];
-    return [
-      zero,
-      toList([new DecodeError2(name2, classify_dynamic(data), toList([]))])
-    ];
+    let error = result[0];
+    return new Error(fun(error));
   }
 }
-function decode_int2(data) {
-  return run_dynamic_function(data, "Int", int);
-}
-function failure(zero, expected) {
-  return new Decoder((d) => {
-    return [zero, decode_error(expected, d)];
-  });
-}
-function new_primitive_decoder(name2, decoding_function) {
-  return new Decoder(
-    (d) => {
-      let $ = decoding_function(d);
-      if ($.isOk()) {
-        let t = $[0];
-        return [t, toList([])];
-      } else {
-        let zero = $[0];
-        return [
-          zero,
-          toList([new DecodeError2(name2, classify_dynamic(d), toList([]))])
-        ];
-      }
-    }
-  );
-}
-var int2 = /* @__PURE__ */ new Decoder(decode_int2);
-function decode_string2(data) {
-  return run_dynamic_function(data, "String", string3);
-}
-var string4 = /* @__PURE__ */ new Decoder(decode_string2);
-function list2(inner) {
-  return new Decoder(
-    (data) => {
-      return list(
-        data,
-        inner.function,
-        (p2, k) => {
-          return push_path2(p2, toList([k]));
-        },
-        0,
-        toList([])
-      );
-    }
-  );
-}
-function push_path2(layer, path) {
-  let decoder = one_of(
-    string4,
-    toList([
-      (() => {
-        let _pipe = int2;
-        return map4(_pipe, to_string);
-      })()
-    ])
-  );
-  let path$1 = map2(
-    path,
-    (key2) => {
-      let key$1 = identity(key2);
-      let $ = run(key$1, decoder);
-      if ($.isOk()) {
-        let key$2 = $[0];
-        return key$2;
-      } else {
-        return "<" + classify_dynamic(key$1) + ">";
-      }
-    }
-  );
-  let errors = map2(
-    layer[1],
-    (error) => {
-      let _record = error;
-      return new DecodeError2(
-        _record.expected,
-        _record.found,
-        append(path$1, error.path)
-      );
-    }
-  );
-  return [layer[0], errors];
-}
-function index3(loop$path, loop$position, loop$inner, loop$data, loop$handle_miss) {
-  while (true) {
-    let path = loop$path;
-    let position = loop$position;
-    let inner = loop$inner;
-    let data = loop$data;
-    let handle_miss = loop$handle_miss;
-    if (path.hasLength(0)) {
-      let _pipe = inner(data);
-      return push_path2(_pipe, reverse(position));
-    } else {
-      let key2 = path.head;
-      let path$1 = path.tail;
-      let $ = index2(data, key2);
-      if ($.isOk() && $[0] instanceof Some) {
-        let data$1 = $[0][0];
-        loop$path = path$1;
-        loop$position = prepend(key2, position);
-        loop$inner = inner;
-        loop$data = data$1;
-        loop$handle_miss = handle_miss;
-      } else if ($.isOk() && $[0] instanceof None) {
-        return handle_miss(data, prepend(key2, position));
-      } else {
-        let kind = $[0];
-        let $1 = inner(data);
-        let default$ = $1[0];
-        let _pipe = [
-          default$,
-          toList([new DecodeError2(kind, classify_dynamic(data), toList([]))])
-        ];
-        return push_path2(_pipe, reverse(position));
-      }
-    }
+function try$(result, fun) {
+  if (result instanceof Ok) {
+    let x = result[0];
+    return fun(x);
+  } else {
+    return result;
   }
 }
-function subfield(field_path, field_decoder, next) {
-  return new Decoder(
-    (data) => {
-      let $ = index3(
-        field_path,
-        toList([]),
-        field_decoder.function,
-        data,
-        (data2, position) => {
-          let $12 = field_decoder.function(data2);
-          let default$ = $12[0];
-          let _pipe = [
-            default$,
-            toList([new DecodeError2("Field", "Nothing", toList([]))])
-          ];
-          return push_path2(_pipe, reverse(position));
-        }
-      );
-      let out = $[0];
-      let errors1 = $[1];
-      let $1 = next(out).function(data);
-      let out$1 = $1[0];
-      let errors2 = $1[1];
-      return [out$1, append(errors1, errors2)];
-    }
-  );
+function then$3(result, fun) {
+  return try$(result, fun);
 }
-function field2(field_name, field_decoder, next) {
-  return subfield(toList([field_name]), field_decoder, next);
+function unwrap2(result, default$) {
+  if (result instanceof Ok) {
+    let v = result[0];
+    return v;
+  } else {
+    return default$;
+  }
 }
 
 // build/dev/javascript/gleam_stdlib/gleam/bool.mjs
-function to_string2(bool3) {
-  if (!bool3) {
-    return "False";
-  } else {
+function to_string2(bool4) {
+  if (bool4) {
     return "True";
+  } else {
+    return "False";
   }
 }
 function guard(requirement, consequence, alternative) {
@@ -2811,7 +2679,15 @@ function guard(requirement, consequence, alternative) {
   }
 }
 
+// build/dev/javascript/gleam_stdlib/gleam/function.mjs
+function identity2(x) {
+  return x;
+}
+
 // build/dev/javascript/gleam_json/gleam_json_ffi.mjs
+function identity3(x) {
+  return x;
+}
 function decode(string6) {
   try {
     const result = JSON.parse(string6);
@@ -2820,15 +2696,15 @@ function decode(string6) {
     return new Error(getJsonDecodeError(err, string6));
   }
 }
-function getJsonDecodeError(stdErr, json) {
+function getJsonDecodeError(stdErr, json2) {
   if (isUnexpectedEndOfInput(stdErr)) return new UnexpectedEndOfInput();
-  return toUnexpectedByteError(stdErr, json);
+  return toUnexpectedByteError(stdErr, json2);
 }
 function isUnexpectedEndOfInput(err) {
   const unexpectedEndOfInputRegex = /((unexpected (end|eof))|(end of data)|(unterminated string)|(json( parse error|\.parse)\: expected '(\:|\}|\])'))/i;
   return unexpectedEndOfInputRegex.test(err.message);
 }
-function toUnexpectedByteError(err, json) {
+function toUnexpectedByteError(err, json2) {
   let converters = [
     v8UnexpectedByteError,
     oldV8UnexpectedByteError,
@@ -2836,7 +2712,7 @@ function toUnexpectedByteError(err, json) {
     spidermonkeyUnexpectedByteError
   ];
   for (let converter of converters) {
-    let result = converter(err, json);
+    let result = converter(err, json2);
     if (result) return result;
   }
   return new UnexpectedByte("", 0);
@@ -2856,14 +2732,14 @@ function oldV8UnexpectedByteError(err) {
   const position = Number(match[2]);
   return new UnexpectedByte(byte, position);
 }
-function spidermonkeyUnexpectedByteError(err, json) {
+function spidermonkeyUnexpectedByteError(err, json2) {
   const regex = /(unexpected character|expected .*) at line (\d+) column (\d+)/i;
   const match = regex.exec(err.message);
   if (!match) return null;
   const line = Number(match[2]);
   const column = Number(match[3]);
-  const position = getPositionFromMultiline(line, column, json);
-  const byte = toHex(json[position]);
+  const position = getPositionFromMultiline(line, column, json2);
+  const byte = toHex(json2[position]);
   return new UnexpectedByte(byte, position);
 }
 function jsCoreUnexpectedByteError(err) {
@@ -2895,26 +2771,26 @@ function getPositionFromMultiline(line, column, string6) {
 var UnexpectedEndOfInput = class extends CustomType {
 };
 var UnexpectedByte = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
-var UnexpectedFormat = class extends CustomType {
-  constructor(x0) {
+var UnexpectedSequence = class extends CustomType {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 var UnableToDecode = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
-function do_parse(json, decoder) {
-  return then$2(
-    decode(json),
+function do_parse(json2, decoder) {
+  return try$(
+    decode(json2),
     (dynamic_value) => {
       let _pipe = run(dynamic_value, decoder);
       return map_error(
@@ -2926,886 +2802,2905 @@ function do_parse(json, decoder) {
     }
   );
 }
-function parse(json, decoder) {
-  return do_parse(json, decoder);
+function parse(json2, decoder) {
+  return do_parse(json2, decoder);
+}
+function bool2(input2) {
+  return identity3(input2);
+}
+
+// build/dev/javascript/lustre/lustre/internals/constants.ffi.mjs
+var document2 = () => globalThis?.document;
+var NAMESPACE_HTML = "http://www.w3.org/1999/xhtml";
+var ELEMENT_NODE = 1;
+var TEXT_NODE = 3;
+var SUPPORTS_MOVE_BEFORE = !!globalThis.HTMLElement?.prototype?.moveBefore;
+
+// build/dev/javascript/lustre/lustre/internals/constants.mjs
+var empty_list = /* @__PURE__ */ toList([]);
+var option_none = /* @__PURE__ */ new None();
+
+// build/dev/javascript/lustre/lustre/vdom/vattr.ffi.mjs
+var GT = /* @__PURE__ */ new Gt();
+var LT = /* @__PURE__ */ new Lt();
+var EQ = /* @__PURE__ */ new Eq();
+function compare4(a2, b) {
+  if (a2.name === b.name) {
+    return EQ;
+  } else if (a2.name < b.name) {
+    return LT;
+  } else {
+    return GT;
+  }
+}
+
+// build/dev/javascript/lustre/lustre/vdom/vattr.mjs
+var Attribute = class extends CustomType {
+  constructor(kind, name2, value3) {
+    super();
+    this.kind = kind;
+    this.name = name2;
+    this.value = value3;
+  }
+};
+var Property = class extends CustomType {
+  constructor(kind, name2, value3) {
+    super();
+    this.kind = kind;
+    this.name = name2;
+    this.value = value3;
+  }
+};
+var Event2 = class extends CustomType {
+  constructor(kind, name2, handler, include, prevent_default, stop_propagation, immediate2, debounce, throttle) {
+    super();
+    this.kind = kind;
+    this.name = name2;
+    this.handler = handler;
+    this.include = include;
+    this.prevent_default = prevent_default;
+    this.stop_propagation = stop_propagation;
+    this.immediate = immediate2;
+    this.debounce = debounce;
+    this.throttle = throttle;
+  }
+};
+var Handler = class extends CustomType {
+  constructor(prevent_default, stop_propagation, message) {
+    super();
+    this.prevent_default = prevent_default;
+    this.stop_propagation = stop_propagation;
+    this.message = message;
+  }
+};
+var Never = class extends CustomType {
+  constructor(kind) {
+    super();
+    this.kind = kind;
+  }
+};
+function merge(loop$attributes, loop$merged) {
+  while (true) {
+    let attributes = loop$attributes;
+    let merged = loop$merged;
+    if (attributes instanceof Empty) {
+      return merged;
+    } else {
+      let $ = attributes.head;
+      if ($ instanceof Attribute) {
+        let $1 = $.name;
+        if ($1 === "") {
+          let rest = attributes.tail;
+          loop$attributes = rest;
+          loop$merged = merged;
+        } else if ($1 === "class") {
+          let $2 = $.value;
+          if ($2 === "") {
+            let rest = attributes.tail;
+            loop$attributes = rest;
+            loop$merged = merged;
+          } else {
+            let $3 = attributes.tail;
+            if ($3 instanceof Empty) {
+              let attribute$1 = $;
+              let rest = $3;
+              loop$attributes = rest;
+              loop$merged = prepend(attribute$1, merged);
+            } else {
+              let $4 = $3.head;
+              if ($4 instanceof Attribute) {
+                let $5 = $4.name;
+                if ($5 === "class") {
+                  let kind = $.kind;
+                  let class1 = $2;
+                  let rest = $3.tail;
+                  let class2 = $4.value;
+                  let value3 = class1 + " " + class2;
+                  let attribute$1 = new Attribute(kind, "class", value3);
+                  loop$attributes = prepend(attribute$1, rest);
+                  loop$merged = merged;
+                } else {
+                  let attribute$1 = $;
+                  let rest = $3;
+                  loop$attributes = rest;
+                  loop$merged = prepend(attribute$1, merged);
+                }
+              } else {
+                let attribute$1 = $;
+                let rest = $3;
+                loop$attributes = rest;
+                loop$merged = prepend(attribute$1, merged);
+              }
+            }
+          }
+        } else if ($1 === "style") {
+          let $2 = $.value;
+          if ($2 === "") {
+            let rest = attributes.tail;
+            loop$attributes = rest;
+            loop$merged = merged;
+          } else {
+            let $3 = attributes.tail;
+            if ($3 instanceof Empty) {
+              let attribute$1 = $;
+              let rest = $3;
+              loop$attributes = rest;
+              loop$merged = prepend(attribute$1, merged);
+            } else {
+              let $4 = $3.head;
+              if ($4 instanceof Attribute) {
+                let $5 = $4.name;
+                if ($5 === "style") {
+                  let kind = $.kind;
+                  let style1 = $2;
+                  let rest = $3.tail;
+                  let style2 = $4.value;
+                  let value3 = style1 + ";" + style2;
+                  let attribute$1 = new Attribute(kind, "style", value3);
+                  loop$attributes = prepend(attribute$1, rest);
+                  loop$merged = merged;
+                } else {
+                  let attribute$1 = $;
+                  let rest = $3;
+                  loop$attributes = rest;
+                  loop$merged = prepend(attribute$1, merged);
+                }
+              } else {
+                let attribute$1 = $;
+                let rest = $3;
+                loop$attributes = rest;
+                loop$merged = prepend(attribute$1, merged);
+              }
+            }
+          }
+        } else {
+          let attribute$1 = $;
+          let rest = attributes.tail;
+          loop$attributes = rest;
+          loop$merged = prepend(attribute$1, merged);
+        }
+      } else {
+        let attribute$1 = $;
+        let rest = attributes.tail;
+        loop$attributes = rest;
+        loop$merged = prepend(attribute$1, merged);
+      }
+    }
+  }
+}
+function prepare(attributes) {
+  if (attributes instanceof Empty) {
+    return attributes;
+  } else {
+    let $ = attributes.tail;
+    if ($ instanceof Empty) {
+      return attributes;
+    } else {
+      let _pipe = attributes;
+      let _pipe$1 = sort(_pipe, (a2, b) => {
+        return compare4(b, a2);
+      });
+      return merge(_pipe$1, empty_list);
+    }
+  }
+}
+var attribute_kind = 0;
+function attribute(name2, value3) {
+  return new Attribute(attribute_kind, name2, value3);
+}
+var property_kind = 1;
+function property(name2, value3) {
+  return new Property(property_kind, name2, value3);
+}
+var event_kind = 2;
+function event(name2, handler, include, prevent_default, stop_propagation, immediate2, debounce, throttle) {
+  return new Event2(
+    event_kind,
+    name2,
+    handler,
+    include,
+    prevent_default,
+    stop_propagation,
+    immediate2,
+    debounce,
+    throttle
+  );
+}
+var never_kind = 0;
+var never = /* @__PURE__ */ new Never(never_kind);
+var always_kind = 2;
+
+// build/dev/javascript/lustre/lustre/attribute.mjs
+function attribute2(name2, value3) {
+  return attribute(name2, value3);
+}
+function property2(name2, value3) {
+  return property(name2, value3);
+}
+function boolean_attribute(name2, value3) {
+  if (value3) {
+    return attribute2(name2, "");
+  } else {
+    return property2(name2, bool2(false));
+  }
+}
+function class$(name2) {
+  return attribute2("class", name2);
+}
+function id(value3) {
+  return attribute2("id", value3);
+}
+function do_styles(loop$properties, loop$styles) {
+  while (true) {
+    let properties = loop$properties;
+    let styles2 = loop$styles;
+    if (properties instanceof Empty) {
+      return styles2;
+    } else {
+      let $ = properties.head[0];
+      if ($ === "") {
+        let rest = properties.tail;
+        loop$properties = rest;
+        loop$styles = styles2;
+      } else {
+        let $1 = properties.head[1];
+        if ($1 === "") {
+          let rest = properties.tail;
+          loop$properties = rest;
+          loop$styles = styles2;
+        } else {
+          let rest = properties.tail;
+          let name$1 = $;
+          let value$1 = $1;
+          loop$properties = rest;
+          loop$styles = styles2 + name$1 + ":" + value$1 + ";";
+        }
+      }
+    }
+  }
+}
+function styles(properties) {
+  return attribute2("style", do_styles(properties, ""));
+}
+function href(url) {
+  return attribute2("href", url);
+}
+function target(value3) {
+  return attribute2("target", value3);
+}
+function autocomplete(value3) {
+  return attribute2("autocomplete", value3);
+}
+function checked(is_checked) {
+  return boolean_attribute("checked", is_checked);
+}
+function disabled(is_disabled) {
+  return boolean_attribute("disabled", is_disabled);
+}
+function for$(id2) {
+  return attribute2("for", id2);
+}
+function name(element_name) {
+  return attribute2("name", element_name);
+}
+function placeholder(text4) {
+  return attribute2("placeholder", text4);
+}
+function selected(is_selected) {
+  return boolean_attribute("selected", is_selected);
+}
+function type_(control_type) {
+  return attribute2("type", control_type);
+}
+function value(control_value) {
+  return attribute2("value", control_value);
 }
 
 // build/dev/javascript/lustre/lustre/effect.mjs
 var Effect = class extends CustomType {
-  constructor(all) {
+  constructor(synchronous, before_paint2, after_paint) {
     super();
-    this.all = all;
+    this.synchronous = synchronous;
+    this.before_paint = before_paint2;
+    this.after_paint = after_paint;
   }
 };
-function custom(run2) {
-  return new Effect(
-    toList([
-      (actions) => {
-        return run2(actions.dispatch, actions.emit, actions.select, actions.root);
-      }
-    ])
-  );
+var empty = /* @__PURE__ */ new Effect(
+  /* @__PURE__ */ toList([]),
+  /* @__PURE__ */ toList([]),
+  /* @__PURE__ */ toList([])
+);
+function none() {
+  return empty;
 }
 function from(effect) {
-  return custom((dispatch, _, _1, _2) => {
+  let task = (actions) => {
+    let dispatch = actions.dispatch;
     return effect(dispatch);
-  });
-}
-function none() {
-  return new Effect(toList([]));
+  };
+  return new Effect(toList([task]), empty.before_paint, empty.after_paint);
 }
 
-// build/dev/javascript/lustre/lustre/internals/vdom.mjs
-var Text = class extends CustomType {
-  constructor(content) {
+// build/dev/javascript/lustre/lustre/internals/mutable_map.ffi.mjs
+function empty2() {
+  return null;
+}
+function get(map6, key2) {
+  const value3 = map6?.get(key2);
+  if (value3 != null) {
+    return new Ok(value3);
+  } else {
+    return new Error(void 0);
+  }
+}
+function has_key2(map6, key2) {
+  return map6 && map6.has(key2);
+}
+function insert2(map6, key2, value3) {
+  map6 ??= /* @__PURE__ */ new Map();
+  map6.set(key2, value3);
+  return map6;
+}
+function remove(map6, key2) {
+  map6?.delete(key2);
+  return map6;
+}
+
+// build/dev/javascript/lustre/lustre/vdom/path.mjs
+var Root = class extends CustomType {
+};
+var Key = class extends CustomType {
+  constructor(key2, parent) {
     super();
-    this.content = content;
+    this.key = key2;
+    this.parent = parent;
+  }
+};
+var Index = class extends CustomType {
+  constructor(index5, parent) {
+    super();
+    this.index = index5;
+    this.parent = parent;
+  }
+};
+function do_matches(loop$path, loop$candidates) {
+  while (true) {
+    let path = loop$path;
+    let candidates = loop$candidates;
+    if (candidates instanceof Empty) {
+      return false;
+    } else {
+      let candidate = candidates.head;
+      let rest = candidates.tail;
+      let $ = starts_with(path, candidate);
+      if ($) {
+        return $;
+      } else {
+        loop$path = path;
+        loop$candidates = rest;
+      }
+    }
+  }
+}
+function add2(parent, index5, key2) {
+  if (key2 === "") {
+    return new Index(index5, parent);
+  } else {
+    return new Key(key2, parent);
+  }
+}
+var root2 = /* @__PURE__ */ new Root();
+var separator_element = "	";
+function do_to_string(loop$path, loop$acc) {
+  while (true) {
+    let path = loop$path;
+    let acc = loop$acc;
+    if (path instanceof Root) {
+      if (acc instanceof Empty) {
+        return "";
+      } else {
+        let segments = acc.tail;
+        return concat2(segments);
+      }
+    } else if (path instanceof Key) {
+      let key2 = path.key;
+      let parent = path.parent;
+      loop$path = parent;
+      loop$acc = prepend(separator_element, prepend(key2, acc));
+    } else {
+      let index5 = path.index;
+      let parent = path.parent;
+      loop$path = parent;
+      loop$acc = prepend(
+        separator_element,
+        prepend(to_string(index5), acc)
+      );
+    }
+  }
+}
+function to_string3(path) {
+  return do_to_string(path, toList([]));
+}
+function matches(path, candidates) {
+  if (candidates instanceof Empty) {
+    return false;
+  } else {
+    return do_matches(to_string3(path), candidates);
+  }
+}
+var separator_event = "\n";
+function event2(path, event4) {
+  return do_to_string(path, toList([separator_event, event4]));
+}
+
+// build/dev/javascript/lustre/lustre/vdom/vnode.mjs
+var Fragment = class extends CustomType {
+  constructor(kind, key2, mapper, children, keyed_children) {
+    super();
+    this.kind = kind;
+    this.key = key2;
+    this.mapper = mapper;
+    this.children = children;
+    this.keyed_children = keyed_children;
   }
 };
 var Element2 = class extends CustomType {
-  constructor(key2, namespace, tag, attrs, children2, self_closing, void$) {
+  constructor(kind, key2, mapper, namespace, tag, attributes, children, keyed_children, self_closing, void$) {
     super();
+    this.kind = kind;
     this.key = key2;
+    this.mapper = mapper;
     this.namespace = namespace;
     this.tag = tag;
-    this.attrs = attrs;
-    this.children = children2;
+    this.attributes = attributes;
+    this.children = children;
+    this.keyed_children = keyed_children;
     this.self_closing = self_closing;
     this.void = void$;
   }
 };
-var Map2 = class extends CustomType {
-  constructor(subtree) {
+var Text = class extends CustomType {
+  constructor(kind, key2, mapper, content) {
     super();
-    this.subtree = subtree;
+    this.kind = kind;
+    this.key = key2;
+    this.mapper = mapper;
+    this.content = content;
   }
 };
-var Attribute = class extends CustomType {
-  constructor(x0, x1, as_property) {
+var UnsafeInnerHtml = class extends CustomType {
+  constructor(kind, key2, mapper, namespace, tag, attributes, inner_html) {
     super();
-    this[0] = x0;
-    this[1] = x1;
-    this.as_property = as_property;
+    this.kind = kind;
+    this.key = key2;
+    this.mapper = mapper;
+    this.namespace = namespace;
+    this.tag = tag;
+    this.attributes = attributes;
+    this.inner_html = inner_html;
   }
 };
-var Event2 = class extends CustomType {
-  constructor(x0, x1) {
-    super();
-    this[0] = x0;
-    this[1] = x1;
-  }
-};
-function attribute_to_event_handler(attribute2) {
-  if (attribute2 instanceof Attribute) {
-    return new Error(void 0);
+function is_void_element(tag, namespace) {
+  if (namespace === "") {
+    if (tag === "area") {
+      return true;
+    } else if (tag === "base") {
+      return true;
+    } else if (tag === "br") {
+      return true;
+    } else if (tag === "col") {
+      return true;
+    } else if (tag === "embed") {
+      return true;
+    } else if (tag === "hr") {
+      return true;
+    } else if (tag === "img") {
+      return true;
+    } else if (tag === "input") {
+      return true;
+    } else if (tag === "link") {
+      return true;
+    } else if (tag === "meta") {
+      return true;
+    } else if (tag === "param") {
+      return true;
+    } else if (tag === "source") {
+      return true;
+    } else if (tag === "track") {
+      return true;
+    } else if (tag === "wbr") {
+      return true;
+    } else {
+      return false;
+    }
   } else {
-    let name2 = attribute2[0];
-    let handler = attribute2[1];
-    let name$1 = drop_start(name2, 2);
-    return new Ok([name$1, handler]);
+    return false;
   }
 }
-function do_element_list_handlers(elements2, handlers2, key2) {
-  return index_fold(
-    elements2,
-    handlers2,
-    (handlers3, element2, index5) => {
-      let key$1 = key2 + "-" + to_string(index5);
-      return do_handlers(element2, handlers3, key$1);
+function to_keyed(key2, node) {
+  if (node instanceof Fragment) {
+    return new Fragment(
+      node.kind,
+      key2,
+      node.mapper,
+      node.children,
+      node.keyed_children
+    );
+  } else if (node instanceof Element2) {
+    return new Element2(
+      node.kind,
+      key2,
+      node.mapper,
+      node.namespace,
+      node.tag,
+      node.attributes,
+      node.children,
+      node.keyed_children,
+      node.self_closing,
+      node.void
+    );
+  } else if (node instanceof Text) {
+    return new Text(node.kind, key2, node.mapper, node.content);
+  } else {
+    return new UnsafeInnerHtml(
+      node.kind,
+      key2,
+      node.mapper,
+      node.namespace,
+      node.tag,
+      node.attributes,
+      node.inner_html
+    );
+  }
+}
+var fragment_kind = 0;
+function fragment(key2, mapper, children, keyed_children) {
+  return new Fragment(fragment_kind, key2, mapper, children, keyed_children);
+}
+var element_kind = 1;
+function element(key2, mapper, namespace, tag, attributes, children, keyed_children, self_closing, void$) {
+  return new Element2(
+    element_kind,
+    key2,
+    mapper,
+    namespace,
+    tag,
+    prepare(attributes),
+    children,
+    keyed_children,
+    self_closing,
+    void$ || is_void_element(tag, namespace)
+  );
+}
+var text_kind = 2;
+function text(key2, mapper, content) {
+  return new Text(text_kind, key2, mapper, content);
+}
+var unsafe_inner_html_kind = 3;
+
+// build/dev/javascript/lustre/lustre/internals/equals.ffi.mjs
+var isReferenceEqual = (a2, b) => a2 === b;
+var isEqual2 = (a2, b) => {
+  if (a2 === b) {
+    return true;
+  }
+  if (a2 == null || b == null) {
+    return false;
+  }
+  const type = typeof a2;
+  if (type !== typeof b) {
+    return false;
+  }
+  if (type !== "object") {
+    return false;
+  }
+  const ctor = a2.constructor;
+  if (ctor !== b.constructor) {
+    return false;
+  }
+  if (Array.isArray(a2)) {
+    return areArraysEqual(a2, b);
+  }
+  return areObjectsEqual(a2, b);
+};
+var areArraysEqual = (a2, b) => {
+  let index5 = a2.length;
+  if (index5 !== b.length) {
+    return false;
+  }
+  while (index5--) {
+    if (!isEqual2(a2[index5], b[index5])) {
+      return false;
+    }
+  }
+  return true;
+};
+var areObjectsEqual = (a2, b) => {
+  const properties = Object.keys(a2);
+  let index5 = properties.length;
+  if (Object.keys(b).length !== index5) {
+    return false;
+  }
+  while (index5--) {
+    const property3 = properties[index5];
+    if (!Object.hasOwn(b, property3)) {
+      return false;
+    }
+    if (!isEqual2(a2[property3], b[property3])) {
+      return false;
+    }
+  }
+  return true;
+};
+
+// build/dev/javascript/lustre/lustre/vdom/events.mjs
+var Events = class extends CustomType {
+  constructor(handlers, dispatched_paths, next_dispatched_paths) {
+    super();
+    this.handlers = handlers;
+    this.dispatched_paths = dispatched_paths;
+    this.next_dispatched_paths = next_dispatched_paths;
+  }
+};
+function new$3() {
+  return new Events(
+    empty2(),
+    empty_list,
+    empty_list
+  );
+}
+function tick(events) {
+  return new Events(
+    events.handlers,
+    events.next_dispatched_paths,
+    empty_list
+  );
+}
+function do_remove_event(handlers, path, name2) {
+  return remove(handlers, event2(path, name2));
+}
+function remove_event(events, path, name2) {
+  let handlers = do_remove_event(events.handlers, path, name2);
+  return new Events(
+    handlers,
+    events.dispatched_paths,
+    events.next_dispatched_paths
+  );
+}
+function remove_attributes(handlers, path, attributes) {
+  return fold(
+    attributes,
+    handlers,
+    (events, attribute3) => {
+      if (attribute3 instanceof Event2) {
+        let name2 = attribute3.name;
+        return do_remove_event(events, path, name2);
+      } else {
+        return events;
+      }
     }
   );
 }
-function do_handlers(loop$element, loop$handlers, loop$key) {
-  while (true) {
-    let element2 = loop$element;
-    let handlers2 = loop$handlers;
-    let key2 = loop$key;
-    if (element2 instanceof Text) {
-      return handlers2;
-    } else if (element2 instanceof Map2) {
-      let subtree = element2.subtree;
-      loop$element = subtree();
-      loop$handlers = handlers2;
-      loop$key = key2;
-    } else {
-      let attrs = element2.attrs;
-      let children2 = element2.children;
-      let handlers$1 = fold(
-        attrs,
-        handlers2,
-        (handlers3, attr) => {
-          let $ = attribute_to_event_handler(attr);
-          if ($.isOk()) {
-            let name2 = $[0][0];
-            let handler = $[0][1];
-            return insert(handlers3, key2 + "-" + name2, handler);
-          } else {
-            return handlers3;
-          }
-        }
-      );
-      return do_element_list_handlers(children2, handlers$1, key2);
-    }
+function handle(events, path, name2, event4) {
+  let next_dispatched_paths = prepend(path, events.next_dispatched_paths);
+  let events$1 = new Events(
+    events.handlers,
+    events.dispatched_paths,
+    next_dispatched_paths
+  );
+  let $ = get(
+    events$1.handlers,
+    path + separator_event + name2
+  );
+  if ($ instanceof Ok) {
+    let handler = $[0];
+    return [events$1, run(event4, handler)];
+  } else {
+    return [events$1, new Error(toList([]))];
   }
 }
-function handlers(element2) {
-  return do_handlers(element2, new_map(), "0");
+function has_dispatched_events(events, path) {
+  return matches(path, events.dispatched_paths);
 }
-
-// build/dev/javascript/lustre/lustre/attribute.mjs
-function attribute(name2, value4) {
-  return new Attribute(name2, identity(value4), false);
-}
-function property(name2, value4) {
-  return new Attribute(name2, identity(value4), true);
-}
-function on(name2, handler) {
-  return new Event2("on" + name2, handler);
-}
-function style(properties) {
-  return attribute(
-    "style",
-    fold(
-      properties,
-      "",
-      (styles, _use1) => {
-        let name$1 = _use1[0];
-        let value$1 = _use1[1];
-        return styles + name$1 + ":" + value$1 + ";";
+function do_add_event(handlers, mapper, path, name2, handler) {
+  return insert2(
+    handlers,
+    event2(path, name2),
+    map3(
+      handler,
+      (handler2) => {
+        return new Handler(
+          handler2.prevent_default,
+          handler2.stop_propagation,
+          identity2(mapper)(handler2.message)
+        );
       }
     )
   );
 }
-function class$(name2) {
-  return attribute("class", name2);
+function add_event(events, mapper, path, name2, handler) {
+  let handlers = do_add_event(events.handlers, mapper, path, name2, handler);
+  return new Events(
+    handlers,
+    events.dispatched_paths,
+    events.next_dispatched_paths
+  );
 }
-function id(name2) {
-  return attribute("id", name2);
+function add_attributes(handlers, mapper, path, attributes) {
+  return fold(
+    attributes,
+    handlers,
+    (events, attribute3) => {
+      if (attribute3 instanceof Event2) {
+        let name2 = attribute3.name;
+        let handler = attribute3.handler;
+        return do_add_event(events, mapper, path, name2, handler);
+      } else {
+        return events;
+      }
+    }
+  );
 }
-function type_(name2) {
-  return attribute("type", name2);
+function compose_mapper(mapper, child_mapper) {
+  let $ = isReferenceEqual(mapper, identity2);
+  let $1 = isReferenceEqual(child_mapper, identity2);
+  if ($1) {
+    return mapper;
+  } else if ($) {
+    return child_mapper;
+  } else {
+    return (msg) => {
+      return mapper(child_mapper(msg));
+    };
+  }
 }
-function value(val) {
-  return attribute("value", val);
+function do_remove_children(loop$handlers, loop$path, loop$child_index, loop$children) {
+  while (true) {
+    let handlers = loop$handlers;
+    let path = loop$path;
+    let child_index = loop$child_index;
+    let children = loop$children;
+    if (children instanceof Empty) {
+      return handlers;
+    } else {
+      let child = children.head;
+      let rest = children.tail;
+      let _pipe = handlers;
+      let _pipe$1 = do_remove_child(_pipe, path, child_index, child);
+      loop$handlers = _pipe$1;
+      loop$path = path;
+      loop$child_index = child_index + 1;
+      loop$children = rest;
+    }
+  }
 }
-function checked(is_checked) {
-  return property("checked", is_checked);
+function do_remove_child(handlers, parent, child_index, child) {
+  if (child instanceof Fragment) {
+    let children = child.children;
+    let path = add2(parent, child_index, child.key);
+    return do_remove_children(handlers, path, 0, children);
+  } else if (child instanceof Element2) {
+    let attributes = child.attributes;
+    let children = child.children;
+    let path = add2(parent, child_index, child.key);
+    let _pipe = handlers;
+    let _pipe$1 = remove_attributes(_pipe, path, attributes);
+    return do_remove_children(_pipe$1, path, 0, children);
+  } else if (child instanceof Text) {
+    return handlers;
+  } else {
+    let attributes = child.attributes;
+    let path = add2(parent, child_index, child.key);
+    return remove_attributes(handlers, path, attributes);
+  }
 }
-function placeholder(text3) {
-  return attribute("placeholder", text3);
+function remove_child(events, parent, child_index, child) {
+  let handlers = do_remove_child(events.handlers, parent, child_index, child);
+  return new Events(
+    handlers,
+    events.dispatched_paths,
+    events.next_dispatched_paths
+  );
 }
-function selected(is_selected) {
-  return property("selected", is_selected);
+function do_add_children(loop$handlers, loop$mapper, loop$path, loop$child_index, loop$children) {
+  while (true) {
+    let handlers = loop$handlers;
+    let mapper = loop$mapper;
+    let path = loop$path;
+    let child_index = loop$child_index;
+    let children = loop$children;
+    if (children instanceof Empty) {
+      return handlers;
+    } else {
+      let child = children.head;
+      let rest = children.tail;
+      let _pipe = handlers;
+      let _pipe$1 = do_add_child(_pipe, mapper, path, child_index, child);
+      loop$handlers = _pipe$1;
+      loop$mapper = mapper;
+      loop$path = path;
+      loop$child_index = child_index + 1;
+      loop$children = rest;
+    }
+  }
 }
-function autocomplete(name2) {
-  return attribute("autocomplete", name2);
+function do_add_child(handlers, mapper, parent, child_index, child) {
+  if (child instanceof Fragment) {
+    let children = child.children;
+    let path = add2(parent, child_index, child.key);
+    let composed_mapper = compose_mapper(mapper, child.mapper);
+    return do_add_children(handlers, composed_mapper, path, 0, children);
+  } else if (child instanceof Element2) {
+    let attributes = child.attributes;
+    let children = child.children;
+    let path = add2(parent, child_index, child.key);
+    let composed_mapper = compose_mapper(mapper, child.mapper);
+    let _pipe = handlers;
+    let _pipe$1 = add_attributes(_pipe, composed_mapper, path, attributes);
+    return do_add_children(_pipe$1, composed_mapper, path, 0, children);
+  } else if (child instanceof Text) {
+    return handlers;
+  } else {
+    let attributes = child.attributes;
+    let path = add2(parent, child_index, child.key);
+    let composed_mapper = compose_mapper(mapper, child.mapper);
+    return add_attributes(handlers, composed_mapper, path, attributes);
+  }
 }
-function disabled(is_disabled) {
-  return property("disabled", is_disabled);
+function add_child(events, mapper, parent, index5, child) {
+  let handlers = do_add_child(events.handlers, mapper, parent, index5, child);
+  return new Events(
+    handlers,
+    events.dispatched_paths,
+    events.next_dispatched_paths
+  );
 }
-function name(name2) {
-  return attribute("name", name2);
-}
-function for$(id2) {
-  return attribute("for", id2);
-}
-function href(uri) {
-  return attribute("href", uri);
-}
-function target(target3) {
-  return attribute("target", target3);
+function add_children(events, mapper, path, child_index, children) {
+  let handlers = do_add_children(
+    events.handlers,
+    mapper,
+    path,
+    child_index,
+    children
+  );
+  return new Events(
+    handlers,
+    events.dispatched_paths,
+    events.next_dispatched_paths
+  );
 }
 
 // build/dev/javascript/lustre/lustre/element.mjs
-function element(tag, attrs, children2) {
-  if (tag === "area") {
-    return new Element2("", "", tag, attrs, toList([]), false, true);
-  } else if (tag === "base") {
-    return new Element2("", "", tag, attrs, toList([]), false, true);
-  } else if (tag === "br") {
-    return new Element2("", "", tag, attrs, toList([]), false, true);
-  } else if (tag === "col") {
-    return new Element2("", "", tag, attrs, toList([]), false, true);
-  } else if (tag === "embed") {
-    return new Element2("", "", tag, attrs, toList([]), false, true);
-  } else if (tag === "hr") {
-    return new Element2("", "", tag, attrs, toList([]), false, true);
-  } else if (tag === "img") {
-    return new Element2("", "", tag, attrs, toList([]), false, true);
-  } else if (tag === "input") {
-    return new Element2("", "", tag, attrs, toList([]), false, true);
-  } else if (tag === "link") {
-    return new Element2("", "", tag, attrs, toList([]), false, true);
-  } else if (tag === "meta") {
-    return new Element2("", "", tag, attrs, toList([]), false, true);
-  } else if (tag === "param") {
-    return new Element2("", "", tag, attrs, toList([]), false, true);
-  } else if (tag === "source") {
-    return new Element2("", "", tag, attrs, toList([]), false, true);
-  } else if (tag === "track") {
-    return new Element2("", "", tag, attrs, toList([]), false, true);
-  } else if (tag === "wbr") {
-    return new Element2("", "", tag, attrs, toList([]), false, true);
-  } else {
-    return new Element2("", "", tag, attrs, children2, false, false);
-  }
+function element2(tag, attributes, children) {
+  return element(
+    "",
+    identity2,
+    "",
+    tag,
+    attributes,
+    children,
+    empty2(),
+    false,
+    false
+  );
 }
-function text(content) {
-  return new Text(content);
+function text2(content) {
+  return text("", identity2, content);
 }
 function none2() {
-  return new Text("");
+  return text("", identity2, "");
 }
 
-// build/dev/javascript/gleam_stdlib/gleam/set.mjs
-var Set2 = class extends CustomType {
-  constructor(dict2) {
+// build/dev/javascript/lustre/lustre/element/html.mjs
+function text3(content) {
+  return text2(content);
+}
+function nav(attrs, children) {
+  return element2("nav", attrs, children);
+}
+function div(attrs, children) {
+  return element2("div", attrs, children);
+}
+function p(attrs, children) {
+  return element2("p", attrs, children);
+}
+function pre(attrs, children) {
+  return element2("pre", attrs, children);
+}
+function a(attrs, children) {
+  return element2("a", attrs, children);
+}
+function span(attrs, children) {
+  return element2("span", attrs, children);
+}
+function button(attrs, children) {
+  return element2("button", attrs, children);
+}
+function input(attrs) {
+  return element2("input", attrs, empty_list);
+}
+function label(attrs, children) {
+  return element2("label", attrs, children);
+}
+function option(attrs, label2) {
+  return element2("option", attrs, toList([text2(label2)]));
+}
+function select(attrs, children) {
+  return element2("select", attrs, children);
+}
+
+// build/dev/javascript/lustre/lustre/vdom/patch.mjs
+var Patch = class extends CustomType {
+  constructor(index5, removed, changes, children) {
     super();
-    this.dict = dict2;
+    this.index = index5;
+    this.removed = removed;
+    this.changes = changes;
+    this.children = children;
   }
 };
-function new$2() {
-  return new Set2(new_map());
+var ReplaceText = class extends CustomType {
+  constructor(kind, content) {
+    super();
+    this.kind = kind;
+    this.content = content;
+  }
+};
+var ReplaceInnerHtml = class extends CustomType {
+  constructor(kind, inner_html) {
+    super();
+    this.kind = kind;
+    this.inner_html = inner_html;
+  }
+};
+var Update = class extends CustomType {
+  constructor(kind, added, removed) {
+    super();
+    this.kind = kind;
+    this.added = added;
+    this.removed = removed;
+  }
+};
+var Move = class extends CustomType {
+  constructor(kind, key2, before) {
+    super();
+    this.kind = kind;
+    this.key = key2;
+    this.before = before;
+  }
+};
+var Replace = class extends CustomType {
+  constructor(kind, index5, with$) {
+    super();
+    this.kind = kind;
+    this.index = index5;
+    this.with = with$;
+  }
+};
+var Remove = class extends CustomType {
+  constructor(kind, index5) {
+    super();
+    this.kind = kind;
+    this.index = index5;
+  }
+};
+var Insert = class extends CustomType {
+  constructor(kind, children, before) {
+    super();
+    this.kind = kind;
+    this.children = children;
+    this.before = before;
+  }
+};
+function new$5(index5, removed, changes, children) {
+  return new Patch(index5, removed, changes, children);
+}
+var replace_text_kind = 0;
+function replace_text(content) {
+  return new ReplaceText(replace_text_kind, content);
+}
+var replace_inner_html_kind = 1;
+function replace_inner_html(inner_html) {
+  return new ReplaceInnerHtml(replace_inner_html_kind, inner_html);
+}
+var update_kind = 2;
+function update(added, removed) {
+  return new Update(update_kind, added, removed);
+}
+var move_kind = 3;
+function move(key2, before) {
+  return new Move(move_kind, key2, before);
+}
+var remove_kind = 4;
+function remove2(index5) {
+  return new Remove(remove_kind, index5);
+}
+var replace_kind = 5;
+function replace2(index5, with$) {
+  return new Replace(replace_kind, index5, with$);
+}
+var insert_kind = 6;
+function insert3(children, before) {
+  return new Insert(insert_kind, children, before);
 }
 
-// build/dev/javascript/lustre/lustre/internals/patch.mjs
+// build/dev/javascript/lustre/lustre/vdom/diff.mjs
 var Diff = class extends CustomType {
-  constructor(x0) {
+  constructor(patch, events) {
     super();
-    this[0] = x0;
+    this.patch = patch;
+    this.events = events;
   }
 };
-var Emit = class extends CustomType {
-  constructor(x0, x1) {
+var AttributeChange = class extends CustomType {
+  constructor(added, removed, events) {
     super();
-    this[0] = x0;
-    this[1] = x1;
+    this.added = added;
+    this.removed = removed;
+    this.events = events;
   }
 };
-var Init = class extends CustomType {
-  constructor(x0, x1) {
-    super();
-    this[0] = x0;
-    this[1] = x1;
+function is_controlled(events, namespace, tag, path) {
+  if (tag === "input" && namespace === "") {
+    return has_dispatched_events(events, path);
+  } else if (tag === "select" && namespace === "") {
+    return has_dispatched_events(events, path);
+  } else if (tag === "textarea" && namespace === "") {
+    return has_dispatched_events(events, path);
+  } else {
+    return false;
   }
-};
-function is_empty_element_diff(diff2) {
-  return isEqual(diff2.created, new_map()) && isEqual(
-    diff2.removed,
-    new$2()
-  ) && isEqual(diff2.updated, new_map());
+}
+function diff_attributes(loop$controlled, loop$path, loop$mapper, loop$events, loop$old, loop$new, loop$added, loop$removed) {
+  while (true) {
+    let controlled = loop$controlled;
+    let path = loop$path;
+    let mapper = loop$mapper;
+    let events = loop$events;
+    let old = loop$old;
+    let new$8 = loop$new;
+    let added = loop$added;
+    let removed = loop$removed;
+    if (new$8 instanceof Empty) {
+      if (old instanceof Empty) {
+        return new AttributeChange(added, removed, events);
+      } else {
+        let $ = old.head;
+        if ($ instanceof Event2) {
+          let prev = $;
+          let old$1 = old.tail;
+          let name2 = $.name;
+          let removed$1 = prepend(prev, removed);
+          let events$1 = remove_event(events, path, name2);
+          loop$controlled = controlled;
+          loop$path = path;
+          loop$mapper = mapper;
+          loop$events = events$1;
+          loop$old = old$1;
+          loop$new = new$8;
+          loop$added = added;
+          loop$removed = removed$1;
+        } else {
+          let prev = $;
+          let old$1 = old.tail;
+          let removed$1 = prepend(prev, removed);
+          loop$controlled = controlled;
+          loop$path = path;
+          loop$mapper = mapper;
+          loop$events = events;
+          loop$old = old$1;
+          loop$new = new$8;
+          loop$added = added;
+          loop$removed = removed$1;
+        }
+      }
+    } else if (old instanceof Empty) {
+      let $ = new$8.head;
+      if ($ instanceof Event2) {
+        let next = $;
+        let new$1 = new$8.tail;
+        let name2 = $.name;
+        let handler = $.handler;
+        let added$1 = prepend(next, added);
+        let events$1 = add_event(events, mapper, path, name2, handler);
+        loop$controlled = controlled;
+        loop$path = path;
+        loop$mapper = mapper;
+        loop$events = events$1;
+        loop$old = old;
+        loop$new = new$1;
+        loop$added = added$1;
+        loop$removed = removed;
+      } else {
+        let next = $;
+        let new$1 = new$8.tail;
+        let added$1 = prepend(next, added);
+        loop$controlled = controlled;
+        loop$path = path;
+        loop$mapper = mapper;
+        loop$events = events;
+        loop$old = old;
+        loop$new = new$1;
+        loop$added = added$1;
+        loop$removed = removed;
+      }
+    } else {
+      let next = new$8.head;
+      let remaining_new = new$8.tail;
+      let prev = old.head;
+      let remaining_old = old.tail;
+      let $ = compare4(prev, next);
+      if ($ instanceof Lt) {
+        if (prev instanceof Event2) {
+          let name2 = prev.name;
+          let removed$1 = prepend(prev, removed);
+          let events$1 = remove_event(events, path, name2);
+          loop$controlled = controlled;
+          loop$path = path;
+          loop$mapper = mapper;
+          loop$events = events$1;
+          loop$old = remaining_old;
+          loop$new = new$8;
+          loop$added = added;
+          loop$removed = removed$1;
+        } else {
+          let removed$1 = prepend(prev, removed);
+          loop$controlled = controlled;
+          loop$path = path;
+          loop$mapper = mapper;
+          loop$events = events;
+          loop$old = remaining_old;
+          loop$new = new$8;
+          loop$added = added;
+          loop$removed = removed$1;
+        }
+      } else if ($ instanceof Eq) {
+        if (next instanceof Attribute) {
+          if (prev instanceof Attribute) {
+            let _block;
+            let $1 = next.name;
+            if ($1 === "value") {
+              _block = controlled || prev.value !== next.value;
+            } else if ($1 === "checked") {
+              _block = controlled || prev.value !== next.value;
+            } else if ($1 === "selected") {
+              _block = controlled || prev.value !== next.value;
+            } else {
+              _block = prev.value !== next.value;
+            }
+            let has_changes = _block;
+            let _block$1;
+            if (has_changes) {
+              _block$1 = prepend(next, added);
+            } else {
+              _block$1 = added;
+            }
+            let added$1 = _block$1;
+            loop$controlled = controlled;
+            loop$path = path;
+            loop$mapper = mapper;
+            loop$events = events;
+            loop$old = remaining_old;
+            loop$new = remaining_new;
+            loop$added = added$1;
+            loop$removed = removed;
+          } else if (prev instanceof Event2) {
+            let name2 = prev.name;
+            let added$1 = prepend(next, added);
+            let removed$1 = prepend(prev, removed);
+            let events$1 = remove_event(events, path, name2);
+            loop$controlled = controlled;
+            loop$path = path;
+            loop$mapper = mapper;
+            loop$events = events$1;
+            loop$old = remaining_old;
+            loop$new = remaining_new;
+            loop$added = added$1;
+            loop$removed = removed$1;
+          } else {
+            let added$1 = prepend(next, added);
+            let removed$1 = prepend(prev, removed);
+            loop$controlled = controlled;
+            loop$path = path;
+            loop$mapper = mapper;
+            loop$events = events;
+            loop$old = remaining_old;
+            loop$new = remaining_new;
+            loop$added = added$1;
+            loop$removed = removed$1;
+          }
+        } else if (next instanceof Property) {
+          if (prev instanceof Property) {
+            let _block;
+            let $1 = next.name;
+            if ($1 === "scrollLeft") {
+              _block = true;
+            } else if ($1 === "scrollRight") {
+              _block = true;
+            } else if ($1 === "value") {
+              _block = controlled || !isEqual2(
+                prev.value,
+                next.value
+              );
+            } else if ($1 === "checked") {
+              _block = controlled || !isEqual2(
+                prev.value,
+                next.value
+              );
+            } else if ($1 === "selected") {
+              _block = controlled || !isEqual2(
+                prev.value,
+                next.value
+              );
+            } else {
+              _block = !isEqual2(prev.value, next.value);
+            }
+            let has_changes = _block;
+            let _block$1;
+            if (has_changes) {
+              _block$1 = prepend(next, added);
+            } else {
+              _block$1 = added;
+            }
+            let added$1 = _block$1;
+            loop$controlled = controlled;
+            loop$path = path;
+            loop$mapper = mapper;
+            loop$events = events;
+            loop$old = remaining_old;
+            loop$new = remaining_new;
+            loop$added = added$1;
+            loop$removed = removed;
+          } else if (prev instanceof Event2) {
+            let name2 = prev.name;
+            let added$1 = prepend(next, added);
+            let removed$1 = prepend(prev, removed);
+            let events$1 = remove_event(events, path, name2);
+            loop$controlled = controlled;
+            loop$path = path;
+            loop$mapper = mapper;
+            loop$events = events$1;
+            loop$old = remaining_old;
+            loop$new = remaining_new;
+            loop$added = added$1;
+            loop$removed = removed$1;
+          } else {
+            let added$1 = prepend(next, added);
+            let removed$1 = prepend(prev, removed);
+            loop$controlled = controlled;
+            loop$path = path;
+            loop$mapper = mapper;
+            loop$events = events;
+            loop$old = remaining_old;
+            loop$new = remaining_new;
+            loop$added = added$1;
+            loop$removed = removed$1;
+          }
+        } else if (prev instanceof Event2) {
+          let name2 = next.name;
+          let handler = next.handler;
+          let has_changes = prev.prevent_default.kind !== next.prevent_default.kind || prev.stop_propagation.kind !== next.stop_propagation.kind || prev.immediate !== next.immediate || prev.debounce !== next.debounce || prev.throttle !== next.throttle;
+          let _block;
+          if (has_changes) {
+            _block = prepend(next, added);
+          } else {
+            _block = added;
+          }
+          let added$1 = _block;
+          let events$1 = add_event(events, mapper, path, name2, handler);
+          loop$controlled = controlled;
+          loop$path = path;
+          loop$mapper = mapper;
+          loop$events = events$1;
+          loop$old = remaining_old;
+          loop$new = remaining_new;
+          loop$added = added$1;
+          loop$removed = removed;
+        } else {
+          let name2 = next.name;
+          let handler = next.handler;
+          let added$1 = prepend(next, added);
+          let removed$1 = prepend(prev, removed);
+          let events$1 = add_event(events, mapper, path, name2, handler);
+          loop$controlled = controlled;
+          loop$path = path;
+          loop$mapper = mapper;
+          loop$events = events$1;
+          loop$old = remaining_old;
+          loop$new = remaining_new;
+          loop$added = added$1;
+          loop$removed = removed$1;
+        }
+      } else if (next instanceof Event2) {
+        let name2 = next.name;
+        let handler = next.handler;
+        let added$1 = prepend(next, added);
+        let events$1 = add_event(events, mapper, path, name2, handler);
+        loop$controlled = controlled;
+        loop$path = path;
+        loop$mapper = mapper;
+        loop$events = events$1;
+        loop$old = old;
+        loop$new = remaining_new;
+        loop$added = added$1;
+        loop$removed = removed;
+      } else {
+        let added$1 = prepend(next, added);
+        loop$controlled = controlled;
+        loop$path = path;
+        loop$mapper = mapper;
+        loop$events = events;
+        loop$old = old;
+        loop$new = remaining_new;
+        loop$added = added$1;
+        loop$removed = removed;
+      }
+    }
+  }
+}
+function do_diff(loop$old, loop$old_keyed, loop$new, loop$new_keyed, loop$moved, loop$moved_offset, loop$removed, loop$node_index, loop$patch_index, loop$path, loop$changes, loop$children, loop$mapper, loop$events) {
+  while (true) {
+    let old = loop$old;
+    let old_keyed = loop$old_keyed;
+    let new$8 = loop$new;
+    let new_keyed = loop$new_keyed;
+    let moved = loop$moved;
+    let moved_offset = loop$moved_offset;
+    let removed = loop$removed;
+    let node_index = loop$node_index;
+    let patch_index = loop$patch_index;
+    let path = loop$path;
+    let changes = loop$changes;
+    let children = loop$children;
+    let mapper = loop$mapper;
+    let events = loop$events;
+    if (new$8 instanceof Empty) {
+      if (old instanceof Empty) {
+        return new Diff(
+          new Patch(patch_index, removed, changes, children),
+          events
+        );
+      } else {
+        let prev = old.head;
+        let old$1 = old.tail;
+        let _block;
+        let $ = prev.key === "" || !has_key2(moved, prev.key);
+        if ($) {
+          _block = removed + 1;
+        } else {
+          _block = removed;
+        }
+        let removed$1 = _block;
+        let events$1 = remove_child(events, path, node_index, prev);
+        loop$old = old$1;
+        loop$old_keyed = old_keyed;
+        loop$new = new$8;
+        loop$new_keyed = new_keyed;
+        loop$moved = moved;
+        loop$moved_offset = moved_offset;
+        loop$removed = removed$1;
+        loop$node_index = node_index;
+        loop$patch_index = patch_index;
+        loop$path = path;
+        loop$changes = changes;
+        loop$children = children;
+        loop$mapper = mapper;
+        loop$events = events$1;
+      }
+    } else if (old instanceof Empty) {
+      let events$1 = add_children(
+        events,
+        mapper,
+        path,
+        node_index,
+        new$8
+      );
+      let insert4 = insert3(new$8, node_index - moved_offset);
+      let changes$1 = prepend(insert4, changes);
+      return new Diff(
+        new Patch(patch_index, removed, changes$1, children),
+        events$1
+      );
+    } else {
+      let next = new$8.head;
+      let prev = old.head;
+      if (prev.key !== next.key) {
+        let new_remaining = new$8.tail;
+        let old_remaining = old.tail;
+        let next_did_exist = get(old_keyed, next.key);
+        let prev_does_exist = has_key2(new_keyed, prev.key);
+        if (next_did_exist instanceof Ok) {
+          if (prev_does_exist) {
+            let match = next_did_exist[0];
+            let $ = has_key2(moved, prev.key);
+            if ($) {
+              loop$old = old_remaining;
+              loop$old_keyed = old_keyed;
+              loop$new = new$8;
+              loop$new_keyed = new_keyed;
+              loop$moved = moved;
+              loop$moved_offset = moved_offset - 1;
+              loop$removed = removed;
+              loop$node_index = node_index;
+              loop$patch_index = patch_index;
+              loop$path = path;
+              loop$changes = changes;
+              loop$children = children;
+              loop$mapper = mapper;
+              loop$events = events;
+            } else {
+              let before = node_index - moved_offset;
+              let changes$1 = prepend(
+                move(next.key, before),
+                changes
+              );
+              let moved$1 = insert2(moved, next.key, void 0);
+              let moved_offset$1 = moved_offset + 1;
+              loop$old = prepend(match, old);
+              loop$old_keyed = old_keyed;
+              loop$new = new$8;
+              loop$new_keyed = new_keyed;
+              loop$moved = moved$1;
+              loop$moved_offset = moved_offset$1;
+              loop$removed = removed;
+              loop$node_index = node_index;
+              loop$patch_index = patch_index;
+              loop$path = path;
+              loop$changes = changes$1;
+              loop$children = children;
+              loop$mapper = mapper;
+              loop$events = events;
+            }
+          } else {
+            let index5 = node_index - moved_offset;
+            let changes$1 = prepend(remove2(index5), changes);
+            let events$1 = remove_child(events, path, node_index, prev);
+            let moved_offset$1 = moved_offset - 1;
+            loop$old = old_remaining;
+            loop$old_keyed = old_keyed;
+            loop$new = new$8;
+            loop$new_keyed = new_keyed;
+            loop$moved = moved;
+            loop$moved_offset = moved_offset$1;
+            loop$removed = removed;
+            loop$node_index = node_index;
+            loop$patch_index = patch_index;
+            loop$path = path;
+            loop$changes = changes$1;
+            loop$children = children;
+            loop$mapper = mapper;
+            loop$events = events$1;
+          }
+        } else if (prev_does_exist) {
+          let before = node_index - moved_offset;
+          let events$1 = add_child(
+            events,
+            mapper,
+            path,
+            node_index,
+            next
+          );
+          let insert4 = insert3(toList([next]), before);
+          let changes$1 = prepend(insert4, changes);
+          loop$old = old;
+          loop$old_keyed = old_keyed;
+          loop$new = new_remaining;
+          loop$new_keyed = new_keyed;
+          loop$moved = moved;
+          loop$moved_offset = moved_offset + 1;
+          loop$removed = removed;
+          loop$node_index = node_index + 1;
+          loop$patch_index = patch_index;
+          loop$path = path;
+          loop$changes = changes$1;
+          loop$children = children;
+          loop$mapper = mapper;
+          loop$events = events$1;
+        } else {
+          let change = replace2(node_index - moved_offset, next);
+          let _block;
+          let _pipe = events;
+          let _pipe$1 = remove_child(_pipe, path, node_index, prev);
+          _block = add_child(_pipe$1, mapper, path, node_index, next);
+          let events$1 = _block;
+          loop$old = old_remaining;
+          loop$old_keyed = old_keyed;
+          loop$new = new_remaining;
+          loop$new_keyed = new_keyed;
+          loop$moved = moved;
+          loop$moved_offset = moved_offset;
+          loop$removed = removed;
+          loop$node_index = node_index + 1;
+          loop$patch_index = patch_index;
+          loop$path = path;
+          loop$changes = prepend(change, changes);
+          loop$children = children;
+          loop$mapper = mapper;
+          loop$events = events$1;
+        }
+      } else {
+        let $ = old.head;
+        if ($ instanceof Fragment) {
+          let $1 = new$8.head;
+          if ($1 instanceof Fragment) {
+            let next$1 = $1;
+            let new$1 = new$8.tail;
+            let prev$1 = $;
+            let old$1 = old.tail;
+            let composed_mapper = compose_mapper(mapper, next$1.mapper);
+            let child_path = add2(path, node_index, next$1.key);
+            let child = do_diff(
+              prev$1.children,
+              prev$1.keyed_children,
+              next$1.children,
+              next$1.keyed_children,
+              empty2(),
+              0,
+              0,
+              0,
+              node_index,
+              child_path,
+              empty_list,
+              empty_list,
+              composed_mapper,
+              events
+            );
+            let _block;
+            let $2 = child.patch;
+            let $3 = $2.children;
+            if ($3 instanceof Empty) {
+              let $4 = $2.changes;
+              if ($4 instanceof Empty) {
+                let $5 = $2.removed;
+                if ($5 === 0) {
+                  _block = children;
+                } else {
+                  _block = prepend(child.patch, children);
+                }
+              } else {
+                _block = prepend(child.patch, children);
+              }
+            } else {
+              _block = prepend(child.patch, children);
+            }
+            let children$1 = _block;
+            loop$old = old$1;
+            loop$old_keyed = old_keyed;
+            loop$new = new$1;
+            loop$new_keyed = new_keyed;
+            loop$moved = moved;
+            loop$moved_offset = moved_offset;
+            loop$removed = removed;
+            loop$node_index = node_index + 1;
+            loop$patch_index = patch_index;
+            loop$path = path;
+            loop$changes = changes;
+            loop$children = children$1;
+            loop$mapper = mapper;
+            loop$events = child.events;
+          } else {
+            let next$1 = $1;
+            let new_remaining = new$8.tail;
+            let prev$1 = $;
+            let old_remaining = old.tail;
+            let change = replace2(node_index - moved_offset, next$1);
+            let _block;
+            let _pipe = events;
+            let _pipe$1 = remove_child(_pipe, path, node_index, prev$1);
+            _block = add_child(
+              _pipe$1,
+              mapper,
+              path,
+              node_index,
+              next$1
+            );
+            let events$1 = _block;
+            loop$old = old_remaining;
+            loop$old_keyed = old_keyed;
+            loop$new = new_remaining;
+            loop$new_keyed = new_keyed;
+            loop$moved = moved;
+            loop$moved_offset = moved_offset;
+            loop$removed = removed;
+            loop$node_index = node_index + 1;
+            loop$patch_index = patch_index;
+            loop$path = path;
+            loop$changes = prepend(change, changes);
+            loop$children = children;
+            loop$mapper = mapper;
+            loop$events = events$1;
+          }
+        } else if ($ instanceof Element2) {
+          let $1 = new$8.head;
+          if ($1 instanceof Element2) {
+            let next$1 = $1;
+            let prev$1 = $;
+            if (prev$1.namespace === next$1.namespace && prev$1.tag === next$1.tag) {
+              let new$1 = new$8.tail;
+              let old$1 = old.tail;
+              let composed_mapper = compose_mapper(
+                mapper,
+                next$1.mapper
+              );
+              let child_path = add2(path, node_index, next$1.key);
+              let controlled = is_controlled(
+                events,
+                next$1.namespace,
+                next$1.tag,
+                child_path
+              );
+              let $2 = diff_attributes(
+                controlled,
+                child_path,
+                composed_mapper,
+                events,
+                prev$1.attributes,
+                next$1.attributes,
+                empty_list,
+                empty_list
+              );
+              let added_attrs;
+              let removed_attrs;
+              let events$1;
+              added_attrs = $2.added;
+              removed_attrs = $2.removed;
+              events$1 = $2.events;
+              let _block;
+              if (removed_attrs instanceof Empty && added_attrs instanceof Empty) {
+                _block = empty_list;
+              } else {
+                _block = toList([update(added_attrs, removed_attrs)]);
+              }
+              let initial_child_changes = _block;
+              let child = do_diff(
+                prev$1.children,
+                prev$1.keyed_children,
+                next$1.children,
+                next$1.keyed_children,
+                empty2(),
+                0,
+                0,
+                0,
+                node_index,
+                child_path,
+                initial_child_changes,
+                empty_list,
+                composed_mapper,
+                events$1
+              );
+              let _block$1;
+              let $3 = child.patch;
+              let $4 = $3.children;
+              if ($4 instanceof Empty) {
+                let $5 = $3.changes;
+                if ($5 instanceof Empty) {
+                  let $6 = $3.removed;
+                  if ($6 === 0) {
+                    _block$1 = children;
+                  } else {
+                    _block$1 = prepend(child.patch, children);
+                  }
+                } else {
+                  _block$1 = prepend(child.patch, children);
+                }
+              } else {
+                _block$1 = prepend(child.patch, children);
+              }
+              let children$1 = _block$1;
+              loop$old = old$1;
+              loop$old_keyed = old_keyed;
+              loop$new = new$1;
+              loop$new_keyed = new_keyed;
+              loop$moved = moved;
+              loop$moved_offset = moved_offset;
+              loop$removed = removed;
+              loop$node_index = node_index + 1;
+              loop$patch_index = patch_index;
+              loop$path = path;
+              loop$changes = changes;
+              loop$children = children$1;
+              loop$mapper = mapper;
+              loop$events = child.events;
+            } else {
+              let next$2 = $1;
+              let new_remaining = new$8.tail;
+              let prev$2 = $;
+              let old_remaining = old.tail;
+              let change = replace2(node_index - moved_offset, next$2);
+              let _block;
+              let _pipe = events;
+              let _pipe$1 = remove_child(
+                _pipe,
+                path,
+                node_index,
+                prev$2
+              );
+              _block = add_child(
+                _pipe$1,
+                mapper,
+                path,
+                node_index,
+                next$2
+              );
+              let events$1 = _block;
+              loop$old = old_remaining;
+              loop$old_keyed = old_keyed;
+              loop$new = new_remaining;
+              loop$new_keyed = new_keyed;
+              loop$moved = moved;
+              loop$moved_offset = moved_offset;
+              loop$removed = removed;
+              loop$node_index = node_index + 1;
+              loop$patch_index = patch_index;
+              loop$path = path;
+              loop$changes = prepend(change, changes);
+              loop$children = children;
+              loop$mapper = mapper;
+              loop$events = events$1;
+            }
+          } else {
+            let next$1 = $1;
+            let new_remaining = new$8.tail;
+            let prev$1 = $;
+            let old_remaining = old.tail;
+            let change = replace2(node_index - moved_offset, next$1);
+            let _block;
+            let _pipe = events;
+            let _pipe$1 = remove_child(_pipe, path, node_index, prev$1);
+            _block = add_child(
+              _pipe$1,
+              mapper,
+              path,
+              node_index,
+              next$1
+            );
+            let events$1 = _block;
+            loop$old = old_remaining;
+            loop$old_keyed = old_keyed;
+            loop$new = new_remaining;
+            loop$new_keyed = new_keyed;
+            loop$moved = moved;
+            loop$moved_offset = moved_offset;
+            loop$removed = removed;
+            loop$node_index = node_index + 1;
+            loop$patch_index = patch_index;
+            loop$path = path;
+            loop$changes = prepend(change, changes);
+            loop$children = children;
+            loop$mapper = mapper;
+            loop$events = events$1;
+          }
+        } else if ($ instanceof Text) {
+          let $1 = new$8.head;
+          if ($1 instanceof Text) {
+            let next$1 = $1;
+            let prev$1 = $;
+            if (prev$1.content === next$1.content) {
+              let new$1 = new$8.tail;
+              let old$1 = old.tail;
+              loop$old = old$1;
+              loop$old_keyed = old_keyed;
+              loop$new = new$1;
+              loop$new_keyed = new_keyed;
+              loop$moved = moved;
+              loop$moved_offset = moved_offset;
+              loop$removed = removed;
+              loop$node_index = node_index + 1;
+              loop$patch_index = patch_index;
+              loop$path = path;
+              loop$changes = changes;
+              loop$children = children;
+              loop$mapper = mapper;
+              loop$events = events;
+            } else {
+              let next$2 = $1;
+              let new$1 = new$8.tail;
+              let old$1 = old.tail;
+              let child = new$5(
+                node_index,
+                0,
+                toList([replace_text(next$2.content)]),
+                empty_list
+              );
+              loop$old = old$1;
+              loop$old_keyed = old_keyed;
+              loop$new = new$1;
+              loop$new_keyed = new_keyed;
+              loop$moved = moved;
+              loop$moved_offset = moved_offset;
+              loop$removed = removed;
+              loop$node_index = node_index + 1;
+              loop$patch_index = patch_index;
+              loop$path = path;
+              loop$changes = changes;
+              loop$children = prepend(child, children);
+              loop$mapper = mapper;
+              loop$events = events;
+            }
+          } else {
+            let next$1 = $1;
+            let new_remaining = new$8.tail;
+            let prev$1 = $;
+            let old_remaining = old.tail;
+            let change = replace2(node_index - moved_offset, next$1);
+            let _block;
+            let _pipe = events;
+            let _pipe$1 = remove_child(_pipe, path, node_index, prev$1);
+            _block = add_child(
+              _pipe$1,
+              mapper,
+              path,
+              node_index,
+              next$1
+            );
+            let events$1 = _block;
+            loop$old = old_remaining;
+            loop$old_keyed = old_keyed;
+            loop$new = new_remaining;
+            loop$new_keyed = new_keyed;
+            loop$moved = moved;
+            loop$moved_offset = moved_offset;
+            loop$removed = removed;
+            loop$node_index = node_index + 1;
+            loop$patch_index = patch_index;
+            loop$path = path;
+            loop$changes = prepend(change, changes);
+            loop$children = children;
+            loop$mapper = mapper;
+            loop$events = events$1;
+          }
+        } else {
+          let $1 = new$8.head;
+          if ($1 instanceof UnsafeInnerHtml) {
+            let next$1 = $1;
+            let new$1 = new$8.tail;
+            let prev$1 = $;
+            let old$1 = old.tail;
+            let composed_mapper = compose_mapper(mapper, next$1.mapper);
+            let child_path = add2(path, node_index, next$1.key);
+            let $2 = diff_attributes(
+              false,
+              child_path,
+              composed_mapper,
+              events,
+              prev$1.attributes,
+              next$1.attributes,
+              empty_list,
+              empty_list
+            );
+            let added_attrs;
+            let removed_attrs;
+            let events$1;
+            added_attrs = $2.added;
+            removed_attrs = $2.removed;
+            events$1 = $2.events;
+            let _block;
+            if (removed_attrs instanceof Empty && added_attrs instanceof Empty) {
+              _block = empty_list;
+            } else {
+              _block = toList([update(added_attrs, removed_attrs)]);
+            }
+            let child_changes = _block;
+            let _block$1;
+            let $3 = prev$1.inner_html === next$1.inner_html;
+            if ($3) {
+              _block$1 = child_changes;
+            } else {
+              _block$1 = prepend(
+                replace_inner_html(next$1.inner_html),
+                child_changes
+              );
+            }
+            let child_changes$1 = _block$1;
+            let _block$2;
+            if (child_changes$1 instanceof Empty) {
+              _block$2 = children;
+            } else {
+              _block$2 = prepend(
+                new$5(node_index, 0, child_changes$1, toList([])),
+                children
+              );
+            }
+            let children$1 = _block$2;
+            loop$old = old$1;
+            loop$old_keyed = old_keyed;
+            loop$new = new$1;
+            loop$new_keyed = new_keyed;
+            loop$moved = moved;
+            loop$moved_offset = moved_offset;
+            loop$removed = removed;
+            loop$node_index = node_index + 1;
+            loop$patch_index = patch_index;
+            loop$path = path;
+            loop$changes = changes;
+            loop$children = children$1;
+            loop$mapper = mapper;
+            loop$events = events$1;
+          } else {
+            let next$1 = $1;
+            let new_remaining = new$8.tail;
+            let prev$1 = $;
+            let old_remaining = old.tail;
+            let change = replace2(node_index - moved_offset, next$1);
+            let _block;
+            let _pipe = events;
+            let _pipe$1 = remove_child(_pipe, path, node_index, prev$1);
+            _block = add_child(
+              _pipe$1,
+              mapper,
+              path,
+              node_index,
+              next$1
+            );
+            let events$1 = _block;
+            loop$old = old_remaining;
+            loop$old_keyed = old_keyed;
+            loop$new = new_remaining;
+            loop$new_keyed = new_keyed;
+            loop$moved = moved;
+            loop$moved_offset = moved_offset;
+            loop$removed = removed;
+            loop$node_index = node_index + 1;
+            loop$patch_index = patch_index;
+            loop$path = path;
+            loop$changes = prepend(change, changes);
+            loop$children = children;
+            loop$mapper = mapper;
+            loop$events = events$1;
+          }
+        }
+      }
+    }
+  }
+}
+function diff(events, old, new$8) {
+  return do_diff(
+    toList([old]),
+    empty2(),
+    toList([new$8]),
+    empty2(),
+    empty2(),
+    0,
+    0,
+    0,
+    0,
+    root2,
+    empty_list,
+    empty_list,
+    identity2,
+    tick(events)
+  );
 }
 
-// build/dev/javascript/lustre/lustre/internals/runtime.mjs
-var Attrs = class extends CustomType {
-  constructor(x0) {
-    super();
-    this[0] = x0;
+// build/dev/javascript/lustre/lustre/vdom/reconciler.ffi.mjs
+var setTimeout = globalThis.setTimeout;
+var clearTimeout = globalThis.clearTimeout;
+var createElementNS = (ns, name2) => document2().createElementNS(ns, name2);
+var createTextNode = (data) => document2().createTextNode(data);
+var createDocumentFragment = () => document2().createDocumentFragment();
+var insertBefore = (parent, node, reference) => parent.insertBefore(node, reference);
+var moveBefore = SUPPORTS_MOVE_BEFORE ? (parent, node, reference) => parent.moveBefore(node, reference) : insertBefore;
+var removeChild = (parent, child) => parent.removeChild(child);
+var getAttribute = (node, name2) => node.getAttribute(name2);
+var setAttribute = (node, name2, value3) => node.setAttribute(name2, value3);
+var removeAttribute = (node, name2) => node.removeAttribute(name2);
+var addEventListener = (node, name2, handler, options) => node.addEventListener(name2, handler, options);
+var removeEventListener = (node, name2, handler) => node.removeEventListener(name2, handler);
+var setInnerHtml = (node, innerHtml) => node.innerHTML = innerHtml;
+var setData = (node, data) => node.data = data;
+var meta = Symbol("lustre");
+var MetadataNode = class {
+  constructor(kind, parent, node, key2) {
+    this.kind = kind;
+    this.key = key2;
+    this.parent = parent;
+    this.children = [];
+    this.node = node;
+    this.handlers = /* @__PURE__ */ new Map();
+    this.throttles = /* @__PURE__ */ new Map();
+    this.debouncers = /* @__PURE__ */ new Map();
+  }
+  get parentNode() {
+    return this.kind === fragment_kind ? this.node.parentNode : this.node;
   }
 };
-var Batch = class extends CustomType {
-  constructor(x0, x1) {
-    super();
-    this[0] = x0;
-    this[1] = x1;
+var insertMetadataChild = (kind, parent, node, index5, key2) => {
+  const child = new MetadataNode(kind, parent, node, key2);
+  node[meta] = child;
+  parent?.children.splice(index5, 0, child);
+  return child;
+};
+var getPath = (node) => {
+  let path = "";
+  for (let current = node[meta]; current.parent; current = current.parent) {
+    if (current.key) {
+      path = `${separator_element}${current.key}${path}`;
+    } else {
+      const index5 = current.parent.children.indexOf(current);
+      path = `${separator_element}${index5}${path}`;
+    }
+  }
+  return path.slice(1);
+};
+var Reconciler = class {
+  #root = null;
+  #dispatch = () => {
+  };
+  #useServerEvents = false;
+  #exposeKeys = false;
+  constructor(root3, dispatch, { useServerEvents = false, exposeKeys = false } = {}) {
+    this.#root = root3;
+    this.#dispatch = dispatch;
+    this.#useServerEvents = useServerEvents;
+    this.#exposeKeys = exposeKeys;
+  }
+  mount(vdom) {
+    insertMetadataChild(element_kind, null, this.#root, 0, null);
+    this.#insertChild(this.#root, null, this.#root[meta], 0, vdom);
+  }
+  push(patch) {
+    this.#stack.push({ node: this.#root[meta], patch });
+    this.#reconcile();
+  }
+  // PATCHING ------------------------------------------------------------------
+  #stack = [];
+  #reconcile() {
+    const stack = this.#stack;
+    while (stack.length) {
+      const { node, patch } = stack.pop();
+      const { children: childNodes } = node;
+      const { changes, removed, children: childPatches } = patch;
+      iterate(changes, (change) => this.#patch(node, change));
+      if (removed) {
+        this.#removeChildren(node, childNodes.length - removed, removed);
+      }
+      iterate(childPatches, (childPatch) => {
+        const child = childNodes[childPatch.index | 0];
+        this.#stack.push({ node: child, patch: childPatch });
+      });
+    }
+  }
+  #patch(node, change) {
+    switch (change.kind) {
+      case replace_text_kind:
+        this.#replaceText(node, change);
+        break;
+      case replace_inner_html_kind:
+        this.#replaceInnerHtml(node, change);
+        break;
+      case update_kind:
+        this.#update(node, change);
+        break;
+      case move_kind:
+        this.#move(node, change);
+        break;
+      case remove_kind:
+        this.#remove(node, change);
+        break;
+      case replace_kind:
+        this.#replace(node, change);
+        break;
+      case insert_kind:
+        this.#insert(node, change);
+        break;
+    }
+  }
+  // CHANGES -------------------------------------------------------------------
+  #insert(parent, { children, before }) {
+    const fragment3 = createDocumentFragment();
+    const beforeEl = this.#getReference(parent, before);
+    this.#insertChildren(fragment3, null, parent, before | 0, children);
+    insertBefore(parent.parentNode, fragment3, beforeEl);
+  }
+  #replace(parent, { index: index5, with: child }) {
+    this.#removeChildren(parent, index5 | 0, 1);
+    const beforeEl = this.#getReference(parent, index5);
+    this.#insertChild(parent.parentNode, beforeEl, parent, index5 | 0, child);
+  }
+  #getReference(node, index5) {
+    index5 = index5 | 0;
+    const { children } = node;
+    const childCount = children.length;
+    if (index5 < childCount) {
+      return children[index5].node;
+    }
+    let lastChild = children[childCount - 1];
+    if (!lastChild && node.kind !== fragment_kind) return null;
+    if (!lastChild) lastChild = node;
+    while (lastChild.kind === fragment_kind && lastChild.children.length) {
+      lastChild = lastChild.children[lastChild.children.length - 1];
+    }
+    return lastChild.node.nextSibling;
+  }
+  #move(parent, { key: key2, before }) {
+    before = before | 0;
+    const { children, parentNode } = parent;
+    const beforeEl = children[before].node;
+    let prev = children[before];
+    for (let i = before + 1; i < children.length; ++i) {
+      const next = children[i];
+      children[i] = prev;
+      prev = next;
+      if (next.key === key2) {
+        children[before] = next;
+        break;
+      }
+    }
+    const { kind, node, children: prevChildren } = prev;
+    moveBefore(parentNode, node, beforeEl);
+    if (kind === fragment_kind) {
+      this.#moveChildren(parentNode, prevChildren, beforeEl);
+    }
+  }
+  #moveChildren(domParent, children, beforeEl) {
+    for (let i = 0; i < children.length; ++i) {
+      const { kind, node, children: nestedChildren } = children[i];
+      moveBefore(domParent, node, beforeEl);
+      if (kind === fragment_kind) {
+        this.#moveChildren(domParent, nestedChildren, beforeEl);
+      }
+    }
+  }
+  #remove(parent, { index: index5 }) {
+    this.#removeChildren(parent, index5, 1);
+  }
+  #removeChildren(parent, index5, count) {
+    const { children, parentNode } = parent;
+    const deleted = children.splice(index5, count);
+    for (let i = 0; i < deleted.length; ++i) {
+      const { kind, node, children: nestedChildren } = deleted[i];
+      removeChild(parentNode, node);
+      this.#removeDebouncers(deleted[i]);
+      if (kind === fragment_kind) {
+        deleted.push(...nestedChildren);
+      }
+    }
+  }
+  #removeDebouncers(node) {
+    const { debouncers, children } = node;
+    for (const { timeout } of debouncers.values()) {
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+    }
+    debouncers.clear();
+    iterate(children, (child) => this.#removeDebouncers(child));
+  }
+  #update({ node, handlers, throttles, debouncers }, { added, removed }) {
+    iterate(removed, ({ name: name2 }) => {
+      if (handlers.delete(name2)) {
+        removeEventListener(node, name2, handleEvent);
+        this.#updateDebounceThrottle(throttles, name2, 0);
+        this.#updateDebounceThrottle(debouncers, name2, 0);
+      } else {
+        removeAttribute(node, name2);
+        SYNCED_ATTRIBUTES[name2]?.removed?.(node, name2);
+      }
+    });
+    iterate(added, (attribute3) => this.#createAttribute(node, attribute3));
+  }
+  #replaceText({ node }, { content }) {
+    setData(node, content ?? "");
+  }
+  #replaceInnerHtml({ node }, { inner_html }) {
+    setInnerHtml(node, inner_html ?? "");
+  }
+  // INSERT --------------------------------------------------------------------
+  #insertChildren(domParent, beforeEl, metaParent, index5, children) {
+    iterate(
+      children,
+      (child) => this.#insertChild(domParent, beforeEl, metaParent, index5++, child)
+    );
+  }
+  #insertChild(domParent, beforeEl, metaParent, index5, vnode) {
+    switch (vnode.kind) {
+      case element_kind: {
+        const node = this.#createElement(metaParent, index5, vnode);
+        this.#insertChildren(node, null, node[meta], 0, vnode.children);
+        insertBefore(domParent, node, beforeEl);
+        break;
+      }
+      case text_kind: {
+        const node = this.#createTextNode(metaParent, index5, vnode);
+        insertBefore(domParent, node, beforeEl);
+        break;
+      }
+      case fragment_kind: {
+        const head2 = this.#createTextNode(metaParent, index5, vnode);
+        insertBefore(domParent, head2, beforeEl);
+        this.#insertChildren(
+          domParent,
+          beforeEl,
+          head2[meta],
+          0,
+          vnode.children
+        );
+        break;
+      }
+      case unsafe_inner_html_kind: {
+        const node = this.#createElement(metaParent, index5, vnode);
+        this.#replaceInnerHtml({ node }, vnode);
+        insertBefore(domParent, node, beforeEl);
+        break;
+      }
+    }
+  }
+  #createElement(parent, index5, { kind, key: key2, tag, namespace, attributes }) {
+    const node = createElementNS(namespace || NAMESPACE_HTML, tag);
+    insertMetadataChild(kind, parent, node, index5, key2);
+    if (this.#exposeKeys && key2) {
+      setAttribute(node, "data-lustre-key", key2);
+    }
+    iterate(attributes, (attribute3) => this.#createAttribute(node, attribute3));
+    return node;
+  }
+  #createTextNode(parent, index5, { kind, key: key2, content }) {
+    const node = createTextNode(content ?? "");
+    insertMetadataChild(kind, parent, node, index5, key2);
+    return node;
+  }
+  #createAttribute(node, attribute3) {
+    const { debouncers, handlers, throttles } = node[meta];
+    const {
+      kind,
+      name: name2,
+      value: value3,
+      prevent_default: prevent,
+      debounce: debounceDelay,
+      throttle: throttleDelay
+    } = attribute3;
+    switch (kind) {
+      case attribute_kind: {
+        const valueOrDefault = value3 ?? "";
+        if (name2 === "virtual:defaultValue") {
+          node.defaultValue = valueOrDefault;
+          return;
+        }
+        if (valueOrDefault !== getAttribute(node, name2)) {
+          setAttribute(node, name2, valueOrDefault);
+        }
+        SYNCED_ATTRIBUTES[name2]?.added?.(node, valueOrDefault);
+        break;
+      }
+      case property_kind:
+        node[name2] = value3;
+        break;
+      case event_kind: {
+        if (handlers.has(name2)) {
+          removeEventListener(node, name2, handleEvent);
+        }
+        const passive = prevent.kind === never_kind;
+        addEventListener(node, name2, handleEvent, { passive });
+        this.#updateDebounceThrottle(throttles, name2, throttleDelay);
+        this.#updateDebounceThrottle(debouncers, name2, debounceDelay);
+        handlers.set(name2, (event4) => this.#handleEvent(attribute3, event4));
+        break;
+      }
+    }
+  }
+  #updateDebounceThrottle(map6, name2, delay) {
+    const debounceOrThrottle = map6.get(name2);
+    if (delay > 0) {
+      if (debounceOrThrottle) {
+        debounceOrThrottle.delay = delay;
+      } else {
+        map6.set(name2, { delay });
+      }
+    } else if (debounceOrThrottle) {
+      const { timeout } = debounceOrThrottle;
+      if (timeout) {
+        clearTimeout(timeout);
+      }
+      map6.delete(name2);
+    }
+  }
+  #handleEvent(attribute3, event4) {
+    const { currentTarget: currentTarget2, type } = event4;
+    const { debouncers, throttles } = currentTarget2[meta];
+    const path = getPath(currentTarget2);
+    const {
+      prevent_default: prevent,
+      stop_propagation: stop,
+      include,
+      immediate: immediate2
+    } = attribute3;
+    if (prevent.kind === always_kind) event4.preventDefault();
+    if (stop.kind === always_kind) event4.stopPropagation();
+    if (type === "submit") {
+      event4.detail ??= {};
+      event4.detail.formData = [...new FormData(event4.target).entries()];
+    }
+    const data = this.#useServerEvents ? createServerEvent(event4, include ?? []) : event4;
+    const throttle = throttles.get(type);
+    if (throttle) {
+      const now = Date.now();
+      const last = throttle.last || 0;
+      if (now > last + throttle.delay) {
+        throttle.last = now;
+        throttle.lastEvent = event4;
+        this.#dispatch(data, path, type, immediate2);
+      }
+    }
+    const debounce = debouncers.get(type);
+    if (debounce) {
+      clearTimeout(debounce.timeout);
+      debounce.timeout = setTimeout(() => {
+        if (event4 === throttles.get(type)?.lastEvent) return;
+        this.#dispatch(data, path, type, immediate2);
+      }, debounce.delay);
+    }
+    if (!throttle && !debounce) {
+      this.#dispatch(data, path, type, immediate2);
+    }
   }
 };
-var Debug = class extends CustomType {
-  constructor(x0) {
-    super();
-    this[0] = x0;
+var iterate = (list4, callback) => {
+  if (Array.isArray(list4)) {
+    for (let i = 0; i < list4.length; i++) {
+      callback(list4[i]);
+    }
+  } else if (list4) {
+    for (list4; list4.head; list4 = list4.tail) {
+      callback(list4.head);
+    }
   }
 };
-var Dispatch = class extends CustomType {
-  constructor(x0) {
-    super();
-    this[0] = x0;
+var handleEvent = (event4) => {
+  const { currentTarget: currentTarget2, type } = event4;
+  const handler = currentTarget2[meta].handlers.get(type);
+  handler(event4);
+};
+var createServerEvent = (event4, include = []) => {
+  const data = {};
+  if (event4.type === "input" || event4.type === "change") {
+    include.push("target.value");
   }
-};
-var Emit2 = class extends CustomType {
-  constructor(x0, x1) {
-    super();
-    this[0] = x0;
-    this[1] = x1;
+  if (event4.type === "submit") {
+    include.push("detail.formData");
   }
-};
-var Event3 = class extends CustomType {
-  constructor(x0, x1) {
-    super();
-    this[0] = x0;
-    this[1] = x1;
+  for (const property3 of include) {
+    const path = property3.split(".");
+    for (let i = 0, input2 = event4, output = data; i < path.length; i++) {
+      if (i === path.length - 1) {
+        output[path[i]] = input2[path[i]];
+        break;
+      }
+      output = output[path[i]] ??= {};
+      input2 = input2[path[i]];
+    }
   }
+  return data;
 };
-var Shutdown = class extends CustomType {
+var syncedBooleanAttribute = /* @__NO_SIDE_EFFECTS__ */ (name2) => {
+  return {
+    added(node) {
+      node[name2] = true;
+    },
+    removed(node) {
+      node[name2] = false;
+    }
+  };
 };
-var Subscribe = class extends CustomType {
-  constructor(x0, x1) {
-    super();
-    this[0] = x0;
-    this[1] = x1;
-  }
+var syncedAttribute = /* @__NO_SIDE_EFFECTS__ */ (name2) => {
+  return {
+    added(node, value3) {
+      node[name2] = value3;
+    }
+  };
 };
-var Unsubscribe = class extends CustomType {
-  constructor(x0) {
-    super();
-    this[0] = x0;
-  }
-};
-var ForceModel = class extends CustomType {
-  constructor(x0) {
-    super();
-    this[0] = x0;
+var SYNCED_ATTRIBUTES = {
+  checked: /* @__PURE__ */ syncedBooleanAttribute("checked"),
+  selected: /* @__PURE__ */ syncedBooleanAttribute("selected"),
+  value: /* @__PURE__ */ syncedAttribute("value"),
+  autofocus: {
+    added(node) {
+      queueMicrotask(() => {
+        node.focus?.();
+      });
+    }
+  },
+  autoplay: {
+    added(node) {
+      try {
+        node.play?.();
+      } catch (e) {
+        console.error(e);
+      }
+    }
   }
 };
 
-// build/dev/javascript/lustre/vdom.ffi.mjs
-if (globalThis.customElements && !globalThis.customElements.get("lustre-fragment")) {
-  globalThis.customElements.define(
-    "lustre-fragment",
-    class LustreFragment extends HTMLElement {
-      constructor() {
-        super();
+// build/dev/javascript/lustre/lustre/element/keyed.mjs
+function do_extract_keyed_children(loop$key_children_pairs, loop$keyed_children, loop$children) {
+  while (true) {
+    let key_children_pairs = loop$key_children_pairs;
+    let keyed_children = loop$keyed_children;
+    let children = loop$children;
+    if (key_children_pairs instanceof Empty) {
+      return [keyed_children, reverse(children)];
+    } else {
+      let rest = key_children_pairs.tail;
+      let key2 = key_children_pairs.head[0];
+      let element$1 = key_children_pairs.head[1];
+      let keyed_element = to_keyed(key2, element$1);
+      let _block;
+      if (key2 === "") {
+        _block = keyed_children;
+      } else {
+        _block = insert2(keyed_children, key2, keyed_element);
       }
+      let keyed_children$1 = _block;
+      let children$1 = prepend(keyed_element, children);
+      loop$key_children_pairs = rest;
+      loop$keyed_children = keyed_children$1;
+      loop$children = children$1;
+    }
+  }
+}
+function extract_keyed_children(children) {
+  return do_extract_keyed_children(
+    children,
+    empty2(),
+    empty_list
+  );
+}
+function element3(tag, attributes, children) {
+  let $ = extract_keyed_children(children);
+  let keyed_children;
+  let children$1;
+  keyed_children = $[0];
+  children$1 = $[1];
+  return element(
+    "",
+    identity2,
+    "",
+    tag,
+    attributes,
+    children$1,
+    keyed_children,
+    false,
+    false
+  );
+}
+function namespaced2(namespace, tag, attributes, children) {
+  let $ = extract_keyed_children(children);
+  let keyed_children;
+  let children$1;
+  keyed_children = $[0];
+  children$1 = $[1];
+  return element(
+    "",
+    identity2,
+    namespace,
+    tag,
+    attributes,
+    children$1,
+    keyed_children,
+    false,
+    false
+  );
+}
+function fragment2(children) {
+  let $ = extract_keyed_children(children);
+  let keyed_children;
+  let children$1;
+  keyed_children = $[0];
+  children$1 = $[1];
+  return fragment("", identity2, children$1, keyed_children);
+}
+
+// build/dev/javascript/lustre/lustre/vdom/virtualise.ffi.mjs
+var virtualise = (root3) => {
+  const rootMeta = insertMetadataChild(element_kind, null, root3, 0, null);
+  let virtualisableRootChildren = 0;
+  for (let child = root3.firstChild; child; child = child.nextSibling) {
+    if (canVirtualiseNode(child)) virtualisableRootChildren += 1;
+  }
+  if (virtualisableRootChildren === 0) {
+    const placeholder2 = document2().createTextNode("");
+    insertMetadataChild(text_kind, rootMeta, placeholder2, 0, null);
+    root3.replaceChildren(placeholder2);
+    return none2();
+  }
+  if (virtualisableRootChildren === 1) {
+    const children2 = virtualiseChildNodes(rootMeta, root3);
+    return children2.head[1];
+  }
+  const fragmentHead = document2().createTextNode("");
+  const fragmentMeta = insertMetadataChild(fragment_kind, rootMeta, fragmentHead, 0, null);
+  const children = virtualiseChildNodes(fragmentMeta, root3);
+  root3.insertBefore(fragmentHead, root3.firstChild);
+  return fragment2(children);
+};
+var canVirtualiseNode = (node) => {
+  switch (node.nodeType) {
+    case ELEMENT_NODE:
+      return true;
+    case TEXT_NODE:
+      return !!node.data;
+    default:
+      return false;
+  }
+};
+var virtualiseNode = (meta2, node, key2, index5) => {
+  if (!canVirtualiseNode(node)) {
+    return null;
+  }
+  switch (node.nodeType) {
+    case ELEMENT_NODE: {
+      const childMeta = insertMetadataChild(element_kind, meta2, node, index5, key2);
+      const tag = node.localName;
+      const namespace = node.namespaceURI;
+      const isHtmlElement = !namespace || namespace === NAMESPACE_HTML;
+      if (isHtmlElement && INPUT_ELEMENTS.includes(tag)) {
+        virtualiseInputEvents(tag, node);
+      }
+      const attributes = virtualiseAttributes(node);
+      const children = virtualiseChildNodes(childMeta, node);
+      const vnode = isHtmlElement ? element3(tag, attributes, children) : namespaced2(namespace, tag, attributes, children);
+      return vnode;
+    }
+    case TEXT_NODE:
+      insertMetadataChild(text_kind, meta2, node, index5, null);
+      return text2(node.data);
+    default:
+      return null;
+  }
+};
+var INPUT_ELEMENTS = ["input", "select", "textarea"];
+var virtualiseInputEvents = (tag, node) => {
+  const value3 = node.value;
+  const checked2 = node.checked;
+  if (tag === "input" && node.type === "checkbox" && !checked2) return;
+  if (tag === "input" && node.type === "radio" && !checked2) return;
+  if (node.type !== "checkbox" && node.type !== "radio" && !value3) return;
+  queueMicrotask(() => {
+    node.value = value3;
+    node.checked = checked2;
+    node.dispatchEvent(new Event("input", { bubbles: true }));
+    node.dispatchEvent(new Event("change", { bubbles: true }));
+    if (document2().activeElement !== node) {
+      node.dispatchEvent(new Event("blur", { bubbles: true }));
+    }
+  });
+};
+var virtualiseChildNodes = (meta2, node) => {
+  let children = null;
+  let child = node.firstChild;
+  let ptr = null;
+  let index5 = 0;
+  while (child) {
+    const key2 = child.nodeType === ELEMENT_NODE ? child.getAttribute("data-lustre-key") : null;
+    if (key2 != null) {
+      child.removeAttribute("data-lustre-key");
+    }
+    const vnode = virtualiseNode(meta2, child, key2, index5);
+    const next = child.nextSibling;
+    if (vnode) {
+      const list_node = new NonEmpty([key2 ?? "", vnode], null);
+      if (ptr) {
+        ptr = ptr.tail = list_node;
+      } else {
+        ptr = children = list_node;
+      }
+      index5 += 1;
+    } else {
+      node.removeChild(child);
+    }
+    child = next;
+  }
+  if (!ptr) return empty_list;
+  ptr.tail = empty_list;
+  return children;
+};
+var virtualiseAttributes = (node) => {
+  let index5 = node.attributes.length;
+  let attributes = empty_list;
+  while (index5-- > 0) {
+    const attr = node.attributes[index5];
+    if (attr.name === "xmlns") {
+      continue;
+    }
+    attributes = new NonEmpty(virtualiseAttribute(attr), attributes);
+  }
+  return attributes;
+};
+var virtualiseAttribute = (attr) => {
+  const name2 = attr.localName;
+  const value3 = attr.value;
+  return attribute2(name2, value3);
+};
+
+// build/dev/javascript/lustre/lustre/runtime/client/runtime.ffi.mjs
+var is_browser = () => !!document2();
+var Runtime = class {
+  constructor(root3, [model, effects], view2, update3) {
+    this.root = root3;
+    this.#model = model;
+    this.#view = view2;
+    this.#update = update3;
+    this.root.addEventListener("context-request", (event4) => {
+      if (!(event4.context && event4.callback)) return;
+      if (!this.#contexts.has(event4.context)) return;
+      event4.stopImmediatePropagation();
+      const context = this.#contexts.get(event4.context);
+      if (event4.subscribe) {
+        const callbackRef = new WeakRef(event4.callback);
+        const unsubscribe = () => {
+          context.subscribers = context.subscribers.filter(
+            (subscriber) => subscriber !== callbackRef
+          );
+        };
+        context.subscribers.push([callbackRef, unsubscribe]);
+        event4.callback(context.value, unsubscribe);
+      } else {
+        event4.callback(context.value);
+      }
+    });
+    this.#reconciler = new Reconciler(this.root, (event4, path, name2) => {
+      const [events, result] = handle(this.#events, path, name2, event4);
+      this.#events = events;
+      if (result.isOk()) {
+        const handler = result[0];
+        if (handler.stop_propagation) event4.stopPropagation();
+        if (handler.prevent_default) event4.preventDefault();
+        this.dispatch(handler.message, false);
+      }
+    });
+    this.#vdom = virtualise(this.root);
+    this.#events = new$3();
+    this.#shouldFlush = true;
+    this.#tick(effects);
+  }
+  // PUBLIC API ----------------------------------------------------------------
+  root = null;
+  dispatch(msg, immediate2 = false) {
+    this.#shouldFlush ||= immediate2;
+    if (this.#shouldQueue) {
+      this.#queue.push(msg);
+    } else {
+      const [model, effects] = this.#update(this.#model, msg);
+      this.#model = model;
+      this.#tick(effects);
+    }
+  }
+  emit(event4, data) {
+    const target3 = this.root.host ?? this.root;
+    target3.dispatchEvent(
+      new CustomEvent(event4, {
+        detail: data,
+        bubbles: true,
+        composed: true
+      })
+    );
+  }
+  // Provide a context value for any child nodes that request it using the given
+  // key. If the key already exists, any existing subscribers will be notified
+  // of the change. Otherwise, we store the value and wait for any `context-request`
+  // events to come in.
+  provide(key2, value3) {
+    if (!this.#contexts.has(key2)) {
+      this.#contexts.set(key2, { value: value3, subscribers: [] });
+    } else {
+      const context = this.#contexts.get(key2);
+      context.value = value3;
+      for (let i = context.subscribers.length - 1; i >= 0; i--) {
+        const [subscriberRef, unsubscribe] = context.subscribers[i];
+        const subscriber = subscriberRef.deref();
+        if (!subscriber) {
+          context.subscribers.splice(i, 1);
+          continue;
+        }
+        subscriber(value3, unsubscribe);
+      }
+    }
+  }
+  // PRIVATE API ---------------------------------------------------------------
+  #model;
+  #view;
+  #update;
+  #vdom;
+  #events;
+  #reconciler;
+  #contexts = /* @__PURE__ */ new Map();
+  #shouldQueue = false;
+  #queue = [];
+  #beforePaint = empty_list;
+  #afterPaint = empty_list;
+  #renderTimer = null;
+  #shouldFlush = false;
+  #actions = {
+    dispatch: (msg, immediate2) => this.dispatch(msg, immediate2),
+    emit: (event4, data) => this.emit(event4, data),
+    select: () => {
+    },
+    root: () => this.root,
+    provide: (key2, value3) => this.provide(key2, value3)
+  };
+  // A `#tick` is where we process effects and trigger any synchronous updates.
+  // Once a tick has been processed a render will be scheduled if none is already.
+  // p0
+  #tick(effects) {
+    this.#shouldQueue = true;
+    while (true) {
+      for (let list4 = effects.synchronous; list4.tail; list4 = list4.tail) {
+        list4.head(this.#actions);
+      }
+      this.#beforePaint = listAppend(this.#beforePaint, effects.before_paint);
+      this.#afterPaint = listAppend(this.#afterPaint, effects.after_paint);
+      if (!this.#queue.length) break;
+      [this.#model, effects] = this.#update(this.#model, this.#queue.shift());
+    }
+    this.#shouldQueue = false;
+    if (this.#shouldFlush) {
+      cancelAnimationFrame(this.#renderTimer);
+      this.#render();
+    } else if (!this.#renderTimer) {
+      this.#renderTimer = requestAnimationFrame(() => {
+        this.#render();
+      });
+    }
+  }
+  #render() {
+    this.#shouldFlush = false;
+    this.#renderTimer = null;
+    const next = this.#view(this.#model);
+    const { patch, events } = diff(this.#events, this.#vdom, next);
+    this.#events = events;
+    this.#vdom = next;
+    this.#reconciler.push(patch);
+    if (this.#beforePaint instanceof NonEmpty) {
+      const effects = makeEffect(this.#beforePaint);
+      this.#beforePaint = empty_list;
+      queueMicrotask(() => {
+        this.#shouldFlush = true;
+        this.#tick(effects);
+      });
+    }
+    if (this.#afterPaint instanceof NonEmpty) {
+      const effects = makeEffect(this.#afterPaint);
+      this.#afterPaint = empty_list;
+      requestAnimationFrame(() => {
+        this.#shouldFlush = true;
+        this.#tick(effects);
+      });
+    }
+  }
+};
+function makeEffect(synchronous) {
+  return {
+    synchronous,
+    after_paint: empty_list,
+    before_paint: empty_list
+  };
+}
+function listAppend(a2, b) {
+  if (a2 instanceof Empty) {
+    return b;
+  } else if (b instanceof Empty) {
+    return a2;
+  } else {
+    return append(a2, b);
+  }
+}
+
+// build/dev/javascript/lustre/lustre/runtime/server/runtime.mjs
+var EffectDispatchedMessage = class extends CustomType {
+  constructor(message) {
+    super();
+    this.message = message;
+  }
+};
+var EffectEmitEvent = class extends CustomType {
+  constructor(name2, data) {
+    super();
+    this.name = name2;
+    this.data = data;
+  }
+};
+var SystemRequestedShutdown = class extends CustomType {
+};
+
+// build/dev/javascript/lustre/lustre/component.mjs
+var Config2 = class extends CustomType {
+  constructor(open_shadow_root, adopt_styles, delegates_focus, attributes, properties, contexts, is_form_associated, on_form_autofill, on_form_reset, on_form_restore) {
+    super();
+    this.open_shadow_root = open_shadow_root;
+    this.adopt_styles = adopt_styles;
+    this.delegates_focus = delegates_focus;
+    this.attributes = attributes;
+    this.properties = properties;
+    this.contexts = contexts;
+    this.is_form_associated = is_form_associated;
+    this.on_form_autofill = on_form_autofill;
+    this.on_form_reset = on_form_reset;
+    this.on_form_restore = on_form_restore;
+  }
+};
+function new$6(options) {
+  let init2 = new Config2(
+    true,
+    true,
+    false,
+    empty_list,
+    empty_list,
+    empty_list,
+    false,
+    option_none,
+    option_none,
+    option_none
+  );
+  return fold(
+    options,
+    init2,
+    (config, option2) => {
+      return option2.apply(config);
     }
   );
 }
-function morph(prev, next, dispatch) {
-  let out;
-  let stack = [{ prev, next, parent: prev.parentNode }];
-  while (stack.length) {
-    let { prev: prev2, next: next2, parent } = stack.pop();
-    while (next2.subtree !== void 0) next2 = next2.subtree();
-    if (next2.content !== void 0) {
-      if (!prev2) {
-        const created = document.createTextNode(next2.content);
-        parent.appendChild(created);
-        out ??= created;
-      } else if (prev2.nodeType === Node.TEXT_NODE) {
-        if (prev2.textContent !== next2.content) prev2.textContent = next2.content;
-        out ??= prev2;
-      } else {
-        const created = document.createTextNode(next2.content);
-        parent.replaceChild(created, prev2);
-        out ??= created;
-      }
-    } else if (next2.tag !== void 0) {
-      const created = createElementNode({
-        prev: prev2,
-        next: next2,
-        dispatch,
-        stack
-      });
-      if (!prev2) {
-        parent.appendChild(created);
-      } else if (prev2 !== created) {
-        parent.replaceChild(created, prev2);
-      }
-      out ??= created;
-    }
-  }
-  return out;
-}
-function createElementNode({ prev, next, dispatch, stack }) {
-  const namespace = next.namespace || "http://www.w3.org/1999/xhtml";
-  const canMorph = prev && prev.nodeType === Node.ELEMENT_NODE && prev.localName === next.tag && prev.namespaceURI === (next.namespace || "http://www.w3.org/1999/xhtml");
-  const el = canMorph ? prev : namespace ? document.createElementNS(namespace, next.tag) : document.createElement(next.tag);
-  let handlersForEl;
-  if (!registeredHandlers.has(el)) {
-    const emptyHandlers = /* @__PURE__ */ new Map();
-    registeredHandlers.set(el, emptyHandlers);
-    handlersForEl = emptyHandlers;
-  } else {
-    handlersForEl = registeredHandlers.get(el);
-  }
-  const prevHandlers = canMorph ? new Set(handlersForEl.keys()) : null;
-  const prevAttributes = canMorph ? new Set(Array.from(prev.attributes, (a2) => a2.name)) : null;
-  let className = null;
-  let style2 = null;
-  let innerHTML = null;
-  if (canMorph && next.tag === "textarea") {
-    const innertText = next.children[Symbol.iterator]().next().value?.content;
-    if (innertText !== void 0) el.value = innertText;
-  }
-  const delegated = [];
-  for (const attr of next.attrs) {
-    const name2 = attr[0];
-    const value4 = attr[1];
-    if (attr.as_property) {
-      if (el[name2] !== value4) el[name2] = value4;
-      if (canMorph) prevAttributes.delete(name2);
-    } else if (name2.startsWith("on")) {
-      const eventName = name2.slice(2);
-      const callback = dispatch(value4, eventName === "input");
-      if (!handlersForEl.has(eventName)) {
-        el.addEventListener(eventName, lustreGenericEventHandler);
-      }
-      handlersForEl.set(eventName, callback);
-      if (canMorph) prevHandlers.delete(eventName);
-    } else if (name2.startsWith("data-lustre-on-")) {
-      const eventName = name2.slice(15);
-      const callback = dispatch(lustreServerEventHandler);
-      if (!handlersForEl.has(eventName)) {
-        el.addEventListener(eventName, lustreGenericEventHandler);
-      }
-      handlersForEl.set(eventName, callback);
-      el.setAttribute(name2, value4);
-      if (canMorph) {
-        prevHandlers.delete(eventName);
-        prevAttributes.delete(name2);
-      }
-    } else if (name2.startsWith("delegate:data-") || name2.startsWith("delegate:aria-")) {
-      el.setAttribute(name2, value4);
-      delegated.push([name2.slice(10), value4]);
-    } else if (name2 === "class") {
-      className = className === null ? value4 : className + " " + value4;
-    } else if (name2 === "style") {
-      style2 = style2 === null ? value4 : style2 + value4;
-    } else if (name2 === "dangerous-unescaped-html") {
-      innerHTML = value4;
-    } else {
-      if (el.getAttribute(name2) !== value4) el.setAttribute(name2, value4);
-      if (name2 === "value" || name2 === "selected") el[name2] = value4;
-      if (canMorph) prevAttributes.delete(name2);
-    }
-  }
-  if (className !== null) {
-    el.setAttribute("class", className);
-    if (canMorph) prevAttributes.delete("class");
-  }
-  if (style2 !== null) {
-    el.setAttribute("style", style2);
-    if (canMorph) prevAttributes.delete("style");
-  }
-  if (canMorph) {
-    for (const attr of prevAttributes) {
-      el.removeAttribute(attr);
-    }
-    for (const eventName of prevHandlers) {
-      handlersForEl.delete(eventName);
-      el.removeEventListener(eventName, lustreGenericEventHandler);
-    }
-  }
-  if (next.tag === "slot") {
-    window.queueMicrotask(() => {
-      for (const child of el.assignedElements()) {
-        for (const [name2, value4] of delegated) {
-          if (!child.hasAttribute(name2)) {
-            child.setAttribute(name2, value4);
-          }
-        }
-      }
-    });
-  }
-  if (next.key !== void 0 && next.key !== "") {
-    el.setAttribute("data-lustre-key", next.key);
-  } else if (innerHTML !== null) {
-    el.innerHTML = innerHTML;
-    return el;
-  }
-  let prevChild = el.firstChild;
-  let seenKeys = null;
-  let keyedChildren = null;
-  let incomingKeyedChildren = null;
-  let firstChild = children(next).next().value;
-  if (canMorph && firstChild !== void 0 && // Explicit checks are more verbose but truthy checks force a bunch of comparisons
-  // we don't care about: it's never gonna be a number etc.
-  firstChild.key !== void 0 && firstChild.key !== "") {
-    seenKeys = /* @__PURE__ */ new Set();
-    keyedChildren = getKeyedChildren(prev);
-    incomingKeyedChildren = getKeyedChildren(next);
-    for (const child of children(next)) {
-      prevChild = diffKeyedChild(
-        prevChild,
-        child,
-        el,
-        stack,
-        incomingKeyedChildren,
-        keyedChildren,
-        seenKeys
-      );
-    }
-  } else {
-    for (const child of children(next)) {
-      stack.unshift({ prev: prevChild, next: child, parent: el });
-      prevChild = prevChild?.nextSibling;
-    }
-  }
-  while (prevChild) {
-    const next2 = prevChild.nextSibling;
-    el.removeChild(prevChild);
-    prevChild = next2;
-  }
-  return el;
-}
-var registeredHandlers = /* @__PURE__ */ new WeakMap();
-function lustreGenericEventHandler(event2) {
-  const target3 = event2.currentTarget;
-  if (!registeredHandlers.has(target3)) {
-    target3.removeEventListener(event2.type, lustreGenericEventHandler);
-    return;
-  }
-  const handlersForEventTarget = registeredHandlers.get(target3);
-  if (!handlersForEventTarget.has(event2.type)) {
-    target3.removeEventListener(event2.type, lustreGenericEventHandler);
-    return;
-  }
-  handlersForEventTarget.get(event2.type)(event2);
-}
-function lustreServerEventHandler(event2) {
-  const el = event2.currentTarget;
-  const tag = el.getAttribute(`data-lustre-on-${event2.type}`);
-  const data = JSON.parse(el.getAttribute("data-lustre-data") || "{}");
-  const include = JSON.parse(el.getAttribute("data-lustre-include") || "[]");
-  switch (event2.type) {
-    case "input":
-    case "change":
-      include.push("target.value");
-      break;
-  }
-  return {
-    tag,
-    data: include.reduce(
-      (data2, property2) => {
-        const path = property2.split(".");
-        for (let i = 0, o = data2, e = event2; i < path.length; i++) {
-          if (i === path.length - 1) {
-            o[path[i]] = e[path[i]];
-          } else {
-            o[path[i]] ??= {};
-            e = e[path[i]];
-            o = o[path[i]];
-          }
-        }
-        return data2;
-      },
-      { data }
-    )
-  };
-}
-function getKeyedChildren(el) {
-  const keyedChildren = /* @__PURE__ */ new Map();
-  if (el) {
-    for (const child of children(el)) {
-      const key2 = child?.key || child?.getAttribute?.("data-lustre-key");
-      if (key2) keyedChildren.set(key2, child);
-    }
-  }
-  return keyedChildren;
-}
-function diffKeyedChild(prevChild, child, el, stack, incomingKeyedChildren, keyedChildren, seenKeys) {
-  while (prevChild && !incomingKeyedChildren.has(prevChild.getAttribute("data-lustre-key"))) {
-    const nextChild = prevChild.nextSibling;
-    el.removeChild(prevChild);
-    prevChild = nextChild;
-  }
-  if (keyedChildren.size === 0) {
-    stack.unshift({ prev: prevChild, next: child, parent: el });
-    prevChild = prevChild?.nextSibling;
-    return prevChild;
-  }
-  if (seenKeys.has(child.key)) {
-    console.warn(`Duplicate key found in Lustre vnode: ${child.key}`);
-    stack.unshift({ prev: null, next: child, parent: el });
-    return prevChild;
-  }
-  seenKeys.add(child.key);
-  const keyedChild = keyedChildren.get(child.key);
-  if (!keyedChild && !prevChild) {
-    stack.unshift({ prev: null, next: child, parent: el });
-    return prevChild;
-  }
-  if (!keyedChild && prevChild !== null) {
-    const placeholder2 = document.createTextNode("");
-    el.insertBefore(placeholder2, prevChild);
-    stack.unshift({ prev: placeholder2, next: child, parent: el });
-    return prevChild;
-  }
-  if (!keyedChild || keyedChild === prevChild) {
-    stack.unshift({ prev: prevChild, next: child, parent: el });
-    prevChild = prevChild?.nextSibling;
-    return prevChild;
-  }
-  el.insertBefore(keyedChild, prevChild);
-  stack.unshift({ prev: keyedChild, next: child, parent: el });
-  return prevChild;
-}
-function* children(element2) {
-  for (const child of element2.children) {
-    yield* forceChild(child);
-  }
-}
-function* forceChild(element2) {
-  if (element2.subtree !== void 0) {
-    yield* forceChild(element2.subtree());
-  } else {
-    yield element2;
-  }
-}
 
-// build/dev/javascript/lustre/lustre.ffi.mjs
-var LustreClientApplication = class _LustreClientApplication {
-  /**
-   * @template Flags
-   *
-   * @param {object} app
-   * @param {(flags: Flags) => [Model, Lustre.Effect<Msg>]} app.init
-   * @param {(msg: Msg, model: Model) => [Model, Lustre.Effect<Msg>]} app.update
-   * @param {(model: Model) => Lustre.Element<Msg>} app.view
-   * @param {string | HTMLElement} selector
-   * @param {Flags} flags
-   *
-   * @returns {Gleam.Ok<(action: Lustre.Action<Lustre.Client, Msg>>) => void>}
-   */
-  static start({ init: init3, update: update2, view: view2 }, selector, flags) {
-    if (!is_browser()) return new Error(new NotABrowser());
-    const root = selector instanceof HTMLElement ? selector : document.querySelector(selector);
-    if (!root) return new Error(new ElementNotFound(selector));
-    const app = new _LustreClientApplication(root, init3(flags), update2, view2);
-    return new Ok((action) => app.send(action));
+// build/dev/javascript/lustre/lustre/runtime/client/spa.ffi.mjs
+var Spa = class {
+  #runtime;
+  constructor(root3, [init2, effects], update3, view2) {
+    this.#runtime = new Runtime(root3, [init2, effects], view2, update3);
   }
-  /**
-   * @param {Element} root
-   * @param {[Model, Lustre.Effect<Msg>]} init
-   * @param {(model: Model, msg: Msg) => [Model, Lustre.Effect<Msg>]} update
-   * @param {(model: Model) => Lustre.Element<Msg>} view
-   *
-   * @returns {LustreClientApplication}
-   */
-  constructor(root, [init3, effects], update2, view2) {
-    this.root = root;
-    this.#model = init3;
-    this.#update = update2;
-    this.#view = view2;
-    this.#tickScheduled = window.setTimeout(
-      () => this.#tick(effects.all.toArray(), true),
-      0
-    );
-  }
-  /** @type {Element} */
-  root;
-  /**
-   * @param {Lustre.Action<Lustre.Client, Msg>} action
-   *
-   * @returns {void}
-   */
-  send(action) {
-    if (action instanceof Debug) {
-      if (action[0] instanceof ForceModel) {
-        this.#tickScheduled = window.clearTimeout(this.#tickScheduled);
-        this.#queue = [];
-        this.#model = action[0][0];
-        const vdom = this.#view(this.#model);
-        const dispatch = (handler, immediate = false) => (event2) => {
-          const result = handler(event2);
-          if (result instanceof Ok) {
-            this.send(new Dispatch(result[0], immediate));
-          }
-        };
-        const prev = this.root.firstChild ?? this.root.appendChild(document.createTextNode(""));
-        morph(prev, vdom, dispatch);
+  send(message) {
+    switch (message.constructor) {
+      case EffectDispatchedMessage: {
+        this.dispatch(message.message, false);
+        break;
       }
-    } else if (action instanceof Dispatch) {
-      const msg = action[0];
-      const immediate = action[1] ?? false;
-      this.#queue.push(msg);
-      if (immediate) {
-        this.#tickScheduled = window.clearTimeout(this.#tickScheduled);
-        this.#tick();
-      } else if (!this.#tickScheduled) {
-        this.#tickScheduled = window.setTimeout(() => this.#tick());
+      case EffectEmitEvent: {
+        this.emit(message.name, message.data);
+        break;
       }
-    } else if (action instanceof Emit2) {
-      const event2 = action[0];
-      const data = action[1];
-      this.root.dispatchEvent(
-        new CustomEvent(event2, {
-          detail: data,
-          bubbles: true,
-          composed: true
-        })
-      );
-    } else if (action instanceof Shutdown) {
-      this.#tickScheduled = window.clearTimeout(this.#tickScheduled);
-      this.#model = null;
-      this.#update = null;
-      this.#view = null;
-      this.#queue = null;
-      while (this.root.firstChild) {
-        this.root.firstChild.remove();
-      }
+      case SystemRequestedShutdown:
+        break;
     }
   }
-  /** @type {Model} */
-  #model;
-  /** @type {(model: Model, msg: Msg) => [Model, Lustre.Effect<Msg>]} */
-  #update;
-  /** @type {(model: Model) => Lustre.Element<Msg>} */
-  #view;
-  /** @type {Array<Msg>} */
-  #queue = [];
-  /** @type {number | undefined} */
-  #tickScheduled;
-  /**
-   * @param {Lustre.Effect<Msg>[]} effects
-   */
-  #tick(effects = []) {
-    this.#tickScheduled = void 0;
-    this.#flush(effects);
-    const vdom = this.#view(this.#model);
-    const dispatch = (handler, immediate = false) => (event2) => {
-      const result = handler(event2);
-      if (result instanceof Ok) {
-        this.send(new Dispatch(result[0], immediate));
-      }
-    };
-    const prev = this.root.firstChild ?? this.root.appendChild(document.createTextNode(""));
-    morph(prev, vdom, dispatch);
+  dispatch(msg, immediate2) {
+    this.#runtime.dispatch(msg, immediate2);
   }
-  #flush(effects = []) {
-    while (this.#queue.length > 0) {
-      const msg = this.#queue.shift();
-      const [next, effect] = this.#update(this.#model, msg);
-      effects = effects.concat(effect.all.toArray());
-      this.#model = next;
-    }
-    while (effects.length > 0) {
-      const effect = effects.shift();
-      const dispatch = (msg) => this.send(new Dispatch(msg));
-      const emit2 = (event2, data) => this.root.dispatchEvent(
-        new CustomEvent(event2, {
-          detail: data,
-          bubbles: true,
-          composed: true
-        })
-      );
-      const select2 = () => {
-      };
-      const root = this.root;
-      effect({ dispatch, emit: emit2, select: select2, root });
-    }
-    if (this.#queue.length > 0) {
-      this.#flush(effects);
-    }
+  emit(event4, data) {
+    this.#runtime.emit(event4, data);
   }
 };
-var start = LustreClientApplication.start;
-var LustreServerApplication = class _LustreServerApplication {
-  static start({ init: init3, update: update2, view: view2, on_attribute_change }, flags) {
-    const app = new _LustreServerApplication(
-      init3(flags),
-      update2,
-      view2,
-      on_attribute_change
-    );
-    return new Ok((action) => app.send(action));
-  }
-  constructor([model, effects], update2, view2, on_attribute_change) {
-    this.#model = model;
-    this.#update = update2;
-    this.#view = view2;
-    this.#html = view2(model);
-    this.#onAttributeChange = on_attribute_change;
-    this.#renderers = /* @__PURE__ */ new Map();
-    this.#handlers = handlers(this.#html);
-    this.#tick(effects.all.toArray());
-  }
-  send(action) {
-    if (action instanceof Attrs) {
-      for (const attr of action[0]) {
-        const decoder = this.#onAttributeChange.get(attr[0]);
-        if (!decoder) continue;
-        const msg = decoder(attr[1]);
-        if (msg instanceof Error) continue;
-        this.#queue.push(msg);
-      }
-      this.#tick();
-    } else if (action instanceof Batch) {
-      this.#queue = this.#queue.concat(action[0].toArray());
-      this.#tick(action[1].all.toArray());
-    } else if (action instanceof Debug) {
-    } else if (action instanceof Dispatch) {
-      this.#queue.push(action[0]);
-      this.#tick();
-    } else if (action instanceof Emit2) {
-      const event2 = new Emit(action[0], action[1]);
-      for (const [_, renderer] of this.#renderers) {
-        renderer(event2);
-      }
-    } else if (action instanceof Event3) {
-      const handler = this.#handlers.get(action[0]);
-      if (!handler) return;
-      const msg = handler(action[1]);
-      if (msg instanceof Error) return;
-      this.#queue.push(msg[0]);
-      this.#tick();
-    } else if (action instanceof Subscribe) {
-      const attrs = keys(this.#onAttributeChange);
-      const patch = new Init(attrs, this.#html);
-      this.#renderers = this.#renderers.set(action[0], action[1]);
-      action[1](patch);
-    } else if (action instanceof Unsubscribe) {
-      this.#renderers = this.#renderers.delete(action[0]);
-    }
-  }
-  #model;
-  #update;
-  #queue;
-  #view;
-  #html;
-  #renderers;
-  #handlers;
-  #onAttributeChange;
-  #tick(effects = []) {
-    this.#flush(effects);
-    const vdom = this.#view(this.#model);
-    const diff2 = elements(this.#html, vdom);
-    if (!is_empty_element_diff(diff2)) {
-      const patch = new Diff(diff2);
-      for (const [_, renderer] of this.#renderers) {
-        renderer(patch);
-      }
-    }
-    this.#html = vdom;
-    this.#handlers = diff2.handlers;
-  }
-  #flush(effects = []) {
-    while (this.#queue.length > 0) {
-      const msg = this.#queue.shift();
-      const [next, effect] = this.#update(this.#model, msg);
-      effects = effects.concat(effect.all.toArray());
-      this.#model = next;
-    }
-    while (effects.length > 0) {
-      const effect = effects.shift();
-      const dispatch = (msg) => this.send(new Dispatch(msg));
-      const emit2 = (event2, data) => this.root.dispatchEvent(
-        new CustomEvent(event2, {
-          detail: data,
-          bubbles: true,
-          composed: true
-        })
-      );
-      const select2 = () => {
-      };
-      const root = null;
-      effect({ dispatch, emit: emit2, select: select2, root });
-    }
-    if (this.#queue.length > 0) {
-      this.#flush(effects);
-    }
-  }
+var start = ({ init: init2, update: update3, view: view2 }, selector, flags) => {
+  if (!is_browser()) return new Error(new NotABrowser());
+  const root3 = selector instanceof HTMLElement ? selector : document2().querySelector(selector);
+  if (!root3) return new Error(new ElementNotFound(selector));
+  return new Ok(new Spa(root3, init2(flags), update3, view2));
 };
-var start_server_application = LustreServerApplication.start;
-var is_browser = () => globalThis.window && window.document;
 
 // build/dev/javascript/lustre/lustre.mjs
 var App = class extends CustomType {
-  constructor(init3, update2, view2, on_attribute_change) {
+  constructor(init2, update3, view2, config) {
     super();
-    this.init = init3;
-    this.update = update2;
+    this.init = init2;
+    this.update = update3;
     this.view = view2;
-    this.on_attribute_change = on_attribute_change;
+    this.config = config;
   }
 };
 var ElementNotFound = class extends CustomType {
@@ -3816,15 +5711,15 @@ var ElementNotFound = class extends CustomType {
 };
 var NotABrowser = class extends CustomType {
 };
-function application(init3, update2, view2) {
-  return new App(init3, update2, view2, new None());
+function application(init2, update3, view2) {
+  return new App(init2, update3, view2, new$6(empty_list));
 }
-function start2(app, selector, flags) {
+function start3(app, selector, start_args) {
   return guard(
     !is_browser(),
     new Error(new NotABrowser()),
     () => {
-      return start(app, selector, flags);
+      return start(app, selector, start_args);
     }
   );
 }
@@ -3835,7 +5730,7 @@ var head = "HEAD";
 
 // build/dev/javascript/gleam_stdlib/gleam/uri.mjs
 var Uri = class extends CustomType {
-  constructor(scheme, userinfo, host, port, path, query, fragment) {
+  constructor(scheme, userinfo, host, port, path, query, fragment3) {
     super();
     this.scheme = scheme;
     this.userinfo = userinfo;
@@ -3843,7 +5738,7 @@ var Uri = class extends CustomType {
     this.port = port;
     this.path = path;
     this.query = query;
-    this.fragment = fragment;
+    this.fragment = fragment3;
   }
 };
 function is_valid_host_within_brackets_char(char) {
@@ -3851,18 +5746,15 @@ function is_valid_host_within_brackets_char(char) {
 }
 function parse_fragment(rest, pieces) {
   return new Ok(
-    (() => {
-      let _record = pieces;
-      return new Uri(
-        _record.scheme,
-        _record.userinfo,
-        _record.host,
-        _record.port,
-        _record.path,
-        _record.query,
-        new Some(rest)
-      );
-    })()
+    new Uri(
+      pieces.scheme,
+      pieces.userinfo,
+      pieces.host,
+      pieces.port,
+      pieces.path,
+      pieces.query,
+      new Some(rest)
+    )
   );
 }
 function parse_query_with_question_mark_loop(loop$original, loop$uri_string, loop$pieces, loop$size) {
@@ -3870,48 +5762,45 @@ function parse_query_with_question_mark_loop(loop$original, loop$uri_string, loo
     let original = loop$original;
     let uri_string = loop$uri_string;
     let pieces = loop$pieces;
-    let size = loop$size;
-    if (uri_string.startsWith("#") && size === 0) {
-      let rest = uri_string.slice(1);
-      return parse_fragment(rest, pieces);
-    } else if (uri_string.startsWith("#")) {
-      let rest = uri_string.slice(1);
-      let query = string_codeunit_slice(original, 0, size);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
-        _record.host,
-        _record.port,
-        _record.path,
-        new Some(query),
-        _record.fragment
-      );
-      let pieces$1 = _block;
-      return parse_fragment(rest, pieces$1);
+    let size2 = loop$size;
+    if (uri_string.startsWith("#")) {
+      if (size2 === 0) {
+        let rest = uri_string.slice(1);
+        return parse_fragment(rest, pieces);
+      } else {
+        let rest = uri_string.slice(1);
+        let query = string_codeunit_slice(original, 0, size2);
+        let pieces$1 = new Uri(
+          pieces.scheme,
+          pieces.userinfo,
+          pieces.host,
+          pieces.port,
+          pieces.path,
+          new Some(query),
+          pieces.fragment
+        );
+        return parse_fragment(rest, pieces$1);
+      }
     } else if (uri_string === "") {
       return new Ok(
-        (() => {
-          let _record = pieces;
-          return new Uri(
-            _record.scheme,
-            _record.userinfo,
-            _record.host,
-            _record.port,
-            _record.path,
-            new Some(original),
-            _record.fragment
-          );
-        })()
+        new Uri(
+          pieces.scheme,
+          pieces.userinfo,
+          pieces.host,
+          pieces.port,
+          pieces.path,
+          new Some(original),
+          pieces.fragment
+        )
       );
     } else {
       let $ = pop_codeunit(uri_string);
-      let rest = $[1];
+      let rest;
+      rest = $[1];
       loop$original = original;
       loop$uri_string = rest;
       loop$pieces = pieces;
-      loop$size = size + 1;
+      loop$size = size2 + 1;
     }
   }
 }
@@ -3923,61 +5812,53 @@ function parse_path_loop(loop$original, loop$uri_string, loop$pieces, loop$size)
     let original = loop$original;
     let uri_string = loop$uri_string;
     let pieces = loop$pieces;
-    let size = loop$size;
+    let size2 = loop$size;
     if (uri_string.startsWith("?")) {
       let rest = uri_string.slice(1);
-      let path = string_codeunit_slice(original, 0, size);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
-        _record.host,
-        _record.port,
+      let path = string_codeunit_slice(original, 0, size2);
+      let pieces$1 = new Uri(
+        pieces.scheme,
+        pieces.userinfo,
+        pieces.host,
+        pieces.port,
         path,
-        _record.query,
-        _record.fragment
+        pieces.query,
+        pieces.fragment
       );
-      let pieces$1 = _block;
       return parse_query_with_question_mark(rest, pieces$1);
     } else if (uri_string.startsWith("#")) {
       let rest = uri_string.slice(1);
-      let path = string_codeunit_slice(original, 0, size);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
-        _record.host,
-        _record.port,
+      let path = string_codeunit_slice(original, 0, size2);
+      let pieces$1 = new Uri(
+        pieces.scheme,
+        pieces.userinfo,
+        pieces.host,
+        pieces.port,
         path,
-        _record.query,
-        _record.fragment
+        pieces.query,
+        pieces.fragment
       );
-      let pieces$1 = _block;
       return parse_fragment(rest, pieces$1);
     } else if (uri_string === "") {
       return new Ok(
-        (() => {
-          let _record = pieces;
-          return new Uri(
-            _record.scheme,
-            _record.userinfo,
-            _record.host,
-            _record.port,
-            original,
-            _record.query,
-            _record.fragment
-          );
-        })()
+        new Uri(
+          pieces.scheme,
+          pieces.userinfo,
+          pieces.host,
+          pieces.port,
+          original,
+          pieces.query,
+          pieces.fragment
+        )
       );
     } else {
       let $ = pop_codeunit(uri_string);
-      let rest = $[1];
+      let rest;
+      rest = $[1];
       loop$original = original;
       loop$uri_string = rest;
       loop$pieces = pieces;
-      loop$size = size + 1;
+      loop$size = size2 + 1;
     }
   }
 }
@@ -4041,62 +5922,50 @@ function parse_port_loop(loop$uri_string, loop$pieces, loop$port) {
       loop$port = port * 10 + 9;
     } else if (uri_string.startsWith("?")) {
       let rest = uri_string.slice(1);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
-        _record.host,
+      let pieces$1 = new Uri(
+        pieces.scheme,
+        pieces.userinfo,
+        pieces.host,
         new Some(port),
-        _record.path,
-        _record.query,
-        _record.fragment
+        pieces.path,
+        pieces.query,
+        pieces.fragment
       );
-      let pieces$1 = _block;
       return parse_query_with_question_mark(rest, pieces$1);
     } else if (uri_string.startsWith("#")) {
       let rest = uri_string.slice(1);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
-        _record.host,
+      let pieces$1 = new Uri(
+        pieces.scheme,
+        pieces.userinfo,
+        pieces.host,
         new Some(port),
-        _record.path,
-        _record.query,
-        _record.fragment
+        pieces.path,
+        pieces.query,
+        pieces.fragment
       );
-      let pieces$1 = _block;
       return parse_fragment(rest, pieces$1);
     } else if (uri_string.startsWith("/")) {
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
-        _record.host,
+      let pieces$1 = new Uri(
+        pieces.scheme,
+        pieces.userinfo,
+        pieces.host,
         new Some(port),
-        _record.path,
-        _record.query,
-        _record.fragment
+        pieces.path,
+        pieces.query,
+        pieces.fragment
       );
-      let pieces$1 = _block;
       return parse_path(uri_string, pieces$1);
     } else if (uri_string === "") {
       return new Ok(
-        (() => {
-          let _record = pieces;
-          return new Uri(
-            _record.scheme,
-            _record.userinfo,
-            _record.host,
-            new Some(port),
-            _record.path,
-            _record.query,
-            _record.fragment
-          );
-        })()
+        new Uri(
+          pieces.scheme,
+          pieces.userinfo,
+          pieces.host,
+          new Some(port),
+          pieces.path,
+          pieces.query,
+          pieces.fragment
+        )
       );
     } else {
       return new Error(void 0);
@@ -4155,91 +6024,77 @@ function parse_host_outside_of_brackets_loop(loop$original, loop$uri_string, loo
     let original = loop$original;
     let uri_string = loop$uri_string;
     let pieces = loop$pieces;
-    let size = loop$size;
+    let size2 = loop$size;
     if (uri_string === "") {
       return new Ok(
-        (() => {
-          let _record = pieces;
-          return new Uri(
-            _record.scheme,
-            _record.userinfo,
-            new Some(original),
-            _record.port,
-            _record.path,
-            _record.query,
-            _record.fragment
-          );
-        })()
+        new Uri(
+          pieces.scheme,
+          pieces.userinfo,
+          new Some(original),
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
+        )
       );
     } else if (uri_string.startsWith(":")) {
-      let host = string_codeunit_slice(original, 0, size);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
+      let host = string_codeunit_slice(original, 0, size2);
+      let pieces$1 = new Uri(
+        pieces.scheme,
+        pieces.userinfo,
         new Some(host),
-        _record.port,
-        _record.path,
-        _record.query,
-        _record.fragment
+        pieces.port,
+        pieces.path,
+        pieces.query,
+        pieces.fragment
       );
-      let pieces$1 = _block;
       return parse_port(uri_string, pieces$1);
     } else if (uri_string.startsWith("/")) {
-      let host = string_codeunit_slice(original, 0, size);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
+      let host = string_codeunit_slice(original, 0, size2);
+      let pieces$1 = new Uri(
+        pieces.scheme,
+        pieces.userinfo,
         new Some(host),
-        _record.port,
-        _record.path,
-        _record.query,
-        _record.fragment
+        pieces.port,
+        pieces.path,
+        pieces.query,
+        pieces.fragment
       );
-      let pieces$1 = _block;
       return parse_path(uri_string, pieces$1);
     } else if (uri_string.startsWith("?")) {
       let rest = uri_string.slice(1);
-      let host = string_codeunit_slice(original, 0, size);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
+      let host = string_codeunit_slice(original, 0, size2);
+      let pieces$1 = new Uri(
+        pieces.scheme,
+        pieces.userinfo,
         new Some(host),
-        _record.port,
-        _record.path,
-        _record.query,
-        _record.fragment
+        pieces.port,
+        pieces.path,
+        pieces.query,
+        pieces.fragment
       );
-      let pieces$1 = _block;
       return parse_query_with_question_mark(rest, pieces$1);
     } else if (uri_string.startsWith("#")) {
       let rest = uri_string.slice(1);
-      let host = string_codeunit_slice(original, 0, size);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
+      let host = string_codeunit_slice(original, 0, size2);
+      let pieces$1 = new Uri(
+        pieces.scheme,
+        pieces.userinfo,
         new Some(host),
-        _record.port,
-        _record.path,
-        _record.query,
-        _record.fragment
+        pieces.port,
+        pieces.path,
+        pieces.query,
+        pieces.fragment
       );
-      let pieces$1 = _block;
       return parse_fragment(rest, pieces$1);
     } else {
       let $ = pop_codeunit(uri_string);
-      let rest = $[1];
+      let rest;
+      rest = $[1];
       loop$original = original;
       loop$uri_string = rest;
       loop$pieces = pieces;
-      loop$size = size + 1;
+      loop$size = size2 + 1;
     }
   }
 }
@@ -4248,106 +6103,101 @@ function parse_host_within_brackets_loop(loop$original, loop$uri_string, loop$pi
     let original = loop$original;
     let uri_string = loop$uri_string;
     let pieces = loop$pieces;
-    let size = loop$size;
+    let size2 = loop$size;
     if (uri_string === "") {
       return new Ok(
-        (() => {
-          let _record = pieces;
-          return new Uri(
-            _record.scheme,
-            _record.userinfo,
-            new Some(uri_string),
-            _record.port,
-            _record.path,
-            _record.query,
-            _record.fragment
-          );
-        })()
+        new Uri(
+          pieces.scheme,
+          pieces.userinfo,
+          new Some(uri_string),
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
+        )
       );
-    } else if (uri_string.startsWith("]") && size === 0) {
-      let rest = uri_string.slice(1);
-      return parse_port(rest, pieces);
     } else if (uri_string.startsWith("]")) {
-      let rest = uri_string.slice(1);
-      let host = string_codeunit_slice(original, 0, size + 1);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
-        new Some(host),
-        _record.port,
-        _record.path,
-        _record.query,
-        _record.fragment
-      );
-      let pieces$1 = _block;
-      return parse_port(rest, pieces$1);
-    } else if (uri_string.startsWith("/") && size === 0) {
-      return parse_path(uri_string, pieces);
+      if (size2 === 0) {
+        let rest = uri_string.slice(1);
+        return parse_port(rest, pieces);
+      } else {
+        let rest = uri_string.slice(1);
+        let host = string_codeunit_slice(original, 0, size2 + 1);
+        let pieces$1 = new Uri(
+          pieces.scheme,
+          pieces.userinfo,
+          new Some(host),
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
+        );
+        return parse_port(rest, pieces$1);
+      }
     } else if (uri_string.startsWith("/")) {
-      let host = string_codeunit_slice(original, 0, size);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
-        new Some(host),
-        _record.port,
-        _record.path,
-        _record.query,
-        _record.fragment
-      );
-      let pieces$1 = _block;
-      return parse_path(uri_string, pieces$1);
-    } else if (uri_string.startsWith("?") && size === 0) {
-      let rest = uri_string.slice(1);
-      return parse_query_with_question_mark(rest, pieces);
+      if (size2 === 0) {
+        return parse_path(uri_string, pieces);
+      } else {
+        let host = string_codeunit_slice(original, 0, size2);
+        let pieces$1 = new Uri(
+          pieces.scheme,
+          pieces.userinfo,
+          new Some(host),
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
+        );
+        return parse_path(uri_string, pieces$1);
+      }
     } else if (uri_string.startsWith("?")) {
-      let rest = uri_string.slice(1);
-      let host = string_codeunit_slice(original, 0, size);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
-        new Some(host),
-        _record.port,
-        _record.path,
-        _record.query,
-        _record.fragment
-      );
-      let pieces$1 = _block;
-      return parse_query_with_question_mark(rest, pieces$1);
-    } else if (uri_string.startsWith("#") && size === 0) {
-      let rest = uri_string.slice(1);
-      return parse_fragment(rest, pieces);
+      if (size2 === 0) {
+        let rest = uri_string.slice(1);
+        return parse_query_with_question_mark(rest, pieces);
+      } else {
+        let rest = uri_string.slice(1);
+        let host = string_codeunit_slice(original, 0, size2);
+        let pieces$1 = new Uri(
+          pieces.scheme,
+          pieces.userinfo,
+          new Some(host),
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
+        );
+        return parse_query_with_question_mark(rest, pieces$1);
+      }
     } else if (uri_string.startsWith("#")) {
-      let rest = uri_string.slice(1);
-      let host = string_codeunit_slice(original, 0, size);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        _record.userinfo,
-        new Some(host),
-        _record.port,
-        _record.path,
-        _record.query,
-        _record.fragment
-      );
-      let pieces$1 = _block;
-      return parse_fragment(rest, pieces$1);
+      if (size2 === 0) {
+        let rest = uri_string.slice(1);
+        return parse_fragment(rest, pieces);
+      } else {
+        let rest = uri_string.slice(1);
+        let host = string_codeunit_slice(original, 0, size2);
+        let pieces$1 = new Uri(
+          pieces.scheme,
+          pieces.userinfo,
+          new Some(host),
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
+        );
+        return parse_fragment(rest, pieces$1);
+      }
     } else {
       let $ = pop_codeunit(uri_string);
-      let char = $[0];
-      let rest = $[1];
+      let char;
+      let rest;
+      char = $[0];
+      rest = $[1];
       let $1 = is_valid_host_within_brackets_char(char);
       if ($1) {
         loop$original = original;
         loop$uri_string = rest;
         loop$pieces = pieces;
-        loop$size = size + 1;
+        loop$size = size2 + 1;
       } else {
         return parse_host_outside_of_brackets_loop(
           original,
@@ -4369,33 +6219,27 @@ function parse_host(uri_string, pieces) {
   if (uri_string.startsWith("[")) {
     return parse_host_within_brackets(uri_string, pieces);
   } else if (uri_string.startsWith(":")) {
-    let _block;
-    let _record = pieces;
-    _block = new Uri(
-      _record.scheme,
-      _record.userinfo,
+    let pieces$1 = new Uri(
+      pieces.scheme,
+      pieces.userinfo,
       new Some(""),
-      _record.port,
-      _record.path,
-      _record.query,
-      _record.fragment
+      pieces.port,
+      pieces.path,
+      pieces.query,
+      pieces.fragment
     );
-    let pieces$1 = _block;
     return parse_port(uri_string, pieces$1);
   } else if (uri_string === "") {
     return new Ok(
-      (() => {
-        let _record = pieces;
-        return new Uri(
-          _record.scheme,
-          _record.userinfo,
-          new Some(""),
-          _record.port,
-          _record.path,
-          _record.query,
-          _record.fragment
-        );
-      })()
+      new Uri(
+        pieces.scheme,
+        pieces.userinfo,
+        new Some(""),
+        pieces.port,
+        pieces.path,
+        pieces.query,
+        pieces.fragment
+      )
     );
   } else {
     return parse_host_outside_of_brackets(uri_string, pieces);
@@ -4406,26 +6250,25 @@ function parse_userinfo_loop(loop$original, loop$uri_string, loop$pieces, loop$s
     let original = loop$original;
     let uri_string = loop$uri_string;
     let pieces = loop$pieces;
-    let size = loop$size;
-    if (uri_string.startsWith("@") && size === 0) {
-      let rest = uri_string.slice(1);
-      return parse_host(rest, pieces);
-    } else if (uri_string.startsWith("@")) {
-      let rest = uri_string.slice(1);
-      let userinfo = string_codeunit_slice(original, 0, size);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        _record.scheme,
-        new Some(userinfo),
-        _record.host,
-        _record.port,
-        _record.path,
-        _record.query,
-        _record.fragment
-      );
-      let pieces$1 = _block;
-      return parse_host(rest, pieces$1);
+    let size2 = loop$size;
+    if (uri_string.startsWith("@")) {
+      if (size2 === 0) {
+        let rest = uri_string.slice(1);
+        return parse_host(rest, pieces);
+      } else {
+        let rest = uri_string.slice(1);
+        let userinfo = string_codeunit_slice(original, 0, size2);
+        let pieces$1 = new Uri(
+          pieces.scheme,
+          new Some(userinfo),
+          pieces.host,
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
+        );
+        return parse_host(rest, pieces$1);
+      }
     } else if (uri_string === "") {
       return parse_host(original, pieces);
     } else if (uri_string.startsWith("/")) {
@@ -4436,11 +6279,12 @@ function parse_userinfo_loop(loop$original, loop$uri_string, loop$pieces, loop$s
       return parse_host(original, pieces);
     } else {
       let $ = pop_codeunit(uri_string);
-      let rest = $[1];
+      let rest;
+      rest = $[1];
       loop$original = original;
       loop$uri_string = rest;
       loop$pieces = pieces;
-      loop$size = size + 1;
+      loop$size = size2 + 1;
     }
   }
 }
@@ -4450,18 +6294,15 @@ function parse_authority_pieces(string6, pieces) {
 function parse_authority_with_slashes(uri_string, pieces) {
   if (uri_string === "//") {
     return new Ok(
-      (() => {
-        let _record = pieces;
-        return new Uri(
-          _record.scheme,
-          _record.userinfo,
-          new Some(""),
-          _record.port,
-          _record.path,
-          _record.query,
-          _record.fragment
-        );
-      })()
+      new Uri(
+        pieces.scheme,
+        pieces.userinfo,
+        new Some(""),
+        pieces.port,
+        pieces.path,
+        pieces.query,
+        pieces.fragment
+      )
     );
   } else if (uri_string.startsWith("//")) {
     let rest = uri_string.slice(2);
@@ -4475,111 +6316,105 @@ function parse_scheme_loop(loop$original, loop$uri_string, loop$pieces, loop$siz
     let original = loop$original;
     let uri_string = loop$uri_string;
     let pieces = loop$pieces;
-    let size = loop$size;
-    if (uri_string.startsWith("/") && size === 0) {
-      return parse_authority_with_slashes(uri_string, pieces);
-    } else if (uri_string.startsWith("/")) {
-      let scheme = string_codeunit_slice(original, 0, size);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        new Some(lowercase(scheme)),
-        _record.userinfo,
-        _record.host,
-        _record.port,
-        _record.path,
-        _record.query,
-        _record.fragment
-      );
-      let pieces$1 = _block;
-      return parse_authority_with_slashes(uri_string, pieces$1);
-    } else if (uri_string.startsWith("?") && size === 0) {
-      let rest = uri_string.slice(1);
-      return parse_query_with_question_mark(rest, pieces);
+    let size2 = loop$size;
+    if (uri_string.startsWith("/")) {
+      if (size2 === 0) {
+        return parse_authority_with_slashes(uri_string, pieces);
+      } else {
+        let scheme = string_codeunit_slice(original, 0, size2);
+        let pieces$1 = new Uri(
+          new Some(lowercase(scheme)),
+          pieces.userinfo,
+          pieces.host,
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
+        );
+        return parse_authority_with_slashes(uri_string, pieces$1);
+      }
     } else if (uri_string.startsWith("?")) {
-      let rest = uri_string.slice(1);
-      let scheme = string_codeunit_slice(original, 0, size);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        new Some(lowercase(scheme)),
-        _record.userinfo,
-        _record.host,
-        _record.port,
-        _record.path,
-        _record.query,
-        _record.fragment
-      );
-      let pieces$1 = _block;
-      return parse_query_with_question_mark(rest, pieces$1);
-    } else if (uri_string.startsWith("#") && size === 0) {
-      let rest = uri_string.slice(1);
-      return parse_fragment(rest, pieces);
+      if (size2 === 0) {
+        let rest = uri_string.slice(1);
+        return parse_query_with_question_mark(rest, pieces);
+      } else {
+        let rest = uri_string.slice(1);
+        let scheme = string_codeunit_slice(original, 0, size2);
+        let pieces$1 = new Uri(
+          new Some(lowercase(scheme)),
+          pieces.userinfo,
+          pieces.host,
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
+        );
+        return parse_query_with_question_mark(rest, pieces$1);
+      }
     } else if (uri_string.startsWith("#")) {
-      let rest = uri_string.slice(1);
-      let scheme = string_codeunit_slice(original, 0, size);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        new Some(lowercase(scheme)),
-        _record.userinfo,
-        _record.host,
-        _record.port,
-        _record.path,
-        _record.query,
-        _record.fragment
-      );
-      let pieces$1 = _block;
-      return parse_fragment(rest, pieces$1);
-    } else if (uri_string.startsWith(":") && size === 0) {
-      return new Error(void 0);
+      if (size2 === 0) {
+        let rest = uri_string.slice(1);
+        return parse_fragment(rest, pieces);
+      } else {
+        let rest = uri_string.slice(1);
+        let scheme = string_codeunit_slice(original, 0, size2);
+        let pieces$1 = new Uri(
+          new Some(lowercase(scheme)),
+          pieces.userinfo,
+          pieces.host,
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
+        );
+        return parse_fragment(rest, pieces$1);
+      }
     } else if (uri_string.startsWith(":")) {
-      let rest = uri_string.slice(1);
-      let scheme = string_codeunit_slice(original, 0, size);
-      let _block;
-      let _record = pieces;
-      _block = new Uri(
-        new Some(lowercase(scheme)),
-        _record.userinfo,
-        _record.host,
-        _record.port,
-        _record.path,
-        _record.query,
-        _record.fragment
-      );
-      let pieces$1 = _block;
-      return parse_authority_with_slashes(rest, pieces$1);
+      if (size2 === 0) {
+        return new Error(void 0);
+      } else {
+        let rest = uri_string.slice(1);
+        let scheme = string_codeunit_slice(original, 0, size2);
+        let pieces$1 = new Uri(
+          new Some(lowercase(scheme)),
+          pieces.userinfo,
+          pieces.host,
+          pieces.port,
+          pieces.path,
+          pieces.query,
+          pieces.fragment
+        );
+        return parse_authority_with_slashes(rest, pieces$1);
+      }
     } else if (uri_string === "") {
       return new Ok(
-        (() => {
-          let _record = pieces;
-          return new Uri(
-            _record.scheme,
-            _record.userinfo,
-            _record.host,
-            _record.port,
-            original,
-            _record.query,
-            _record.fragment
-          );
-        })()
+        new Uri(
+          pieces.scheme,
+          pieces.userinfo,
+          pieces.host,
+          pieces.port,
+          original,
+          pieces.query,
+          pieces.fragment
+        )
       );
     } else {
       let $ = pop_codeunit(uri_string);
-      let rest = $[1];
+      let rest;
+      rest = $[1];
       loop$original = original;
       loop$uri_string = rest;
       loop$pieces = pieces;
-      loop$size = size + 1;
+      loop$size = size2 + 1;
     }
   }
 }
-function to_string3(uri) {
+function to_string5(uri) {
   let _block;
   let $ = uri.fragment;
   if ($ instanceof Some) {
-    let fragment = $[0];
-    _block = toList(["#", fragment]);
+    let fragment3 = $[0];
+    _block = toList(["#", fragment3]);
   } else {
     _block = toList([]);
   }
@@ -4597,9 +6432,13 @@ function to_string3(uri) {
   let _block$2;
   let $2 = uri.host;
   let $3 = starts_with(uri.path, "/");
-  if ($2 instanceof Some && !$3 && $2[0] !== "") {
+  if (!$3 && $2 instanceof Some) {
     let host = $2[0];
-    _block$2 = prepend("/", parts$2);
+    if (host !== "") {
+      _block$2 = prepend("/", parts$2);
+    } else {
+      _block$2 = parts$2;
+    }
   } else {
     _block$2 = parts$2;
   }
@@ -4607,7 +6446,7 @@ function to_string3(uri) {
   let _block$3;
   let $4 = uri.host;
   let $5 = uri.port;
-  if ($4 instanceof Some && $5 instanceof Some) {
+  if ($5 instanceof Some && $4 instanceof Some) {
     let port = $5[0];
     _block$3 = prepend(":", prepend(to_string(port), parts$3));
   } else {
@@ -4618,37 +6457,47 @@ function to_string3(uri) {
   let $6 = uri.scheme;
   let $7 = uri.userinfo;
   let $8 = uri.host;
-  if ($6 instanceof Some && $7 instanceof Some && $8 instanceof Some) {
-    let s = $6[0];
-    let u = $7[0];
-    let h = $8[0];
-    _block$4 = prepend(
-      s,
-      prepend(
-        "://",
-        prepend(u, prepend("@", prepend(h, parts$4)))
-      )
-    );
-  } else if ($6 instanceof Some && $7 instanceof None && $8 instanceof Some) {
-    let s = $6[0];
-    let h = $8[0];
-    _block$4 = prepend(s, prepend("://", prepend(h, parts$4)));
-  } else if ($6 instanceof Some && $7 instanceof Some && $8 instanceof None) {
+  if ($8 instanceof Some) {
+    if ($7 instanceof Some) {
+      if ($6 instanceof Some) {
+        let h = $8[0];
+        let u = $7[0];
+        let s = $6[0];
+        _block$4 = prepend(
+          s,
+          prepend(
+            "://",
+            prepend(u, prepend("@", prepend(h, parts$4)))
+          )
+        );
+      } else {
+        _block$4 = parts$4;
+      }
+    } else if ($6 instanceof Some) {
+      let h = $8[0];
+      let s = $6[0];
+      _block$4 = prepend(s, prepend("://", prepend(h, parts$4)));
+    } else {
+      let h = $8[0];
+      _block$4 = prepend("//", prepend(h, parts$4));
+    }
+  } else if ($7 instanceof Some) {
+    if ($6 instanceof Some) {
+      let s = $6[0];
+      _block$4 = prepend(s, prepend(":", parts$4));
+    } else {
+      _block$4 = parts$4;
+    }
+  } else if ($6 instanceof Some) {
     let s = $6[0];
     _block$4 = prepend(s, prepend(":", parts$4));
-  } else if ($6 instanceof Some && $7 instanceof None && $8 instanceof None) {
-    let s = $6[0];
-    _block$4 = prepend(s, prepend(":", parts$4));
-  } else if ($6 instanceof None && $7 instanceof None && $8 instanceof Some) {
-    let h = $8[0];
-    _block$4 = prepend("//", prepend(h, parts$4));
   } else {
     _block$4 = parts$4;
   }
   let parts$5 = _block$4;
   return concat2(parts$5);
 }
-var empty = /* @__PURE__ */ new Uri(
+var empty3 = /* @__PURE__ */ new Uri(
   /* @__PURE__ */ new None(),
   /* @__PURE__ */ new None(),
   /* @__PURE__ */ new None(),
@@ -4658,7 +6507,7 @@ var empty = /* @__PURE__ */ new Uri(
   /* @__PURE__ */ new None()
 );
 function parse2(uri_string) {
-  return parse_scheme_loop(uri_string, uri_string, empty, 0);
+  return parse_scheme_loop(uri_string, uri_string, empty3, 0);
 }
 
 // build/dev/javascript/gleam_http/gleam/http.mjs
@@ -4678,31 +6527,31 @@ var Connect = class extends CustomType {
 };
 var Options = class extends CustomType {
 };
-var Patch = class extends CustomType {
+var Patch2 = class extends CustomType {
 };
 var Http = class extends CustomType {
 };
 var Https = class extends CustomType {
 };
 function method_to_string(method) {
-  if (method instanceof Connect) {
-    return "connect";
-  } else if (method instanceof Delete) {
-    return "delete";
-  } else if (method instanceof Get) {
-    return "get";
-  } else if (method instanceof Head) {
-    return "head";
-  } else if (method instanceof Options) {
-    return "options";
-  } else if (method instanceof Patch) {
-    return "patch";
+  if (method instanceof Get) {
+    return "GET";
   } else if (method instanceof Post) {
-    return "post";
+    return "POST";
+  } else if (method instanceof Head) {
+    return "HEAD";
   } else if (method instanceof Put) {
-    return "put";
+    return "PUT";
+  } else if (method instanceof Delete) {
+    return "DELETE";
   } else if (method instanceof Trace) {
-    return "trace";
+    return "TRACE";
+  } else if (method instanceof Connect) {
+    return "CONNECT";
+  } else if (method instanceof Options) {
+    return "OPTIONS";
+  } else if (method instanceof Patch2) {
+    return "PATCH";
   } else {
     let s = method[0];
     return s;
@@ -4752,14 +6601,14 @@ function to_uri(request) {
   );
 }
 function from_uri(uri) {
-  return then$2(
+  return try$(
     (() => {
       let _pipe = uri.scheme;
       let _pipe$1 = unwrap(_pipe, "");
       return scheme_from_string(_pipe$1);
     })(),
     (scheme) => {
-      return then$2(
+      return try$(
         (() => {
           let _pipe = uri.host;
           return to_result(_pipe, void 0);
@@ -4784,7 +6633,7 @@ function from_uri(uri) {
 function to(url) {
   let _pipe = url;
   let _pipe$1 = parse2(_pipe);
-  return then$2(_pipe$1, from_uri);
+  return try$(_pipe$1, from_uri);
 }
 
 // build/dev/javascript/gleam_http/gleam/http/response.mjs
@@ -4802,22 +6651,22 @@ var PromiseLayer = class _PromiseLayer {
   constructor(promise) {
     this.promise = promise;
   }
-  static wrap(value4) {
-    return value4 instanceof Promise ? new _PromiseLayer(value4) : value4;
+  static wrap(value3) {
+    return value3 instanceof Promise ? new _PromiseLayer(value3) : value3;
   }
-  static unwrap(value4) {
-    return value4 instanceof _PromiseLayer ? value4.promise : value4;
+  static unwrap(value3) {
+    return value3 instanceof _PromiseLayer ? value3.promise : value3;
   }
 };
-function resolve(value4) {
-  return Promise.resolve(PromiseLayer.wrap(value4));
+function resolve(value3) {
+  return Promise.resolve(PromiseLayer.wrap(value3));
 }
 function then_await(promise, fn) {
-  return promise.then((value4) => fn(PromiseLayer.unwrap(value4)));
+  return promise.then((value3) => fn(PromiseLayer.unwrap(value3)));
 }
 function map_promise(promise, fn) {
   return promise.then(
-    (value4) => PromiseLayer.wrap(fn(PromiseLayer.unwrap(value4)))
+    (value3) => PromiseLayer.wrap(fn(PromiseLayer.unwrap(value3)))
   );
 }
 function rescue(promise, fn) {
@@ -4840,7 +6689,7 @@ function try_await(promise, callback) {
   return then_await(
     _pipe,
     (result) => {
-      if (result.isOk()) {
+      if (result instanceof Ok) {
         let a2 = result[0];
         return callback(a2);
       } else {
@@ -4867,7 +6716,7 @@ function from_fetch_response(response) {
   );
 }
 function request_common(request) {
-  let url = to_string3(to_uri(request));
+  let url = to_string5(to_uri(request));
   let method = method_to_string(request.method).toUpperCase();
   let options = {
     headers: make_headers(request.headers),
@@ -4897,14 +6746,14 @@ async function read_text_body(response) {
 
 // build/dev/javascript/gleam_fetch/gleam/fetch.mjs
 var NetworkError = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 var UnableToReadBody = class extends CustomType {
 };
-function send(request) {
+function send2(request) {
   let _pipe = request;
   let _pipe$1 = to_fetch_request(_pipe);
   let _pipe$2 = raw_send(_pipe$1);
@@ -4918,21 +6767,21 @@ function send(request) {
 
 // build/dev/javascript/lustre_http/lustre_http.mjs
 var BadUrl = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 var InternalServerError = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 var JsonError = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 var NetworkError2 = class extends CustomType {
@@ -4940,10 +6789,10 @@ var NetworkError2 = class extends CustomType {
 var NotFound = class extends CustomType {
 };
 var OtherError = class extends CustomType {
-  constructor(x0, x1) {
+  constructor($0, $1) {
     super();
-    this[0] = x0;
-    this[1] = x1;
+    this[0] = $0;
+    this[1] = $1;
   }
 };
 var Unauthorized = class extends CustomType {
@@ -4955,12 +6804,12 @@ var ExpectTextResponse = class extends CustomType {
   }
 };
 function do_send(req, expect, dispatch) {
-  let _pipe = send(req);
+  let _pipe = send2(req);
   let _pipe$1 = try_await(_pipe, read_text_body);
   let _pipe$2 = map_promise(
     _pipe$1,
     (response) => {
-      if (response.isOk()) {
+      if (response instanceof Ok) {
         let res = response[0];
         return expect.run(new Ok(res));
       } else {
@@ -4977,11 +6826,11 @@ function do_send(req, expect, dispatch) {
   tap(_pipe$3, dispatch);
   return void 0;
 }
-function get(url, expect) {
+function get2(url, expect) {
   return from(
     (dispatch) => {
       let $ = to(url);
-      if ($.isOk()) {
+      if ($ instanceof Ok) {
         let req = $[0];
         return do_send(req, expect, dispatch);
       } else {
@@ -4991,35 +6840,37 @@ function get(url, expect) {
   );
 }
 function response_to_result(response) {
-  if (response instanceof Response && (200 <= response.status && response.status <= 299)) {
-    let status = response.status;
+  let status = response.status;
+  if (200 <= status && status <= 299) {
     let body2 = response.body;
     return new Ok(body2);
-  } else if (response instanceof Response && response.status === 401) {
-    return new Error(new Unauthorized());
-  } else if (response instanceof Response && response.status === 404) {
-    return new Error(new NotFound());
-  } else if (response instanceof Response && response.status === 500) {
-    let body2 = response.body;
-    return new Error(new InternalServerError(body2));
   } else {
-    let code2 = response.status;
-    let body2 = response.body;
-    return new Error(new OtherError(code2, body2));
+    let $ = response.status;
+    if ($ === 401) {
+      return new Error(new Unauthorized());
+    } else if ($ === 404) {
+      return new Error(new NotFound());
+    } else if ($ === 500) {
+      let body2 = response.body;
+      return new Error(new InternalServerError(body2));
+    } else {
+      let code2 = $;
+      let body2 = response.body;
+      return new Error(new OtherError(code2, body2));
+    }
   }
 }
 function expect_json(decoder, to_msg) {
   return new ExpectTextResponse(
     (response) => {
       let _pipe = response;
-      let _pipe$1 = then$2(_pipe, response_to_result);
-      let _pipe$2 = then$2(
+      let _pipe$1 = then$3(_pipe, response_to_result);
+      let _pipe$2 = then$3(
         _pipe$1,
         (body2) => {
           let $ = parse(body2, decoder);
-          if ($.isOk()) {
-            let json = $[0];
-            return new Ok(json);
+          if ($ instanceof Ok) {
+            return $;
           } else {
             let json_error = $[0];
             return new Error(new JsonError(json_error));
@@ -5048,17 +6899,17 @@ function alert(message) {
   window.alert(message);
 }
 function prompt(message, defaultValue) {
-  let text3 = window.prompt(message, defaultValue);
-  if (text3 !== null) {
-    return new Ok(text3);
+  let text4 = window.prompt(message, defaultValue);
+  if (text4 !== null) {
+    return new Ok(text4);
   } else {
     return new Error();
   }
 }
-function addEventListener3(type, listener) {
+function addEventListener4(type, listener) {
   return window.addEventListener(type, listener);
 }
-function document2(window2) {
+function document3(window2) {
   return window2.document;
 }
 async function requestWakeLock() {
@@ -5153,13 +7004,13 @@ function close(w) {
 function closed(w) {
   return w.closed;
 }
-function queueMicrotask(callback) {
+function queueMicrotask2(callback) {
   return window.queueMicrotask(callback);
 }
-function requestAnimationFrame(callback) {
+function requestAnimationFrame2(callback) {
   return window.requestAnimationFrame(callback);
 }
-function cancelAnimationFrame(callback) {
+function cancelAnimationFrame2(callback) {
   return window.cancelAnimationFrame(callback);
 }
 function eval_(string) {
@@ -5178,7 +7029,7 @@ async function import_(string6) {
 }
 
 // build/dev/javascript/plinth/global_ffi.mjs
-function setTimeout(delay, callback) {
+function setTimeout2(delay, callback) {
   return globalThis.setTimeout(callback, delay);
 }
 
@@ -5202,7 +7053,7 @@ function normalise(duration) {
     return new Duration(seconds$1 - 1, multiplier + nanoseconds$1);
   }
 }
-function add3(left, right) {
+function add4(left, right) {
   let _pipe = new Duration(
     left.seconds + right.seconds,
     left.nanoseconds + right.nanoseconds
@@ -5219,7 +7070,7 @@ function nanoseconds(amount) {
 function to_seconds(duration) {
   let seconds$1 = identity(duration.seconds);
   let nanoseconds$1 = identity(duration.nanoseconds);
-  return seconds$1 + divideFloat(nanoseconds$1, 1e9);
+  return seconds$1 + nanoseconds$1 / 1e9;
 }
 
 // build/dev/javascript/gleam_time/gleam_time_ffi.mjs
@@ -5253,56 +7104,68 @@ function normalise2(timestamp) {
 }
 function system_time2() {
   let $ = system_time();
-  let seconds2 = $[0];
-  let nanoseconds2 = $[1];
+  let seconds2;
+  let nanoseconds2;
+  seconds2 = $[0];
+  nanoseconds2 = $[1];
   return normalise2(new Timestamp(seconds2, nanoseconds2));
 }
 function difference(left, right) {
   let seconds2 = seconds(right.seconds - left.seconds);
   let nanoseconds2 = nanoseconds(right.nanoseconds - left.nanoseconds);
-  return add3(seconds2, nanoseconds2);
+  return add4(seconds2, nanoseconds2);
 }
 function is_leap_year(year) {
-  return remainderInt(year, 4) === 0 && (remainderInt(year, 100) !== 0 || remainderInt(
-    year,
-    400
-  ) === 0);
+  return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
 }
 function parse_sign(bytes) {
-  if (bytes.byteAt(0) === 43 && (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0)) {
-    let remaining_bytes = bitArraySlice(bytes, 8);
-    return new Ok(["+", remaining_bytes]);
-  } else if (bytes.byteAt(0) === 45 && (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0)) {
-    let remaining_bytes = bitArraySlice(bytes, 8);
-    return new Ok(["-", remaining_bytes]);
+  if (bytes.bitSize >= 8) {
+    if (bytes.byteAt(0) === 43) {
+      if ((bytes.bitSize - 8) % 8 === 0) {
+        let remaining_bytes = bitArraySlice(bytes, 8);
+        return new Ok(["+", remaining_bytes]);
+      } else {
+        return new Error(void 0);
+      }
+    } else if (bytes.byteAt(0) === 45 && (bytes.bitSize - 8) % 8 === 0) {
+      let remaining_bytes = bitArraySlice(bytes, 8);
+      return new Ok(["-", remaining_bytes]);
+    } else {
+      return new Error(void 0);
+    }
   } else {
     return new Error(void 0);
   }
 }
-function accept_byte(bytes, value4) {
-  if (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0 && bytes.byteAt(0) === value4) {
+function accept_byte(bytes, value3) {
+  if (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0) {
     let byte = bytes.byteAt(0);
-    let remaining_bytes = bitArraySlice(bytes, 8);
-    return new Ok(remaining_bytes);
+    if (byte === value3) {
+      let remaining_bytes = bitArraySlice(bytes, 8);
+      return new Ok(remaining_bytes);
+    } else {
+      return new Error(void 0);
+    }
   } else {
     return new Error(void 0);
   }
 }
 function accept_empty(bytes) {
-  if (bytes.bitSize == 0) {
+  if (bytes.bitSize === 0) {
     return new Ok(void 0);
   } else {
     return new Error(void 0);
   }
 }
 function julian_day_from_ymd(year, month, day) {
-  let adjustment = divideInt(14 - month, 12);
+  let adjustment = globalThis.Math.trunc((14 - month) / 12);
   let adjusted_year = year + 4800 - adjustment;
   let adjusted_month = month + 12 * adjustment - 3;
-  return day + divideInt(153 * adjusted_month + 2, 5) + 365 * adjusted_year + divideInt(
-    adjusted_year,
-    4
-  ) - divideInt(adjusted_year, 100) + divideInt(adjusted_year, 400) - 32045;
+  return day + globalThis.Math.trunc((153 * adjusted_month + 2) / 5) + 365 * adjusted_year + globalThis.Math.trunc(
+    adjusted_year / 4
+  ) - globalThis.Math.trunc(adjusted_year / 100) + globalThis.Math.trunc(
+    adjusted_year / 400
+  ) - 32045;
 }
 var seconds_per_day = 86400;
 var seconds_per_hour = 3600;
@@ -5327,36 +7190,52 @@ function do_parse_second_fraction_as_nanoseconds(loop$bytes, loop$acc, loop$powe
     let bytes = loop$bytes;
     let acc = loop$acc;
     let power3 = loop$power;
-    let power$1 = divideInt(power3, 10);
-    if (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0 && (48 <= bytes.byteAt(0) && bytes.byteAt(0) <= 57 && power$1 < 1)) {
+    let power$1 = globalThis.Math.trunc(power3 / 10);
+    if (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0) {
       let byte = bytes.byteAt(0);
-      let remaining_bytes = bitArraySlice(bytes, 8);
-      loop$bytes = remaining_bytes;
-      loop$acc = acc;
-      loop$power = power$1;
-    } else if (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0 && (48 <= bytes.byteAt(0) && bytes.byteAt(0) <= 57)) {
-      let byte = bytes.byteAt(0);
-      let remaining_bytes = bitArraySlice(bytes, 8);
-      let digit = byte - 48;
-      loop$bytes = remaining_bytes;
-      loop$acc = acc + digit * power$1;
-      loop$power = power$1;
+      if (48 <= byte && byte <= 57 && power$1 < 1) {
+        let remaining_bytes = bitArraySlice(bytes, 8);
+        loop$bytes = remaining_bytes;
+        loop$acc = acc;
+        loop$power = power$1;
+      } else {
+        let byte$1 = bytes.byteAt(0);
+        if (48 <= byte$1 && byte$1 <= 57) {
+          let remaining_bytes = bitArraySlice(bytes, 8);
+          let digit = byte$1 - 48;
+          loop$bytes = remaining_bytes;
+          loop$acc = acc + digit * power$1;
+          loop$power = power$1;
+        } else {
+          return new Ok([acc, bytes]);
+        }
+      }
     } else {
       return new Ok([acc, bytes]);
     }
   }
 }
 function parse_second_fraction_as_nanoseconds(bytes) {
-  if (bytes.byteAt(0) === 46 && (bytes.bitSize >= 16 && (bytes.bitSize - 16) % 8 === 0) && (48 <= bytes.byteAt(1) && bytes.byteAt(1) <= 57)) {
-    let byte = bytes.byteAt(1);
-    let remaining_bytes = bitArraySlice(bytes, 16);
-    return do_parse_second_fraction_as_nanoseconds(
-      toBitArray([byte, remaining_bytes]),
-      0,
-      nanoseconds_per_second
-    );
-  } else if (bytes.byteAt(0) === 46 && (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0)) {
-    return new Error(void 0);
+  if (bytes.bitSize >= 8 && bytes.byteAt(0) === 46) {
+    if (bytes.bitSize >= 16 && (bytes.bitSize - 16) % 8 === 0) {
+      let byte = bytes.byteAt(1);
+      if (48 <= byte && byte <= 57) {
+        let remaining_bytes = bitArraySlice(bytes, 16);
+        return do_parse_second_fraction_as_nanoseconds(
+          toBitArray([byte, remaining_bytes]),
+          0,
+          nanoseconds_per_second
+        );
+      } else if ((bytes.bitSize - 8) % 8 === 0) {
+        return new Error(void 0);
+      } else {
+        return new Ok([0, bytes]);
+      }
+    } else if ((bytes.bitSize - 8) % 8 === 0) {
+      return new Error(void 0);
+    } else {
+      return new Ok([0, bytes]);
+    }
   } else {
     return new Ok([0, bytes]);
   }
@@ -5369,13 +7248,17 @@ function do_parse_digits(loop$bytes, loop$count, loop$acc, loop$k) {
     let k = loop$k;
     if (k >= count) {
       return new Ok([acc, bytes]);
-    } else if (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0 && (48 <= bytes.byteAt(0) && bytes.byteAt(0) <= 57)) {
+    } else if (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0) {
       let byte = bytes.byteAt(0);
-      let remaining_bytes = bitArraySlice(bytes, 8);
-      loop$bytes = remaining_bytes;
-      loop$count = count;
-      loop$acc = acc * 10 + (byte - 48);
-      loop$k = k + 1;
+      if (48 <= byte && byte <= 57) {
+        let remaining_bytes = bitArraySlice(bytes, 8);
+        loop$bytes = remaining_bytes;
+        loop$count = count;
+        loop$acc = acc * 10 + (byte - 48);
+        loop$k = k + 1;
+      } else {
+        return new Error(void 0);
+      }
     } else {
       return new Error(void 0);
     }
@@ -5391,8 +7274,10 @@ function parse_month(bytes) {
   return try$(
     parse_digits(bytes, 2),
     (_use0) => {
-      let month = _use0[0];
-      let bytes$1 = _use0[1];
+      let month;
+      let bytes$1;
+      month = _use0[0];
+      bytes$1 = _use0[1];
       let $ = 1 <= month && month <= 12;
       if ($) {
         return new Ok([month, bytes$1]);
@@ -5406,8 +7291,10 @@ function parse_day(bytes, year, month) {
   return try$(
     parse_digits(bytes, 2),
     (_use0) => {
-      let day = _use0[0];
-      let bytes$1 = _use0[1];
+      let day;
+      let bytes$1;
+      day = _use0[0];
+      bytes$1 = _use0[1];
       return try$(
         (() => {
           if (month === 1) {
@@ -5459,8 +7346,10 @@ function parse_hours(bytes) {
   return try$(
     parse_digits(bytes, 2),
     (_use0) => {
-      let hours = _use0[0];
-      let bytes$1 = _use0[1];
+      let hours;
+      let bytes$1;
+      hours = _use0[0];
+      bytes$1 = _use0[1];
       let $ = 0 <= hours && hours <= 23;
       if ($) {
         return new Ok([hours, bytes$1]);
@@ -5474,8 +7363,10 @@ function parse_minutes(bytes) {
   return try$(
     parse_digits(bytes, 2),
     (_use0) => {
-      let minutes = _use0[0];
-      let bytes$1 = _use0[1];
+      let minutes;
+      let bytes$1;
+      minutes = _use0[0];
+      bytes$1 = _use0[1];
       let $ = 0 <= minutes && minutes <= 59;
       if ($) {
         return new Ok([minutes, bytes$1]);
@@ -5489,8 +7380,10 @@ function parse_seconds(bytes) {
   return try$(
     parse_digits(bytes, 2),
     (_use0) => {
-      let seconds2 = _use0[0];
-      let bytes$1 = _use0[1];
+      let seconds2;
+      let bytes$1;
+      seconds2 = _use0[0];
+      bytes$1 = _use0[1];
       let $ = 0 <= seconds2 && seconds2 <= 60;
       if ($) {
         return new Ok([seconds2, bytes$1]);
@@ -5504,21 +7397,27 @@ function parse_numeric_offset(bytes) {
   return try$(
     parse_sign(bytes),
     (_use0) => {
-      let sign = _use0[0];
-      let bytes$1 = _use0[1];
+      let sign;
+      let bytes$1;
+      sign = _use0[0];
+      bytes$1 = _use0[1];
       return try$(
         parse_hours(bytes$1),
         (_use02) => {
-          let hours = _use02[0];
-          let bytes$2 = _use02[1];
+          let hours;
+          let bytes$2;
+          hours = _use02[0];
+          bytes$2 = _use02[1];
           return try$(
             accept_byte(bytes$2, byte_colon),
             (bytes2) => {
               return try$(
                 parse_minutes(bytes2),
                 (_use03) => {
-                  let minutes = _use03[0];
-                  let bytes$12 = _use03[1];
+                  let minutes;
+                  let bytes$12;
+                  minutes = _use03[0];
+                  bytes$12 = _use03[1];
                   let offset_seconds = offset_to_seconds(sign, hours, minutes);
                   return new Ok([offset_seconds, bytes$12]);
                 }
@@ -5531,21 +7430,33 @@ function parse_numeric_offset(bytes) {
   );
 }
 function parse_offset(bytes) {
-  if (bytes.byteAt(0) === 90 && (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0)) {
-    let remaining_bytes = bitArraySlice(bytes, 8);
-    return new Ok([0, remaining_bytes]);
-  } else if (bytes.byteAt(0) === 122 && (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0)) {
-    let remaining_bytes = bitArraySlice(bytes, 8);
-    return new Ok([0, remaining_bytes]);
+  if (bytes.bitSize >= 8) {
+    if (bytes.byteAt(0) === 90) {
+      if ((bytes.bitSize - 8) % 8 === 0) {
+        let remaining_bytes = bitArraySlice(bytes, 8);
+        return new Ok([0, remaining_bytes]);
+      } else {
+        return parse_numeric_offset(bytes);
+      }
+    } else if (bytes.byteAt(0) === 122 && (bytes.bitSize - 8) % 8 === 0) {
+      let remaining_bytes = bitArraySlice(bytes, 8);
+      return new Ok([0, remaining_bytes]);
+    } else {
+      return parse_numeric_offset(bytes);
+    }
   } else {
     return parse_numeric_offset(bytes);
   }
 }
 function accept_date_time_separator(bytes) {
-  if (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0 && (bytes.byteAt(0) === 84 || bytes.byteAt(0) === 116)) {
+  if (bytes.bitSize >= 8 && (bytes.bitSize - 8) % 8 === 0) {
     let byte = bytes.byteAt(0);
-    let remaining_bytes = bitArraySlice(bytes, 8);
-    return new Ok(remaining_bytes);
+    if (byte === 84 || byte === 116 || byte === 32) {
+      let remaining_bytes = bitArraySlice(bytes, 8);
+      return new Ok(remaining_bytes);
+    } else {
+      return new Error(void 0);
+    }
   } else {
     return new Error(void 0);
   }
@@ -5572,60 +7483,76 @@ function parse_rfc3339(input2) {
   return try$(
     parse_year(bytes),
     (_use0) => {
-      let year = _use0[0];
-      let bytes$1 = _use0[1];
+      let year;
+      let bytes$1;
+      year = _use0[0];
+      bytes$1 = _use0[1];
       return try$(
         accept_byte(bytes$1, byte_minus),
         (bytes2) => {
           return try$(
             parse_month(bytes2),
             (_use02) => {
-              let month = _use02[0];
-              let bytes$12 = _use02[1];
+              let month;
+              let bytes$12;
+              month = _use02[0];
+              bytes$12 = _use02[1];
               return try$(
                 accept_byte(bytes$12, byte_minus),
                 (bytes3) => {
                   return try$(
                     parse_day(bytes3, year, month),
                     (_use03) => {
-                      let day = _use03[0];
-                      let bytes$13 = _use03[1];
+                      let day;
+                      let bytes$13;
+                      day = _use03[0];
+                      bytes$13 = _use03[1];
                       return try$(
                         accept_date_time_separator(bytes$13),
                         (bytes4) => {
                           return try$(
                             parse_hours(bytes4),
                             (_use04) => {
-                              let hours = _use04[0];
-                              let bytes$14 = _use04[1];
+                              let hours;
+                              let bytes$14;
+                              hours = _use04[0];
+                              bytes$14 = _use04[1];
                               return try$(
                                 accept_byte(bytes$14, byte_colon),
                                 (bytes5) => {
                                   return try$(
                                     parse_minutes(bytes5),
                                     (_use05) => {
-                                      let minutes = _use05[0];
-                                      let bytes$15 = _use05[1];
+                                      let minutes;
+                                      let bytes$15;
+                                      minutes = _use05[0];
+                                      bytes$15 = _use05[1];
                                       return try$(
                                         accept_byte(bytes$15, byte_colon),
                                         (bytes6) => {
                                           return try$(
                                             parse_seconds(bytes6),
                                             (_use06) => {
-                                              let seconds2 = _use06[0];
-                                              let bytes$16 = _use06[1];
+                                              let seconds2;
+                                              let bytes$16;
+                                              seconds2 = _use06[0];
+                                              bytes$16 = _use06[1];
                                               return try$(
                                                 parse_second_fraction_as_nanoseconds(
                                                   bytes$16
                                                 ),
                                                 (_use07) => {
-                                                  let second_fraction_as_nanoseconds = _use07[0];
-                                                  let bytes$2 = _use07[1];
+                                                  let second_fraction_as_nanoseconds;
+                                                  let bytes$2;
+                                                  second_fraction_as_nanoseconds = _use07[0];
+                                                  bytes$2 = _use07[1];
                                                   return try$(
                                                     parse_offset(bytes$2),
                                                     (_use08) => {
-                                                      let offset_seconds = _use08[0];
-                                                      let bytes$3 = _use08[1];
+                                                      let offset_seconds;
+                                                      let bytes$3;
+                                                      offset_seconds = _use08[0];
+                                                      bytes$3 = _use08[1];
                                                       return try$(
                                                         accept_empty(bytes$3),
                                                         (_use09) => {
@@ -5681,28 +7608,24 @@ function http_error_to_string(error) {
     return "internal server error: " + e;
   } else if (error instanceof JsonError) {
     let e = error[0];
-    if (e instanceof UnableToDecode) {
+    if (e instanceof UnexpectedEndOfInput) {
+      return "unexpected end of input";
+    } else if (e instanceof UnexpectedByte) {
+      return "unexpected byte";
+    } else if (e instanceof UnexpectedSequence) {
+      return "unexpected sequence";
+    } else {
       let de = e[0];
       let _pipe = de;
       let _pipe$1 = map2(
         _pipe,
         (err) => {
-          {
-            let exp2 = err.expected;
-            let found = err.found;
-            return "couldn't decode JSON; expected: " + exp2 + ", found: " + found;
-          }
+          let exp2 = err.expected;
+          let found = err.found;
+          return "couldn't decode JSON; expected: " + exp2 + ", found: " + found;
         }
       );
       return join(_pipe$1, ", ");
-    } else if (e instanceof UnexpectedByte) {
-      return "unexpected byte";
-    } else if (e instanceof UnexpectedEndOfInput) {
-      return "unexpected end of input";
-    } else if (e instanceof UnexpectedFormat) {
-      return "unexpected format";
-    } else {
-      return "unexpected sequence";
     }
   } else if (error instanceof NetworkError2) {
     return "network error";
@@ -5736,7 +7659,7 @@ function humanize_duration(dur) {
       return to_string(_pipe$2);
     })() + " seconds";
   } else {
-    let duration_mins = divideInt(duration_secs, 60);
+    let duration_mins = globalThis.Math.trunc(duration_secs / 60);
     let $1 = duration_mins < 60;
     if ($1) {
       return (() => {
@@ -5744,7 +7667,7 @@ function humanize_duration(dur) {
         return to_string(_pipe$2);
       })() + " mins";
     } else {
-      let duration_hours = divideInt(duration_mins, 60);
+      let duration_hours = globalThis.Math.trunc(duration_mins / 60);
       let $2 = duration_hours < 24;
       if ($2) {
         return (() => {
@@ -5752,7 +7675,7 @@ function humanize_duration(dur) {
           return to_string(_pipe$2);
         })() + " hours";
       } else {
-        let duration_days = divideInt(duration_hours, 24);
+        let duration_days = globalThis.Math.trunc(duration_hours / 24);
         return (() => {
           let _pipe$2 = duration_days;
           return to_string(_pipe$2);
@@ -5849,7 +7772,7 @@ var Changes = class extends CustomType {
     this.files = files;
   }
 };
-var Config = class extends CustomType {
+var Config3 = class extends CustomType {
   constructor(theme) {
     super();
     this.theme = theme;
@@ -5964,7 +7887,7 @@ var CommitsSection = class extends CustomType {
 };
 var FilesSection = class extends CustomType {
 };
-var Model2 = class extends CustomType {
+var Model = class extends CustomType {
   constructor(config, state, author_color_classes, debug) {
     super();
     this.config = config;
@@ -5974,92 +7897,92 @@ var Model2 = class extends CustomType {
   }
 };
 var InitialConfigFetched = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 var UserChangedTheme = class extends CustomType {
 };
 var AccountTypeChanged = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 var UserEnteredUsernameInput = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 var UserRequestedRepos = class extends CustomType {
 };
 var ReposFetched = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 var UserEnteredRepoFilterQuery = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 var RepoChosen = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 var TagsFetched = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 var StartTagChosen = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 var EndTagChosen = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 var UserRequestedChangelog = class extends CustomType {
 };
 var ChangesFetched = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 var UserRequestedToGoToSection = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 var UserEnteredCommitsFilterQuery = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 var UserEnteredFilesFilterQuery = class extends CustomType {
-  constructor(x0) {
+  constructor($0) {
     super();
-    this[0] = x0;
+    this[0] = $0;
   }
 };
 function theme_decoder() {
-  return then$3(
-    string4,
+  return then$2(
+    string3,
     (variant) => {
       if (variant === "light") {
         return success(new Light());
@@ -6072,8 +7995,8 @@ function theme_decoder() {
   );
 }
 function owner_type_decoder() {
-  return then$3(
-    string4,
+  return then$2(
+    string3,
     (variant) => {
       if (variant === "user") {
         return success(new User());
@@ -6086,15 +8009,15 @@ function owner_type_decoder() {
   );
 }
 function initial_config_decoder() {
-  return field2(
+  return field(
     "owner",
-    optional(string4),
+    optional(string3),
     (owner) => {
-      return field2(
+      return field(
         "owner_type",
         owner_type_decoder(),
         (owner_type) => {
-          return field2(
+          return field(
             "theme",
             theme_decoder(),
             (theme) => {
@@ -6109,25 +8032,25 @@ function initial_config_decoder() {
   );
 }
 function repo_decoder() {
-  return field2(
+  return field(
     "id",
     int2,
     (id2) => {
-      return field2(
+      return field(
         "name",
-        string4,
+        string3,
         (name2) => {
-          return field2(
+          return field(
             "url",
-            string4,
+            string3,
             (url) => {
-              return field2(
+              return field(
                 "description",
-                optional(string4),
+                optional(string3),
                 (description) => {
-                  return field2(
+                  return field(
                     "language",
-                    optional(string4),
+                    optional(string3),
                     (language) => {
                       return success(
                         new Repo(id2, name2, url, description, language)
@@ -6148,9 +8071,9 @@ function repos_response_decoder() {
   return list2(_pipe);
 }
 function tag_decoder() {
-  return field2(
+  return field(
     "name",
-    string4,
+    string3,
     (name2) => {
       return success(new Tag(name2));
     }
@@ -6165,15 +8088,11 @@ function optional_timestamp_decoder() {
     "Timestamp",
     (data) => {
       let default$ = new None();
-      let $ = run(data, string4);
-      if (!$.isOk()) {
-        return new Ok(default$);
-      } else {
+      let $ = run(data, string3);
+      if ($ instanceof Ok) {
         let timestamp_string = $[0];
         let $1 = parse_rfc3339(timestamp_string);
-        if (!$1.isOk()) {
-          return new Ok(default$);
-        } else {
+        if ($1 instanceof Ok) {
           let t = $1[0];
           return new Ok(
             (() => {
@@ -6181,21 +8100,25 @@ function optional_timestamp_decoder() {
               return new Some(_pipe);
             })()
           );
+        } else {
+          return new Ok(default$);
         }
+      } else {
+        return new Ok(default$);
       }
     }
   );
 }
 function author_decoder() {
-  return field2(
+  return field(
     "name",
-    string4,
+    string3,
     (name2) => {
-      return field2(
+      return field(
         "email",
-        string4,
+        string3,
         (email) => {
-          return field2(
+          return field(
             "date",
             optional_timestamp_decoder(),
             (authoring_timestamp) => {
@@ -6210,13 +8133,13 @@ function author_decoder() {
   );
 }
 function commit_details_decoder() {
-  return field2(
+  return field(
     "author",
     optional(author_decoder()),
     (author) => {
-      return field2(
+      return field(
         "message",
-        string4,
+        string3,
         (message) => {
           return success(new CommitDetails(author, message));
         }
@@ -6227,23 +8150,23 @@ function commit_details_decoder() {
 function file_status_to_string(status) {
   if (status instanceof Added) {
     return "add";
-  } else if (status instanceof Changed) {
-    return "chd";
-  } else if (status instanceof Copied) {
-    return "cop";
-  } else if (status instanceof Modified) {
-    return "mod";
   } else if (status instanceof Removed) {
     return "rem";
+  } else if (status instanceof Modified) {
+    return "mod";
   } else if (status instanceof Renamed) {
     return "ren";
+  } else if (status instanceof Copied) {
+    return "cop";
+  } else if (status instanceof Changed) {
+    return "chd";
   } else {
     return "unc";
   }
 }
 function changes_file_status_decoder() {
-  return then$3(
-    string4,
+  return then$2(
+    string3,
     (variant) => {
       if (variant === "added") {
         return success(new Added());
@@ -6266,25 +8189,25 @@ function changes_file_status_decoder() {
   );
 }
 function changes_file_item_decoder() {
-  return field2(
+  return field(
     "filename",
-    string4,
+    string3,
     (file_name) => {
-      return field2(
+      return field(
         "status",
         changes_file_status_decoder(),
         (status) => {
-          return field2(
+          return field(
             "additions",
             int2,
             (additions) => {
-              return field2(
+              return field(
                 "deletions",
                 int2,
                 (deletions) => {
-                  return field2(
+                  return field(
                     "blob_url",
-                    string4,
+                    string3,
                     (blob_url) => {
                       return success(
                         new CommitFileItem(
@@ -6307,17 +8230,17 @@ function changes_file_item_decoder() {
   );
 }
 function commit_decoder() {
-  return field2(
+  return field(
     "sha",
-    string4,
+    string3,
     (sha) => {
-      return field2(
+      return field(
         "commit",
         commit_details_decoder(),
         (details) => {
-          return field2(
+          return field(
             "html_url",
-            string4,
+            string3,
             (html_url) => {
               return success(new Commit(sha, details, html_url));
             }
@@ -6328,11 +8251,11 @@ function commit_decoder() {
   );
 }
 function changes_decoder() {
-  return field2(
+  return field(
     "commits",
     list2(commit_decoder()),
     (commits) => {
-      return field2(
+      return field(
         "files",
         optional(list2(changes_file_item_decoder())),
         (files) => {
@@ -6343,27 +8266,27 @@ function changes_decoder() {
   );
 }
 function theme_to_string(theme) {
-  if (theme instanceof Dark) {
-    return "\u{1F319}";
-  } else {
+  if (theme instanceof Light) {
     return "\u2600\uFE0F";
+  } else {
+    return "\u{1F319}";
   }
 }
 function get_next_theme(current) {
-  if (current instanceof Dark) {
-    return new Light();
-  } else {
+  if (current instanceof Light) {
     return new Dark();
+  } else {
+    return new Light();
   }
 }
 function owner_types() {
   return toList([new User(), new Org()]);
 }
 function owner_type_to_string(owner_type) {
-  if (owner_type instanceof Org) {
-    return "org";
-  } else {
+  if (owner_type instanceof User) {
     return "user";
+  } else {
+    return "org";
   }
 }
 function section_to_string(section) {
@@ -6724,17 +8647,17 @@ function get_author_color_classes() {
 function init_model() {
   let author_color_classes = get_author_color_classes();
   let $ = public$;
-  if (!$) {
-    return new Model2(
-      new Config(new Dark()),
-      new Initial(),
+  if ($) {
+    return new Model(
+      new Config3(new Dark()),
+      new ConfigLoaded(new None(), new User(), false),
       author_color_classes,
       false
     );
   } else {
-    return new Model2(
-      new Config(new Dark()),
-      new ConfigLoaded(new None(), new User(), false),
+    return new Model(
+      new Config3(new Dark()),
+      new Initial(),
       author_color_classes,
       false
     );
@@ -6742,8 +8665,8 @@ function init_model() {
 }
 
 // build/dev/javascript/ghx/ghx/ffi/element_ffi.mjs
-function scrollIntoViewStart(element2) {
-  element2.scrollIntoView({ behavior: "smooth", block: "start" });
+function scrollIntoViewStart(element4) {
+  element4.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 // build/dev/javascript/ghx/ghx/effects.mjs
@@ -6753,16 +8676,16 @@ function scroll_element_into_view(id2) {
       let _pipe2 = id2;
       return getElementById(_pipe2);
     })();
-    if (!$.isOk()) {
-      return void 0;
-    } else {
+    if ($ instanceof Ok) {
       let e = $[0];
       let _pipe2 = e;
       return scrollIntoViewStart(_pipe2);
+    } else {
+      return void 0;
     }
   };
   let _pipe = (_) => {
-    setTimeout(100, scroll_fn);
+    setTimeout2(100, scroll_fn);
     return void 0;
   };
   return from(_pipe);
@@ -6770,15 +8693,15 @@ function scroll_element_into_view(id2) {
 var dev = false;
 function base_url() {
   let $ = public$;
-  if (!$) {
-    let $1 = dev;
-    if (!$1) {
-      return location() + "api";
-    } else {
-      return "http://127.0.0.1:9899/api";
-    }
-  } else {
+  if ($) {
     return "https://api.github.com";
+  } else {
+    let $1 = dev;
+    if ($1) {
+      return "http://127.0.0.1:9899/api";
+    } else {
+      return location() + "api";
+    }
   }
 }
 function fetch_initial_config() {
@@ -6788,16 +8711,16 @@ function fetch_initial_config() {
       return new InitialConfigFetched(var0);
     }
   );
-  return get(base_url() + "/config", expect);
+  return get2(base_url() + "/config", expect);
 }
 function repos_endpoint(user_name, owner_type) {
   let _pipe = toList([
     base_url(),
     (() => {
-      if (owner_type instanceof Org) {
-        return "orgs";
-      } else {
+      if (owner_type instanceof User) {
         return "users";
+      } else {
+        return "orgs";
       }
     })(),
     user_name,
@@ -6812,7 +8735,7 @@ function fetch_repos(user_name, owner_type) {
       return new ReposFetched(var0);
     }
   );
-  return get(
+  return get2(
     (() => {
       let _pipe = user_name;
       return repos_endpoint(_pipe, owner_type);
@@ -6831,7 +8754,7 @@ function fetch_tags(username, repo) {
       return new TagsFetched([repo, result]);
     }
   );
-  return get(tags_endpoint(username, repo), expect);
+  return get2(tags_endpoint(username, repo), expect);
 }
 function changelog_endpoint(user_name, repo, start_tag, end_tag) {
   let _pipe = toList([
@@ -6851,83 +8774,72 @@ function fetch_changes(user_name, repo, start_tag, end_tag) {
       return new ChangesFetched([start_tag, end_tag, result]);
     }
   );
-  return get(
+  return get2(
     changelog_endpoint(user_name, repo, start_tag, end_tag),
     expect
   );
 }
 
 // build/dev/javascript/ghx/ghx/update.mjs
-function update(model, msg) {
+function update2(model, msg) {
   let zero = [model, none()];
   let state = model.state;
   if (msg instanceof InitialConfigFetched) {
     let result = msg[0];
-    if (!result.isOk()) {
-      let e = result[0];
+    if (result instanceof Ok) {
+      let initial_config = result[0];
+      let maybe_owner = initial_config.owner;
+      let owner_type = initial_config.owner_type;
+      let theme = initial_config.theme;
       return [
+        new Model(
+          new Config3(theme),
+          new ConfigLoaded(
+            maybe_owner,
+            owner_type,
+            (() => {
+              let _pipe = maybe_owner;
+              return is_some(_pipe);
+            })()
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
         (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigError(e),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
-        none()
+          if (maybe_owner instanceof Some) {
+            let user_name = maybe_owner[0];
+            return fetch_repos(user_name, owner_type);
+          } else {
+            return none();
+          }
+        })()
       ];
     } else {
-      let initial_config = result[0];
-      {
-        let maybe_owner = initial_config.owner;
-        let owner_type = initial_config.owner_type;
-        let theme = initial_config.theme;
-        return [
-          (() => {
-            let _record = model;
-            return new Model2(
-              new Config(theme),
-              new ConfigLoaded(
-                maybe_owner,
-                owner_type,
-                (() => {
-                  let _pipe = maybe_owner;
-                  return is_some(_pipe);
-                })()
-              ),
-              _record.author_color_classes,
-              _record.debug
-            );
-          })(),
-          (() => {
-            if (maybe_owner instanceof None) {
-              return none();
-            } else {
-              let user_name = maybe_owner[0];
-              return fetch_repos(user_name, owner_type);
-            }
-          })()
-        ];
-      }
+      let e = result[0];
+      return [
+        new Model(
+          model.config,
+          new ConfigError(e),
+          model.author_color_classes,
+          model.debug
+        ),
+        none()
+      ];
     }
   } else if (msg instanceof UserChangedTheme) {
     let config = model.config;
     return [
-      (() => {
-        let _record = model;
-        return new Model2(
-          new Config(
-            (() => {
-              let _pipe = config.theme;
-              return get_next_theme(_pipe);
-            })()
-          ),
-          _record.state,
-          _record.author_color_classes,
-          _record.debug
-        );
-      })(),
+      new Model(
+        new Config3(
+          (() => {
+            let _pipe = config.theme;
+            return get_next_theme(_pipe);
+          })()
+        ),
+        model.state,
+        model.author_color_classes,
+        model.debug
+      ),
       none()
     ];
   } else if (msg instanceof AccountTypeChanged) {
@@ -6935,147 +8847,126 @@ function update(model, msg) {
     if (state instanceof ConfigLoaded) {
       let user_name = state.user_name;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(user_name, owner_type, false),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
-        none()
-      ];
-    } else if (state instanceof WithChanges) {
-      let user_name = state.user_name;
-      let owner_type$1 = state.owner_type;
-      return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type$1,
-              false
-            ),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
-        none()
-      ];
-    } else if (state instanceof WithChangesError) {
-      let user_name = state.user_name;
-      let owner_type$1 = state.owner_type;
-      return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type$1,
-              false
-            ),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
-        none()
-      ];
-    } else if (state instanceof WithRepos) {
-      let user_name = state.user_name;
-      let owner_type$1 = state.owner_type;
-      return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type$1,
-              false
-            ),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+        new Model(
+          model.config,
+          new ConfigLoaded(user_name, owner_type, false),
+          model.author_color_classes,
+          model.debug
+        ),
         none()
       ];
     } else if (state instanceof WithReposError) {
       let user_name = state.user_name;
       let owner_type$1 = state.owner_type;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type$1,
-              false
-            ),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+        new Model(
+          model.config,
+          new ConfigLoaded(
+            (() => {
+              let _pipe = user_name;
+              return new Some(_pipe);
+            })(),
+            owner_type$1,
+            false
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
         none()
       ];
-    } else if (state instanceof WithTags) {
+    } else if (state instanceof WithRepos) {
       let user_name = state.user_name;
       let owner_type$1 = state.owner_type;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type$1,
-              false
-            ),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+        new Model(
+          model.config,
+          new ConfigLoaded(
+            (() => {
+              let _pipe = user_name;
+              return new Some(_pipe);
+            })(),
+            owner_type$1,
+            false
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
         none()
       ];
     } else if (state instanceof WithTagsError) {
       let user_name = state.user_name;
       let owner_type$1 = state.owner_type;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type$1,
-              false
-            ),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+        new Model(
+          model.config,
+          new ConfigLoaded(
+            (() => {
+              let _pipe = user_name;
+              return new Some(_pipe);
+            })(),
+            owner_type$1,
+            false
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
+        none()
+      ];
+    } else if (state instanceof WithTags) {
+      let user_name = state.user_name;
+      let owner_type$1 = state.owner_type;
+      return [
+        new Model(
+          model.config,
+          new ConfigLoaded(
+            (() => {
+              let _pipe = user_name;
+              return new Some(_pipe);
+            })(),
+            owner_type$1,
+            false
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
+        none()
+      ];
+    } else if (state instanceof WithChangesError) {
+      let user_name = state.user_name;
+      let owner_type$1 = state.owner_type;
+      return [
+        new Model(
+          model.config,
+          new ConfigLoaded(
+            (() => {
+              let _pipe = user_name;
+              return new Some(_pipe);
+            })(),
+            owner_type$1,
+            false
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
+        none()
+      ];
+    } else if (state instanceof WithChanges) {
+      let user_name = state.user_name;
+      let owner_type$1 = state.owner_type;
+      return [
+        new Model(
+          model.config,
+          new ConfigLoaded(
+            (() => {
+              let _pipe = user_name;
+              return new Some(_pipe);
+            })(),
+            owner_type$1,
+            false
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
         none()
       ];
     } else {
@@ -7100,188 +8991,140 @@ function update(model, msg) {
       _block = new Some(_pipe);
     }
     let user_name = _block;
-    if (state instanceof ConfigLoaded) {
+    if (state instanceof Initial) {
+      return zero;
+    } else if (state instanceof ConfigError) {
+      return zero;
+    } else if (state instanceof ConfigLoaded) {
       let owner_type = state.owner_type;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(user_name, owner_type, false),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
-        none()
-      ];
-    } else if (state instanceof WithChanges) {
-      let owner_type = state.owner_type;
-      return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(user_name, owner_type, false),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
-        none()
-      ];
-    } else if (state instanceof WithChangesError) {
-      let owner_type = state.owner_type;
-      return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(user_name, owner_type, false),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
-        none()
-      ];
-    } else if (state instanceof WithRepos) {
-      let owner_type = state.owner_type;
-      return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(user_name, owner_type, false),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+        new Model(
+          model.config,
+          new ConfigLoaded(user_name, owner_type, false),
+          model.author_color_classes,
+          model.debug
+        ),
         none()
       ];
     } else if (state instanceof WithReposError) {
       let owner_type = state.owner_type;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(user_name, owner_type, false),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+        new Model(
+          model.config,
+          new ConfigLoaded(user_name, owner_type, false),
+          model.author_color_classes,
+          model.debug
+        ),
         none()
       ];
-    } else if (state instanceof WithTags) {
+    } else if (state instanceof WithRepos) {
       let owner_type = state.owner_type;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(user_name, owner_type, false),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+        new Model(
+          model.config,
+          new ConfigLoaded(user_name, owner_type, false),
+          model.author_color_classes,
+          model.debug
+        ),
         none()
       ];
     } else if (state instanceof WithTagsError) {
       let owner_type = state.owner_type;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(user_name, owner_type, false),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+        new Model(
+          model.config,
+          new ConfigLoaded(user_name, owner_type, false),
+          model.author_color_classes,
+          model.debug
+        ),
         none()
       ];
-    } else if (state instanceof Initial) {
-      return zero;
+    } else if (state instanceof WithTags) {
+      let owner_type = state.owner_type;
+      return [
+        new Model(
+          model.config,
+          new ConfigLoaded(user_name, owner_type, false),
+          model.author_color_classes,
+          model.debug
+        ),
+        none()
+      ];
+    } else if (state instanceof WithChangesError) {
+      let owner_type = state.owner_type;
+      return [
+        new Model(
+          model.config,
+          new ConfigLoaded(user_name, owner_type, false),
+          model.author_color_classes,
+          model.debug
+        ),
+        none()
+      ];
     } else {
-      return zero;
+      let owner_type = state.owner_type;
+      return [
+        new Model(
+          model.config,
+          new ConfigLoaded(user_name, owner_type, false),
+          model.author_color_classes,
+          model.debug
+        ),
+        none()
+      ];
     }
   } else if (msg instanceof UserRequestedRepos) {
-    if (state instanceof ConfigLoaded) {
+    if (state instanceof Initial) {
+      return zero;
+    } else if (state instanceof ConfigError) {
+      return zero;
+    } else if (state instanceof ConfigLoaded) {
       let maybe_user_name = state.user_name;
       let owner_type = state.owner_type;
       let fetching_repos = state.fetching_repos;
       if (fetching_repos) {
         return zero;
-      } else if (maybe_user_name instanceof None) {
-        return zero;
-      } else {
+      } else if (maybe_user_name instanceof Some) {
         let user_name = maybe_user_name[0];
         return [
-          (() => {
-            let _record = model;
-            return new Model2(
-              _record.config,
-              new ConfigLoaded(
-                (() => {
-                  let _pipe = user_name;
-                  return new Some(_pipe);
-                })(),
-                owner_type,
-                true
-              ),
-              _record.author_color_classes,
-              _record.debug
-            );
-          })(),
+          new Model(
+            model.config,
+            new ConfigLoaded(
+              (() => {
+                let _pipe = user_name;
+                return new Some(_pipe);
+              })(),
+              owner_type,
+              true
+            ),
+            model.author_color_classes,
+            model.debug
+          ),
           (() => {
             let _pipe = user_name;
             return fetch_repos(_pipe, owner_type);
           })()
         ];
+      } else {
+        return zero;
       }
-    } else if (state instanceof WithChanges) {
+    } else if (state instanceof WithReposError) {
       let user_name = state.user_name;
       let owner_type = state.owner_type;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type,
-              true
-            ),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
-        (() => {
-          let _pipe = user_name;
-          return fetch_repos(_pipe, owner_type);
-        })()
-      ];
-    } else if (state instanceof WithChangesError) {
-      let user_name = state.user_name;
-      let owner_type = state.owner_type;
-      return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type,
-              true
-            ),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+        new Model(
+          model.config,
+          new ConfigLoaded(
+            (() => {
+              let _pipe = user_name;
+              return new Some(_pipe);
+            })(),
+            owner_type,
+            true
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
         (() => {
           let _pipe = user_name;
           return fetch_repos(_pipe, owner_type);
@@ -7291,72 +9134,19 @@ function update(model, msg) {
       let user_name = state.user_name;
       let owner_type = state.owner_type;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type,
-              true
-            ),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
-        (() => {
-          let _pipe = user_name;
-          return fetch_repos(_pipe, owner_type);
-        })()
-      ];
-    } else if (state instanceof WithReposError) {
-      let user_name = state.user_name;
-      let owner_type = state.owner_type;
-      return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type,
-              true
-            ),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
-        (() => {
-          let _pipe = user_name;
-          return fetch_repos(_pipe, owner_type);
-        })()
-      ];
-    } else if (state instanceof WithTags) {
-      let user_name = state.user_name;
-      let owner_type = state.owner_type;
-      return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type,
-              true
-            ),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+        new Model(
+          model.config,
+          new ConfigLoaded(
+            (() => {
+              let _pipe = user_name;
+              return new Some(_pipe);
+            })(),
+            owner_type,
+            true
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
         (() => {
           let _pipe = user_name;
           return fetch_repos(_pipe, owner_type);
@@ -7366,31 +9156,90 @@ function update(model, msg) {
       let user_name = state.user_name;
       let owner_type = state.owner_type;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new ConfigLoaded(
-              (() => {
-                let _pipe = user_name;
-                return new Some(_pipe);
-              })(),
-              owner_type,
-              true
-            ),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+        new Model(
+          model.config,
+          new ConfigLoaded(
+            (() => {
+              let _pipe = user_name;
+              return new Some(_pipe);
+            })(),
+            owner_type,
+            true
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
         (() => {
           let _pipe = user_name;
           return fetch_repos(_pipe, owner_type);
         })()
       ];
-    } else if (state instanceof ConfigError) {
-      return zero;
+    } else if (state instanceof WithTags) {
+      let user_name = state.user_name;
+      let owner_type = state.owner_type;
+      return [
+        new Model(
+          model.config,
+          new ConfigLoaded(
+            (() => {
+              let _pipe = user_name;
+              return new Some(_pipe);
+            })(),
+            owner_type,
+            true
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
+        (() => {
+          let _pipe = user_name;
+          return fetch_repos(_pipe, owner_type);
+        })()
+      ];
+    } else if (state instanceof WithChangesError) {
+      let user_name = state.user_name;
+      let owner_type = state.owner_type;
+      return [
+        new Model(
+          model.config,
+          new ConfigLoaded(
+            (() => {
+              let _pipe = user_name;
+              return new Some(_pipe);
+            })(),
+            owner_type,
+            true
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
+        (() => {
+          let _pipe = user_name;
+          return fetch_repos(_pipe, owner_type);
+        })()
+      ];
     } else {
-      return zero;
+      let user_name = state.user_name;
+      let owner_type = state.owner_type;
+      return [
+        new Model(
+          model.config,
+          new ConfigLoaded(
+            (() => {
+              let _pipe = user_name;
+              return new Some(_pipe);
+            })(),
+            owner_type,
+            true
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
+        (() => {
+          let _pipe = user_name;
+          return fetch_repos(_pipe, owner_type);
+        })()
+      ];
     }
   } else if (msg instanceof ReposFetched) {
     let r = msg[0];
@@ -7398,33 +9247,14 @@ function update(model, msg) {
       let maybe_user_name = state.user_name;
       let owner_type = state.owner_type;
       let fetching_repos = state.fetching_repos;
-      if (!fetching_repos) {
-        return zero;
-      } else if (maybe_user_name instanceof None) {
-        return zero;
-      } else {
-        let user_name = maybe_user_name[0];
-        if (!r.isOk()) {
-          let error = r[0];
-          return [
-            (() => {
-              let _record = model;
-              return new Model2(
-                _record.config,
-                new WithReposError(user_name, owner_type, error),
-                _record.author_color_classes,
-                _record.debug
-              );
-            })(),
-            none()
-          ];
-        } else {
-          let repos = r[0];
-          return [
-            (() => {
-              let _record = model;
-              return new Model2(
-                _record.config,
+      if (fetching_repos) {
+        if (maybe_user_name instanceof Some) {
+          let user_name = maybe_user_name[0];
+          if (r instanceof Ok) {
+            let repos = r[0];
+            return [
+              new Model(
+                model.config,
                 new WithRepos(
                   user_name,
                   owner_type,
@@ -7433,13 +9263,28 @@ function update(model, msg) {
                   false,
                   new None()
                 ),
-                _record.author_color_classes,
-                _record.debug
-              );
-            })(),
-            none()
-          ];
+                model.author_color_classes,
+                model.debug
+              ),
+              none()
+            ];
+          } else {
+            let error = r[0];
+            return [
+              new Model(
+                model.config,
+                new WithReposError(user_name, owner_type, error),
+                model.author_color_classes,
+                model.debug
+              ),
+              none()
+            ];
+          }
+        } else {
+          return zero;
         }
+      } else {
+        return zero;
       }
     } else {
       return zero;
@@ -7461,105 +9306,85 @@ function update(model, msg) {
     let query = _block;
     let _block$1;
     if (state instanceof WithRepos) {
-      let _record = model;
-      _block$1 = new Model2(
-        _record.config,
-        (() => {
-          let _record$1 = state;
-          return new WithRepos(
-            _record$1.user_name,
-            _record$1.owner_type,
-            _record$1.repos,
-            query,
-            _record$1.fetching_tags,
-            _record$1.selected_repo
-          );
-        })(),
-        _record.author_color_classes,
-        _record.debug
+      _block$1 = new Model(
+        model.config,
+        new WithRepos(
+          state.user_name,
+          state.owner_type,
+          state.repos,
+          query,
+          state.fetching_tags,
+          state.selected_repo
+        ),
+        model.author_color_classes,
+        model.debug
       );
     } else if (state instanceof WithTagsError) {
-      let _record = model;
-      _block$1 = new Model2(
-        _record.config,
-        (() => {
-          let _record$1 = state;
-          return new WithTagsError(
-            _record$1.user_name,
-            _record$1.owner_type,
-            _record$1.repos,
-            query,
-            _record$1.repo,
-            _record$1.error
-          );
-        })(),
-        _record.author_color_classes,
-        _record.debug
+      _block$1 = new Model(
+        model.config,
+        new WithTagsError(
+          state.user_name,
+          state.owner_type,
+          state.repos,
+          query,
+          state.repo,
+          state.error
+        ),
+        model.author_color_classes,
+        model.debug
       );
     } else if (state instanceof WithTags) {
-      let _record = model;
-      _block$1 = new Model2(
-        _record.config,
-        (() => {
-          let _record$1 = state;
-          return new WithTags(
-            _record$1.user_name,
-            _record$1.owner_type,
-            _record$1.repos,
-            query,
-            _record$1.repo,
-            _record$1.tags,
-            _record$1.start_tag,
-            _record$1.end_tag,
-            _record$1.fetching_changes
-          );
-        })(),
-        _record.author_color_classes,
-        _record.debug
+      _block$1 = new Model(
+        model.config,
+        new WithTags(
+          state.user_name,
+          state.owner_type,
+          state.repos,
+          query,
+          state.repo,
+          state.tags,
+          state.start_tag,
+          state.end_tag,
+          state.fetching_changes
+        ),
+        model.author_color_classes,
+        model.debug
       );
     } else if (state instanceof WithChangesError) {
-      let _record = model;
-      _block$1 = new Model2(
-        _record.config,
-        (() => {
-          let _record$1 = state;
-          return new WithChangesError(
-            _record$1.user_name,
-            _record$1.owner_type,
-            _record$1.repos,
-            query,
-            _record$1.repo,
-            _record$1.tags,
-            _record$1.start_tag,
-            _record$1.end_tag,
-            _record$1.error
-          );
-        })(),
-        _record.author_color_classes,
-        _record.debug
+      _block$1 = new Model(
+        model.config,
+        new WithChangesError(
+          state.user_name,
+          state.owner_type,
+          state.repos,
+          query,
+          state.repo,
+          state.tags,
+          state.start_tag,
+          state.end_tag,
+          state.error
+        ),
+        model.author_color_classes,
+        model.debug
       );
     } else if (state instanceof WithChanges) {
-      let _record = model;
-      _block$1 = new Model2(
-        _record.config,
-        (() => {
-          let _record$1 = state;
-          return new WithChanges(
-            _record$1.user_name,
-            _record$1.owner_type,
-            _record$1.repos,
-            query,
-            _record$1.repo,
-            _record$1.tags,
-            _record$1.start_tag,
-            _record$1.end_tag,
-            _record$1.changes,
-            _record$1.commits_filter,
-            _record$1.files_filter
-          );
-        })(),
-        _record.author_color_classes,
-        _record.debug
+      _block$1 = new Model(
+        model.config,
+        new WithChanges(
+          state.user_name,
+          state.owner_type,
+          state.repos,
+          query,
+          state.repo,
+          state.tags,
+          state.start_tag,
+          state.end_tag,
+          state.changes,
+          state.commits_filter,
+          state.files_filter
+        ),
+        model.author_color_classes,
+        model.debug
       );
     } else {
       _block$1 = model;
@@ -7573,112 +9398,28 @@ function update(model, msg) {
       return string_length(_pipe);
     })();
     if ($ === 0) {
-      if (state instanceof WithChanges) {
+      if (state instanceof WithRepos) {
         let user_name = state.user_name;
         let owner_type = state.owner_type;
         let repos = state.repos;
         let repo_filter_query = state.repo_filter_query;
         return [
-          (() => {
-            let _record = model;
-            return new Model2(
-              _record.config,
-              new WithRepos(
-                user_name,
-                owner_type,
-                repos,
-                repo_filter_query,
-                true,
-                (() => {
-                  let _pipe = repo;
-                  return new Some(_pipe);
-                })()
-              ),
-              _record.author_color_classes,
-              _record.debug
-            );
-          })(),
-          none()
-        ];
-      } else if (state instanceof WithChangesError) {
-        let user_name = state.user_name;
-        let owner_type = state.owner_type;
-        let repos = state.repos;
-        let repo_filter_query = state.repo_filter_query;
-        return [
-          (() => {
-            let _record = model;
-            return new Model2(
-              _record.config,
-              new WithRepos(
-                user_name,
-                owner_type,
-                repos,
-                repo_filter_query,
-                true,
-                (() => {
-                  let _pipe = repo;
-                  return new Some(_pipe);
-                })()
-              ),
-              _record.author_color_classes,
-              _record.debug
-            );
-          })(),
-          none()
-        ];
-      } else if (state instanceof WithRepos) {
-        let user_name = state.user_name;
-        let owner_type = state.owner_type;
-        let repos = state.repos;
-        let repo_filter_query = state.repo_filter_query;
-        return [
-          (() => {
-            let _record = model;
-            return new Model2(
-              _record.config,
-              new WithRepos(
-                user_name,
-                owner_type,
-                repos,
-                repo_filter_query,
-                true,
-                (() => {
-                  let _pipe = repo;
-                  return new Some(_pipe);
-                })()
-              ),
-              _record.author_color_classes,
-              _record.debug
-            );
-          })(),
-          none()
-        ];
-      } else if (state instanceof WithTags) {
-        let user_name = state.user_name;
-        let owner_type = state.owner_type;
-        let repos = state.repos;
-        let repo_filter_query = state.repo_filter_query;
-        return [
-          (() => {
-            let _record = model;
-            return new Model2(
-              _record.config,
-              new WithRepos(
-                user_name,
-                owner_type,
-                repos,
-                repo_filter_query,
-                true,
-                (() => {
-                  let _pipe = repo;
-                  return new Some(_pipe);
-                })()
-              ),
-              _record.author_color_classes,
-              _record.debug
-            );
-          })(),
+          new Model(
+            model.config,
+            new WithRepos(
+              user_name,
+              owner_type,
+              repos,
+              repo_filter_query,
+              true,
+              (() => {
+                let _pipe = repo;
+                return new Some(_pipe);
+              })()
+            ),
+            model.author_color_classes,
+            model.debug
+          ),
           none()
         ];
       } else if (state instanceof WithTagsError) {
@@ -7687,25 +9428,94 @@ function update(model, msg) {
         let repos = state.repos;
         let repo_filter_query = state.repo_filter_query;
         return [
-          (() => {
-            let _record = model;
-            return new Model2(
-              _record.config,
-              new WithRepos(
-                user_name,
-                owner_type,
-                repos,
-                repo_filter_query,
-                true,
-                (() => {
-                  let _pipe = repo;
-                  return new Some(_pipe);
-                })()
-              ),
-              _record.author_color_classes,
-              _record.debug
-            );
-          })(),
+          new Model(
+            model.config,
+            new WithRepos(
+              user_name,
+              owner_type,
+              repos,
+              repo_filter_query,
+              true,
+              (() => {
+                let _pipe = repo;
+                return new Some(_pipe);
+              })()
+            ),
+            model.author_color_classes,
+            model.debug
+          ),
+          none()
+        ];
+      } else if (state instanceof WithTags) {
+        let user_name = state.user_name;
+        let owner_type = state.owner_type;
+        let repos = state.repos;
+        let repo_filter_query = state.repo_filter_query;
+        return [
+          new Model(
+            model.config,
+            new WithRepos(
+              user_name,
+              owner_type,
+              repos,
+              repo_filter_query,
+              true,
+              (() => {
+                let _pipe = repo;
+                return new Some(_pipe);
+              })()
+            ),
+            model.author_color_classes,
+            model.debug
+          ),
+          none()
+        ];
+      } else if (state instanceof WithChangesError) {
+        let user_name = state.user_name;
+        let owner_type = state.owner_type;
+        let repos = state.repos;
+        let repo_filter_query = state.repo_filter_query;
+        return [
+          new Model(
+            model.config,
+            new WithRepos(
+              user_name,
+              owner_type,
+              repos,
+              repo_filter_query,
+              true,
+              (() => {
+                let _pipe = repo;
+                return new Some(_pipe);
+              })()
+            ),
+            model.author_color_classes,
+            model.debug
+          ),
+          none()
+        ];
+      } else if (state instanceof WithChanges) {
+        let user_name = state.user_name;
+        let owner_type = state.owner_type;
+        let repos = state.repos;
+        let repo_filter_query = state.repo_filter_query;
+        return [
+          new Model(
+            model.config,
+            new WithRepos(
+              user_name,
+              owner_type,
+              repos,
+              repo_filter_query,
+              true,
+              (() => {
+                let _pipe = repo;
+                return new Some(_pipe);
+              })()
+            ),
+            model.author_color_classes,
+            model.debug
+          ),
           none()
         ];
       } else {
@@ -7718,25 +9528,22 @@ function update(model, msg) {
         let repos = state.repos;
         let repo_filter_query = state.repo_filter_query;
         return [
-          (() => {
-            let _record = model;
-            return new Model2(
-              _record.config,
-              new WithRepos(
-                user_name,
-                owner_type,
-                repos,
-                repo_filter_query,
-                true,
-                (() => {
-                  let _pipe = repo;
-                  return new Some(_pipe);
-                })()
-              ),
-              _record.author_color_classes,
-              _record.debug
-            );
-          })(),
+          new Model(
+            model.config,
+            new WithRepos(
+              user_name,
+              owner_type,
+              repos,
+              repo_filter_query,
+              true,
+              (() => {
+                let _pipe = repo;
+                return new Some(_pipe);
+              })()
+            ),
+            model.author_color_classes,
+            model.debug
+          ),
           fetch_tags(user_name, repo)
         ];
       } else if (state instanceof WithTagsError) {
@@ -7745,25 +9552,22 @@ function update(model, msg) {
         let repos = state.repos;
         let repo_filter_query = state.repo_filter_query;
         return [
-          (() => {
-            let _record = model;
-            return new Model2(
-              _record.config,
-              new WithRepos(
-                user_name,
-                owner_type,
-                repos,
-                repo_filter_query,
-                true,
-                (() => {
-                  let _pipe = repo;
-                  return new Some(_pipe);
-                })()
-              ),
-              _record.author_color_classes,
-              _record.debug
-            );
-          })(),
+          new Model(
+            model.config,
+            new WithRepos(
+              user_name,
+              owner_type,
+              repos,
+              repo_filter_query,
+              true,
+              (() => {
+                let _pipe = repo;
+                return new Some(_pipe);
+              })()
+            ),
+            model.author_color_classes,
+            model.debug
+          ),
           fetch_tags(user_name, repo)
         ];
       } else if (state instanceof WithTags) {
@@ -7772,25 +9576,22 @@ function update(model, msg) {
         let repos = state.repos;
         let repo_filter_query = state.repo_filter_query;
         return [
-          (() => {
-            let _record = model;
-            return new Model2(
-              _record.config,
-              new WithRepos(
-                user_name,
-                owner_type,
-                repos,
-                repo_filter_query,
-                true,
-                (() => {
-                  let _pipe = repo;
-                  return new Some(_pipe);
-                })()
-              ),
-              _record.author_color_classes,
-              _record.debug
-            );
-          })(),
+          new Model(
+            model.config,
+            new WithRepos(
+              user_name,
+              owner_type,
+              repos,
+              repo_filter_query,
+              true,
+              (() => {
+                let _pipe = repo;
+                return new Some(_pipe);
+              })()
+            ),
+            model.author_color_classes,
+            model.debug
+          ),
           fetch_tags(user_name, repo)
         ];
       } else if (state instanceof WithChangesError) {
@@ -7799,25 +9600,22 @@ function update(model, msg) {
         let repos = state.repos;
         let repo_filter_query = state.repo_filter_query;
         return [
-          (() => {
-            let _record = model;
-            return new Model2(
-              _record.config,
-              new WithRepos(
-                user_name,
-                owner_type,
-                repos,
-                repo_filter_query,
-                true,
-                (() => {
-                  let _pipe = repo;
-                  return new Some(_pipe);
-                })()
-              ),
-              _record.author_color_classes,
-              _record.debug
-            );
-          })(),
+          new Model(
+            model.config,
+            new WithRepos(
+              user_name,
+              owner_type,
+              repos,
+              repo_filter_query,
+              true,
+              (() => {
+                let _pipe = repo;
+                return new Some(_pipe);
+              })()
+            ),
+            model.author_color_classes,
+            model.debug
+          ),
           fetch_tags(user_name, repo)
         ];
       } else if (state instanceof WithChanges) {
@@ -7826,25 +9624,22 @@ function update(model, msg) {
         let repos = state.repos;
         let repo_filter_query = state.repo_filter_query;
         return [
-          (() => {
-            let _record = model;
-            return new Model2(
-              _record.config,
-              new WithRepos(
-                user_name,
-                owner_type,
-                repos,
-                repo_filter_query,
-                true,
-                (() => {
-                  let _pipe = repo;
-                  return new Some(_pipe);
-                })()
-              ),
-              _record.author_color_classes,
-              _record.debug
-            );
-          })(),
+          new Model(
+            model.config,
+            new WithRepos(
+              user_name,
+              owner_type,
+              repos,
+              repo_filter_query,
+              true,
+              (() => {
+                let _pipe = repo;
+                return new Some(_pipe);
+              })()
+            ),
+            model.author_color_classes,
+            model.debug
+          ),
           fetch_tags(user_name, repo)
         ];
       } else {
@@ -7859,55 +9654,49 @@ function update(model, msg) {
       let owner_type = state.owner_type;
       let repos = state.repos;
       let repo_filter_query = state.repo_filter_query;
-      if (!result.isOk()) {
-        let error = result[0];
-        return [
-          (() => {
-            let _record = model;
-            return new Model2(
-              _record.config,
-              new WithTagsError(
-                user_name,
-                owner_type,
-                repos,
-                repo_filter_query,
-                repo,
-                error
-              ),
-              _record.author_color_classes,
-              _record.debug
-            );
-          })(),
-          none()
-        ];
-      } else {
+      if (result instanceof Ok) {
         let tags = result[0];
         return [
-          (() => {
-            let _record = model;
-            return new Model2(
-              _record.config,
-              new WithTags(
-                user_name,
-                owner_type,
-                repos,
-                repo_filter_query,
-                repo,
-                tags,
-                new None(),
-                new None(),
-                false
-              ),
-              _record.author_color_classes,
-              _record.debug
-            );
-          })(),
+          new Model(
+            model.config,
+            new WithTags(
+              user_name,
+              owner_type,
+              repos,
+              repo_filter_query,
+              repo,
+              tags,
+              new None(),
+              new None(),
+              false
+            ),
+            model.author_color_classes,
+            model.debug
+          ),
           scroll_element_into_view(
             (() => {
               let _pipe = new TagsSection();
               return section_id(_pipe);
             })()
           )
+        ];
+      } else {
+        let error = result[0];
+        return [
+          new Model(
+            model.config,
+            new WithTagsError(
+              user_name,
+              owner_type,
+              repos,
+              repo_filter_query,
+              repo,
+              error
+            ),
+            model.author_color_classes,
+            model.debug
+          ),
+          none()
         ];
       }
     } else {
@@ -7924,45 +9713,42 @@ function update(model, msg) {
       let tags = state.tags;
       let end_tag = state.end_tag;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new WithTags(
-              user_name,
-              owner_type,
-              repos,
-              repo_filter_query,
-              repo,
-              tags,
-              (() => {
-                let $ = (() => {
-                  let _pipe = tag;
-                  return string_length(_pipe);
-                })();
-                if ($ === 0) {
-                  return new None();
-                } else {
-                  let _pipe = tag;
-                  return new Some(_pipe);
-                }
-              })(),
-              (() => {
-                let _pipe = end_tag;
-                return or(
-                  _pipe,
-                  (() => {
-                    let _pipe$1 = head;
-                    return new Some(_pipe$1);
-                  })()
-                );
-              })(),
-              false
-            ),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+        new Model(
+          model.config,
+          new WithTags(
+            user_name,
+            owner_type,
+            repos,
+            repo_filter_query,
+            repo,
+            tags,
+            (() => {
+              let $ = (() => {
+                let _pipe = tag;
+                return string_length(_pipe);
+              })();
+              if ($ === 0) {
+                return new None();
+              } else {
+                let _pipe = tag;
+                return new Some(_pipe);
+              }
+            })(),
+            (() => {
+              let _pipe = end_tag;
+              return or(
+                _pipe,
+                (() => {
+                  let _pipe$1 = head;
+                  return new Some(_pipe$1);
+                })()
+              );
+            })(),
+            false
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
         none()
       ];
     } else if (state instanceof WithChangesError) {
@@ -7974,39 +9760,36 @@ function update(model, msg) {
       let tags = state.tags;
       let end_tag = state.end_tag;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new WithTags(
-              user_name,
-              owner_type,
-              repos,
-              repo_filter_query,
-              repo,
-              tags,
-              (() => {
-                let $ = (() => {
-                  let _pipe = tag;
-                  return string_length(_pipe);
-                })();
-                if ($ === 0) {
-                  return new None();
-                } else {
-                  let _pipe = tag;
-                  return new Some(_pipe);
-                }
-              })(),
-              (() => {
-                let _pipe = end_tag;
+        new Model(
+          model.config,
+          new WithTags(
+            user_name,
+            owner_type,
+            repos,
+            repo_filter_query,
+            repo,
+            tags,
+            (() => {
+              let $ = (() => {
+                let _pipe = tag;
+                return string_length(_pipe);
+              })();
+              if ($ === 0) {
+                return new None();
+              } else {
+                let _pipe = tag;
                 return new Some(_pipe);
-              })(),
-              false
-            ),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+              }
+            })(),
+            (() => {
+              let _pipe = end_tag;
+              return new Some(_pipe);
+            })(),
+            false
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
         none()
       ];
     } else if (state instanceof WithChanges) {
@@ -8018,39 +9801,36 @@ function update(model, msg) {
       let tags = state.tags;
       let end_tag = state.end_tag;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new WithTags(
-              user_name,
-              owner_type,
-              repos,
-              repo_filter_query,
-              repo,
-              tags,
-              (() => {
-                let $ = (() => {
-                  let _pipe = tag;
-                  return string_length(_pipe);
-                })();
-                if ($ === 0) {
-                  return new None();
-                } else {
-                  let _pipe = tag;
-                  return new Some(_pipe);
-                }
-              })(),
-              (() => {
-                let _pipe = end_tag;
+        new Model(
+          model.config,
+          new WithTags(
+            user_name,
+            owner_type,
+            repos,
+            repo_filter_query,
+            repo,
+            tags,
+            (() => {
+              let $ = (() => {
+                let _pipe = tag;
+                return string_length(_pipe);
+              })();
+              if ($ === 0) {
+                return new None();
+              } else {
+                let _pipe = tag;
                 return new Some(_pipe);
-              })(),
-              false
-            ),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+              }
+            })(),
+            (() => {
+              let _pipe = end_tag;
+              return new Some(_pipe);
+            })(),
+            false
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
         none()
       ];
     } else {
@@ -8067,36 +9847,33 @@ function update(model, msg) {
       let tags = state.tags;
       let start_tag = state.start_tag;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new WithTags(
-              user_name,
-              owner_type,
-              repos,
-              repo_filter_query,
-              repo,
-              tags,
-              start_tag,
-              (() => {
-                let $ = (() => {
-                  let _pipe = tag;
-                  return string_length(_pipe);
-                })();
-                if ($ === 0) {
-                  return new None();
-                } else {
-                  let _pipe = tag;
-                  return new Some(_pipe);
-                }
-              })(),
-              false
-            ),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+        new Model(
+          model.config,
+          new WithTags(
+            user_name,
+            owner_type,
+            repos,
+            repo_filter_query,
+            repo,
+            tags,
+            start_tag,
+            (() => {
+              let $ = (() => {
+                let _pipe = tag;
+                return string_length(_pipe);
+              })();
+              if ($ === 0) {
+                return new None();
+              } else {
+                let _pipe = tag;
+                return new Some(_pipe);
+              }
+            })(),
+            false
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
         none()
       ];
     } else if (state instanceof WithChangesError) {
@@ -8108,39 +9885,36 @@ function update(model, msg) {
       let tags = state.tags;
       let start_tag = state.start_tag;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new WithTags(
-              user_name,
-              owner_type,
-              repos,
-              repo_filter_query,
-              repo,
-              tags,
-              (() => {
-                let _pipe = start_tag;
+        new Model(
+          model.config,
+          new WithTags(
+            user_name,
+            owner_type,
+            repos,
+            repo_filter_query,
+            repo,
+            tags,
+            (() => {
+              let _pipe = start_tag;
+              return new Some(_pipe);
+            })(),
+            (() => {
+              let $ = (() => {
+                let _pipe = tag;
+                return string_length(_pipe);
+              })();
+              if ($ === 0) {
+                return new None();
+              } else {
+                let _pipe = tag;
                 return new Some(_pipe);
-              })(),
-              (() => {
-                let $ = (() => {
-                  let _pipe = tag;
-                  return string_length(_pipe);
-                })();
-                if ($ === 0) {
-                  return new None();
-                } else {
-                  let _pipe = tag;
-                  return new Some(_pipe);
-                }
-              })(),
-              false
-            ),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+              }
+            })(),
+            false
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
         none()
       ];
     } else if (state instanceof WithChanges) {
@@ -8152,39 +9926,36 @@ function update(model, msg) {
       let tags = state.tags;
       let start_tag = state.start_tag;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            new WithTags(
-              user_name,
-              owner_type,
-              repos,
-              repo_filter_query,
-              repo,
-              tags,
-              (() => {
-                let _pipe = start_tag;
+        new Model(
+          model.config,
+          new WithTags(
+            user_name,
+            owner_type,
+            repos,
+            repo_filter_query,
+            repo,
+            tags,
+            (() => {
+              let _pipe = start_tag;
+              return new Some(_pipe);
+            })(),
+            (() => {
+              let $ = (() => {
+                let _pipe = tag;
+                return string_length(_pipe);
+              })();
+              if ($ === 0) {
+                return new None();
+              } else {
+                let _pipe = tag;
                 return new Some(_pipe);
-              })(),
-              (() => {
-                let $ = (() => {
-                  let _pipe = tag;
-                  return string_length(_pipe);
-                })();
-                if ($ === 0) {
-                  return new None();
-                } else {
-                  let _pipe = tag;
-                  return new Some(_pipe);
-                }
-              })(),
-              false
-            ),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+              }
+            })(),
+            false
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
         none()
       ];
     } else {
@@ -8196,33 +9967,27 @@ function update(model, msg) {
       let repo = state.repo;
       let $ = state.start_tag;
       let $1 = state.end_tag;
-      if ($ instanceof Some && $1 instanceof Some) {
-        let start3 = $[0];
+      if ($1 instanceof Some && $ instanceof Some) {
         let end = $1[0];
+        let start4 = $[0];
         return [
-          (() => {
-            let _record = model;
-            return new Model2(
-              _record.config,
-              (() => {
-                let _record$1 = state;
-                return new WithTags(
-                  _record$1.user_name,
-                  _record$1.owner_type,
-                  _record$1.repos,
-                  _record$1.repo_filter_query,
-                  _record$1.repo,
-                  _record$1.tags,
-                  _record$1.start_tag,
-                  _record$1.end_tag,
-                  true
-                );
-              })(),
-              _record.author_color_classes,
-              _record.debug
-            );
-          })(),
-          fetch_changes(user_name, repo, start3, end)
+          new Model(
+            model.config,
+            new WithTags(
+              state.user_name,
+              state.owner_type,
+              state.repos,
+              state.repo_filter_query,
+              state.repo,
+              state.tags,
+              state.start_tag,
+              state.end_tag,
+              true
+            ),
+            model.author_color_classes,
+            model.debug
+          ),
+          fetch_changes(user_name, repo, start4, end)
         ];
       } else {
         return zero;
@@ -8241,60 +10006,54 @@ function update(model, msg) {
       let repo_filter_query = state.repo_filter_query;
       let repo = state.repo;
       let tags = state.tags;
-      if (!result.isOk()) {
-        let error = result[0];
-        return [
-          (() => {
-            let _record = model;
-            return new Model2(
-              _record.config,
-              new WithChangesError(
-                user_name,
-                owner_type,
-                repos,
-                repo_filter_query,
-                repo,
-                tags,
-                start_tag,
-                end_tag,
-                error
-              ),
-              _record.author_color_classes,
-              _record.debug
-            );
-          })(),
-          none()
-        ];
-      } else {
+      if (result instanceof Ok) {
         let changes = result[0];
         return [
-          (() => {
-            let _record = model;
-            return new Model2(
-              _record.config,
-              new WithChanges(
-                user_name,
-                owner_type,
-                repos,
-                repo_filter_query,
-                repo,
-                tags,
-                start_tag,
-                end_tag,
-                changes,
-                new None(),
-                new None()
-              ),
-              _record.author_color_classes,
-              _record.debug
-            );
-          })(),
+          new Model(
+            model.config,
+            new WithChanges(
+              user_name,
+              owner_type,
+              repos,
+              repo_filter_query,
+              repo,
+              tags,
+              start_tag,
+              end_tag,
+              changes,
+              new None(),
+              new None()
+            ),
+            model.author_color_classes,
+            model.debug
+          ),
           scroll_element_into_view(
             (() => {
               let _pipe = new CommitsSection();
               return section_id(_pipe);
             })()
           )
+        ];
+      } else {
+        let error = result[0];
+        return [
+          new Model(
+            model.config,
+            new WithChangesError(
+              user_name,
+              owner_type,
+              repos,
+              repo_filter_query,
+              repo,
+              tags,
+              start_tag,
+              end_tag,
+              error
+            ),
+            model.author_color_classes,
+            model.debug
+          ),
+          none()
         ];
       }
     } else {
@@ -8326,30 +10085,24 @@ function update(model, msg) {
       }
       let filter3 = _block;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            (() => {
-              let _record$1 = state;
-              return new WithChanges(
-                _record$1.user_name,
-                _record$1.owner_type,
-                _record$1.repos,
-                _record$1.repo_filter_query,
-                _record$1.repo,
-                _record$1.tags,
-                _record$1.start_tag,
-                _record$1.end_tag,
-                _record$1.changes,
-                filter3,
-                _record$1.files_filter
-              );
-            })(),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+        new Model(
+          model.config,
+          new WithChanges(
+            state.user_name,
+            state.owner_type,
+            state.repos,
+            state.repo_filter_query,
+            state.repo,
+            state.tags,
+            state.start_tag,
+            state.end_tag,
+            state.changes,
+            filter3,
+            state.files_filter
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
         none()
       ];
     } else {
@@ -8371,30 +10124,24 @@ function update(model, msg) {
       }
       let filter3 = _block;
       return [
-        (() => {
-          let _record = model;
-          return new Model2(
-            _record.config,
-            (() => {
-              let _record$1 = state;
-              return new WithChanges(
-                _record$1.user_name,
-                _record$1.owner_type,
-                _record$1.repos,
-                _record$1.repo_filter_query,
-                _record$1.repo,
-                _record$1.tags,
-                _record$1.start_tag,
-                _record$1.end_tag,
-                _record$1.changes,
-                _record$1.commits_filter,
-                filter3
-              );
-            })(),
-            _record.author_color_classes,
-            _record.debug
-          );
-        })(),
+        new Model(
+          model.config,
+          new WithChanges(
+            state.user_name,
+            state.owner_type,
+            state.repos,
+            state.repo_filter_query,
+            state.repo,
+            state.tags,
+            state.start_tag,
+            state.end_tag,
+            state.changes,
+            state.commits_filter,
+            filter3
+          ),
+          model.author_color_classes,
+          model.debug
+        ),
         none()
       ];
     } else {
@@ -8403,81 +10150,65 @@ function update(model, msg) {
   }
 }
 
-// build/dev/javascript/lustre/lustre/element/html.mjs
-function text2(content) {
-  return text(content);
-}
-function nav(attrs, children2) {
-  return element("nav", attrs, children2);
-}
-function div(attrs, children2) {
-  return element("div", attrs, children2);
-}
-function p(attrs, children2) {
-  return element("p", attrs, children2);
-}
-function pre(attrs, children2) {
-  return element("pre", attrs, children2);
-}
-function a(attrs, children2) {
-  return element("a", attrs, children2);
-}
-function span(attrs, children2) {
-  return element("span", attrs, children2);
-}
-function button(attrs, children2) {
-  return element("button", attrs, children2);
-}
-function input(attrs) {
-  return element("input", attrs, toList([]));
-}
-function label(attrs, children2) {
-  return element("label", attrs, children2);
-}
-function option(attrs, label2) {
-  return element("option", attrs, toList([text(label2)]));
-}
-function select(attrs, children2) {
-  return element("select", attrs, children2);
-}
-
 // build/dev/javascript/lustre/lustre/event.mjs
-function on2(name2, handler) {
-  return on(name2, handler);
+function is_immediate_event(name2) {
+  if (name2 === "input") {
+    return true;
+  } else if (name2 === "change") {
+    return true;
+  } else if (name2 === "focus") {
+    return true;
+  } else if (name2 === "focusin") {
+    return true;
+  } else if (name2 === "focusout") {
+    return true;
+  } else if (name2 === "blur") {
+    return true;
+  } else if (name2 === "select") {
+    return true;
+  } else {
+    return false;
+  }
+}
+function on(name2, handler) {
+  return event(
+    name2,
+    map3(handler, (msg) => {
+      return new Handler(false, false, msg);
+    }),
+    empty_list,
+    never,
+    never,
+    is_immediate_event(name2),
+    0,
+    0
+  );
 }
 function on_click(msg) {
-  return on2("click", (_) => {
-    return new Ok(msg);
-  });
-}
-function value3(event2) {
-  let _pipe = event2;
-  return field("target", field("value", string2))(
-    _pipe
-  );
+  return on("click", success(msg));
 }
 function on_input(msg) {
-  return on2(
+  return on(
     "input",
-    (event2) => {
-      let _pipe = value3(event2);
-      return map3(_pipe, msg);
-    }
-  );
-}
-function checked2(event2) {
-  let _pipe = event2;
-  return field("target", field("checked", bool))(
-    _pipe
+    subfield(
+      toList(["target", "value"]),
+      string3,
+      (value3) => {
+        return success(msg(value3));
+      }
+    )
   );
 }
 function on_check(msg) {
-  return on2(
+  return on(
     "change",
-    (event2) => {
-      let _pipe = checked2(event2);
-      return map3(_pipe, msg);
-    }
+    subfield(
+      toList(["target", "checked"]),
+      bool,
+      (checked2) => {
+        return success(msg(checked2));
+      }
+    )
   );
 }
 
@@ -8487,17 +10218,15 @@ var Start = class extends CustomType {
 var End = class extends CustomType {
 };
 function main_div_class(theme) {
-  if (theme instanceof Dark) {
-    return "bg-[#282828] text-[#fbf1c7]";
-  } else {
+  if (theme instanceof Light) {
     return "bg-[#ffffff] text-[#282828]";
+  } else {
+    return "bg-[#282828] text-[#fbf1c7]";
   }
 }
 function debug_section(model) {
   let $ = model.debug;
-  if (!$) {
-    return none2();
-  } else {
+  if ($) {
     return div(
       toList([
         class$(
@@ -8524,7 +10253,7 @@ function debug_section(model) {
           toList([
             (() => {
               let _pipe = "debug";
-              return text(_pipe);
+              return text2(_pipe);
             })()
           ])
         ),
@@ -8537,7 +10266,7 @@ function debug_section(model) {
                 (() => {
                   let _pipe = model;
                   let _pipe$1 = display_model(_pipe);
-                  return text(_pipe$1);
+                  return text2(_pipe$1);
                 })()
               ])
             )
@@ -8545,21 +10274,23 @@ function debug_section(model) {
         )
       ])
     );
+  } else {
+    return none2();
   }
 }
 function heading(theme) {
   let _block;
-  if (theme instanceof Dark) {
-    _block = "text-[#e5d9f2]";
-  } else {
+  if (theme instanceof Light) {
     _block = "text-[#564592]";
+  } else {
+    _block = "text-[#e5d9f2]";
   }
   let heading_class = _block;
   let _block$1;
-  if (theme instanceof Dark) {
-    _block$1 = "bg-[#e5d9f2] text-[#282828]";
-  } else {
+  if (theme instanceof Light) {
     _block$1 = "bg-[#282828] text-[#ffffff]";
+  } else {
+    _block$1 = "bg-[#e5d9f2] text-[#282828]";
   }
   let tooltip_class = _block$1;
   return div(
@@ -8570,15 +10301,13 @@ function heading(theme) {
         toList([
           (() => {
             let _pipe = "ghx";
-            return text(_pipe);
+            return text2(_pipe);
           })()
         ])
       ),
       (() => {
         let $ = public$;
-        if (!$) {
-          return none2();
-        } else {
+        if ($) {
           return div(
             toList([class$("relative group")]),
             toList([
@@ -8587,7 +10316,7 @@ function heading(theme) {
                 toList([
                   (() => {
                     let _pipe = "(unauthenticated public version)";
-                    return text(_pipe);
+                    return text2(_pipe);
                   })()
                 ])
               ),
@@ -8600,12 +10329,14 @@ function heading(theme) {
                 toList([
                   (() => {
                     let _pipe = "Github might rate limit you after a while; use the command line version of ghx to make authenticated calls or to fetch non-public data";
-                    return text(_pipe);
+                    return text2(_pipe);
                   })()
                 ])
               )
             ])
           );
+        } else {
+          return none2();
         }
       })(),
       button(
@@ -8614,7 +10345,7 @@ function heading(theme) {
           on_click(new UserChangedTheme())
         ]),
         toList([
-          text(
+          text2(
             (() => {
               let _pipe = theme;
               return theme_to_string(_pipe);
@@ -8627,17 +10358,17 @@ function heading(theme) {
 }
 function config_error_section(error, theme) {
   let _block;
-  if (theme instanceof Dark) {
-    _block = "text-[#fb4934]";
-  } else {
+  if (theme instanceof Light) {
     _block = "text-[#cc241d]";
+  } else {
+    _block = "text-[#fb4934]";
   }
   let error_class = _block;
   let _block$1;
-  if (theme instanceof Dark) {
-    _block$1 = "border-[#fb4934]";
-  } else {
+  if (theme instanceof Light) {
     _block$1 = "border-[#cc241d]";
+  } else {
+    _block$1 = "border-[#fb4934]";
   }
   let div_class = _block$1;
   return div(
@@ -8652,14 +10383,14 @@ function config_error_section(error, theme) {
         toList([
           (() => {
             let _pipe = "Error fetching initial config: ";
-            return text(_pipe);
+            return text2(_pipe);
           })()
         ])
       ),
       pre(
         toList([class$("mt-2 p-1 text-wrap")]),
         toList([
-          text(
+          text2(
             (() => {
               let _pipe = error;
               return http_error_to_string(_pipe);
@@ -8671,21 +10402,7 @@ function config_error_section(error, theme) {
   );
 }
 function section_bg_class(section, theme) {
-  if (theme instanceof Dark) {
-    if (section instanceof DebugSection) {
-      return "bg-[#fabd2f]";
-    } else if (section instanceof OwnerSection) {
-      return "bg-[#a594f9]";
-    } else if (section instanceof ReposSection) {
-      return "bg-[#8caaee]";
-    } else if (section instanceof TagsSection) {
-      return "bg-[#80ed99]";
-    } else if (section instanceof CommitsSection) {
-      return "bg-[#c77dff]";
-    } else {
-      return "bg-[#affc41]";
-    }
-  } else {
+  if (theme instanceof Light) {
     if (section instanceof DebugSection) {
       return "bg-[#fabd2f]";
     } else if (section instanceof OwnerSection) {
@@ -8699,9 +10416,23 @@ function section_bg_class(section, theme) {
     } else {
       return "bg-[#7ab02d]";
     }
+  } else {
+    if (section instanceof DebugSection) {
+      return "bg-[#fabd2f]";
+    } else if (section instanceof OwnerSection) {
+      return "bg-[#a594f9]";
+    } else if (section instanceof ReposSection) {
+      return "bg-[#8caaee]";
+    } else if (section instanceof TagsSection) {
+      return "bg-[#80ed99]";
+    } else if (section instanceof CommitsSection) {
+      return "bg-[#c77dff]";
+    } else {
+      return "bg-[#affc41]";
+    }
   }
 }
-function owner_type_radio(owner_type, checked3) {
+function owner_type_radio(owner_type, checked2) {
   let id2 = "owner-selector-" + (() => {
     let _pipe = owner_type;
     return owner_type_to_string(_pipe);
@@ -8712,7 +10443,7 @@ function owner_type_radio(owner_type, checked3) {
       input(
         toList([
           name("inline-radio-group"),
-          checked(checked3),
+          checked(checked2),
           type_("radio"),
           id(id2),
           on_check(
@@ -8725,7 +10456,7 @@ function owner_type_radio(owner_type, checked3) {
       label(
         toList([class$("ms-2"), for$(id2)]),
         toList([
-          text2(
+          text3(
             (() => {
               let _pipe = owner_type;
               return owner_type_to_string(_pipe);
@@ -8753,24 +10484,24 @@ function owner_type_selector(owner_type) {
 }
 function owner_selection_section(user_name, owner_type, fetching_repos, theme) {
   let input_class = (() => {
-    if (theme instanceof Dark) {
-      return "text-[#282828] placeholder-[#3d3d3d]";
-    } else {
+    if (theme instanceof Light) {
       return "placeholder-[#3d3d3d]";
+    } else {
+      return "text-[#282828] placeholder-[#3d3d3d]";
     }
   })() + " " + section_bg_class(new OwnerSection(), theme);
   let _block;
-  if (theme instanceof Dark) {
-    _block = "bg-[#817ffc] text-[#282828]";
-  } else {
+  if (theme instanceof Light) {
     _block = "bg-[#ada9fd]";
+  } else {
+    _block = "bg-[#817ffc] text-[#282828]";
   }
   let button_class = _block;
   let _block$1;
-  if (owner_type instanceof Org) {
-    _block$1 = "org name";
-  } else {
+  if (owner_type instanceof User) {
     _block$1 = "username";
+  } else {
+    _block$1 = "org name";
   }
   let placeholder2 = _block$1;
   return div(
@@ -8799,7 +10530,7 @@ function owner_selection_section(user_name, owner_type, fetching_repos, theme) {
         toList([
           (() => {
             let _pipe = "owner";
-            return text(_pipe);
+            return text2(_pipe);
           })()
         ])
       ),
@@ -8844,7 +10575,7 @@ function owner_selection_section(user_name, owner_type, fetching_repos, theme) {
               ),
               on_click(new UserRequestedRepos())
             ]),
-            toList([text("fetch repos")])
+            toList([text2("fetch repos")])
           )
         ])
       )
@@ -8853,17 +10584,17 @@ function owner_selection_section(user_name, owner_type, fetching_repos, theme) {
 }
 function repos_error_section(error, owner_type, theme) {
   let _block;
-  if (theme instanceof Dark) {
-    _block = "text-[#fb4934]";
-  } else {
+  if (theme instanceof Light) {
     _block = "text-[#cc241d]";
+  } else {
+    _block = "text-[#fb4934]";
   }
   let error_class = _block;
   let _block$1;
-  if (theme instanceof Dark) {
-    _block$1 = "border-[#fb4934]";
-  } else {
+  if (theme instanceof Light) {
     _block$1 = "border-[#cc241d]";
+  } else {
+    _block$1 = "border-[#fb4934]";
   }
   let div_class = _block$1;
   return div(
@@ -8881,14 +10612,14 @@ function repos_error_section(error, owner_type, theme) {
               let _pipe2 = owner_type;
               return owner_type_to_string(_pipe2);
             })() + ": ";
-            return text(_pipe);
+            return text2(_pipe);
           })()
         ])
       ),
       pre(
         toList([class$("mt-2 p-1 text-wrap")]),
         toList([
-          text(
+          text2(
             (() => {
               let _pipe = error;
               return http_error_to_string(_pipe);
@@ -8900,9 +10631,7 @@ function repos_error_section(error, owner_type, theme) {
   );
 }
 function fetching_repos_section(fetching_repos) {
-  if (!fetching_repos) {
-    return none2();
-  } else {
+  if (fetching_repos) {
     return div(
       toList([
         class$(
@@ -8915,38 +10644,38 @@ function fetching_repos_section(fetching_repos) {
           toList([
             (() => {
               let _pipe = "fetching repos ...";
-              return text(_pipe);
+              return text2(_pipe);
             })()
           ])
         )
       ])
     );
+  } else {
+    return none2();
   }
 }
 function repo_select_button(repo, selected2, theme) {
   let _block;
-  if (theme instanceof Dark) {
-    _block = "text-[#8caaee] disabled:bg-[#8caaee] disabled:text-[#282828] hover:text-[#282828] hover:bg-[#c6d0f5]";
-  } else {
+  if (theme instanceof Light) {
     _block = "text-[#282828] disabled:bg-[#ff9fb2] hover:bg-[#fbdce2]";
+  } else {
+    _block = "text-[#8caaee] disabled:bg-[#8caaee] disabled:text-[#282828] hover:text-[#282828] hover:bg-[#c6d0f5]";
   }
   let class$2 = _block;
   return button(
     toList([
       id("reset-filter"),
       class$(
-        "max-sm:text-xs text-sm font-semibold mr-2 px-2 py-1 my-1 text-[#232634] " + class$2
+        "max-sm:text-xs text-sm font-semibold mr-2 px-2 py-1 my-1 " + class$2
       ),
       disabled(selected2),
       on_click(new RepoChosen(repo.name))
     ]),
-    toList([text(repo.name)])
+    toList([text2(repo.name)])
   );
 }
 function fetching_tags_section(fetching_tags) {
-  if (!fetching_tags) {
-    return none2();
-  } else {
+  if (fetching_tags) {
     return div(
       toList([
         class$(
@@ -8959,27 +10688,29 @@ function fetching_tags_section(fetching_tags) {
           toList([
             (() => {
               let _pipe = "fetching tags ...";
-              return text(_pipe);
+              return text2(_pipe);
             })()
           ])
         )
       ])
     );
+  } else {
+    return none2();
   }
 }
 function tags_error_section(error, theme) {
   let _block;
-  if (theme instanceof Dark) {
-    _block = "text-[#fb4934]";
-  } else {
+  if (theme instanceof Light) {
     _block = "text-[#cc241d]";
+  } else {
+    _block = "text-[#fb4934]";
   }
   let error_class = _block;
   let _block$1;
-  if (theme instanceof Dark) {
-    _block$1 = "border-[#fb4934]";
-  } else {
+  if (theme instanceof Light) {
     _block$1 = "border-[#cc241d]";
+  } else {
+    _block$1 = "border-[#fb4934]";
   }
   let div_class = _block$1;
   return div(
@@ -8994,14 +10725,14 @@ function tags_error_section(error, theme) {
         toList([
           (() => {
             let _pipe = "Error fetching tags for the repo:";
-            return text(_pipe);
+            return text2(_pipe);
           })()
         ])
       ),
       pre(
         toList([class$("mt-2 p-1 text-wrap")]),
         toList([
-          text(
+          text2(
             (() => {
               let _pipe = error;
               return http_error_to_string(_pipe);
@@ -9012,17 +10743,17 @@ function tags_error_section(error, theme) {
     ])
   );
 }
-function tag_option(value4, label2, selected_value) {
+function tag_option(value3, label2, selected_value) {
   let _block;
   let _pipe = selected_value;
   let _pipe$1 = map(_pipe, (s) => {
-    return s === value4;
+    return s === value3;
   });
   _block = unwrap(_pipe$1, false);
   let is_selected = _block;
   return option(
     toList([
-      value(value4),
+      value(value3),
       (() => {
         let _pipe$2 = is_selected;
         return selected(_pipe$2);
@@ -9033,10 +10764,10 @@ function tag_option(value4, label2, selected_value) {
 }
 function tag_select(tags, tag_type, selected2, theme) {
   let _block;
-  if (theme instanceof Dark) {
-    _block = "bg-[#788bff] text-[#282828]";
-  } else {
+  if (theme instanceof Light) {
     _block = "bg-[#9bb1ff] text-[#282828]";
+  } else {
+    _block = "bg-[#788bff] text-[#282828]";
   }
   let select_class = _block;
   return select(
@@ -9045,13 +10776,13 @@ function tag_select(tags, tag_type, selected2, theme) {
       name("tags"),
       on_input(
         (() => {
-          if (tag_type instanceof End) {
+          if (tag_type instanceof Start) {
             return (var0) => {
-              return new EndTagChosen(var0);
+              return new StartTagChosen(var0);
             };
           } else {
             return (var0) => {
-              return new StartTagChosen(var0);
+              return new EndTagChosen(var0);
             };
           }
         })()
@@ -9074,10 +10805,10 @@ function tag_select(tags, tag_type, selected2, theme) {
         tag_option(
           "",
           (() => {
-            if (tag_type instanceof End) {
-              return "-- choose end tag --";
-            } else {
+            if (tag_type instanceof Start) {
               return "-- choose start tag --";
+            } else {
+              return "-- choose end tag --";
             }
           })(),
           selected2
@@ -9111,7 +10842,7 @@ function tags_select_section(tags, start_tag, end_tag, fetching_changelog, theme
             toList([
               (() => {
                 let _pipe = "repo has no tags";
-                return text(_pipe);
+                return text2(_pipe);
               })()
             ])
           )
@@ -9131,56 +10862,58 @@ function tags_select_section(tags, start_tag, end_tag, fetching_changelog, theme
             toList([
               (() => {
                 let _pipe = "tags";
-                return text(_pipe);
+                return text2(_pipe);
               })()
             ])
           ),
           div(
             toList([class$("mt-4 flex flex-wrap gap-2 items-center")]),
             (() => {
-              if (start_tag instanceof None) {
-                return toList([
-                  (() => {
-                    let _pipe = tags;
-                    return tag_select(_pipe, new Start(), start_tag, theme);
-                  })()
-                ]);
-              } else if (start_tag instanceof Some && end_tag instanceof None) {
-                return toList([
-                  (() => {
-                    let _pipe = tags;
-                    return tag_select(_pipe, new Start(), start_tag, theme);
-                  })(),
-                  (() => {
-                    let _pipe = tags;
-                    return tag_select(_pipe, new End(), end_tag, theme);
-                  })()
-                ]);
+              if (start_tag instanceof Some) {
+                if (end_tag instanceof Some) {
+                  let button_class = "text-[#282828] " + section_bg_class(
+                    new TagsSection(),
+                    theme
+                  );
+                  return toList([
+                    (() => {
+                      let _pipe = tags;
+                      return tag_select(_pipe, new Start(), start_tag, theme);
+                    })(),
+                    (() => {
+                      let _pipe = tags;
+                      return tag_select(_pipe, new End(), end_tag, theme);
+                    })(),
+                    button(
+                      toList([
+                        id("fetch-changes"),
+                        class$(
+                          "px-4 py-1 font-semibold disabled:bg-[#a89984] " + button_class
+                        ),
+                        disabled(fetching_changelog),
+                        on_click(new UserRequestedChangelog())
+                      ]),
+                      toList([text2("fetch changes")])
+                    )
+                  ]);
+                } else {
+                  return toList([
+                    (() => {
+                      let _pipe = tags;
+                      return tag_select(_pipe, new Start(), start_tag, theme);
+                    })(),
+                    (() => {
+                      let _pipe = tags;
+                      return tag_select(_pipe, new End(), end_tag, theme);
+                    })()
+                  ]);
+                }
               } else {
-                let button_class = "text-[#282828] " + section_bg_class(
-                  new TagsSection(),
-                  theme
-                );
                 return toList([
                   (() => {
                     let _pipe = tags;
                     return tag_select(_pipe, new Start(), start_tag, theme);
-                  })(),
-                  (() => {
-                    let _pipe = tags;
-                    return tag_select(_pipe, new End(), end_tag, theme);
-                  })(),
-                  button(
-                    toList([
-                      id("fetch-changes"),
-                      class$(
-                        "px-4 py-1 font-semibold disabled:bg-[#a89984] " + button_class
-                      ),
-                      disabled(fetching_changelog),
-                      on_click(new UserRequestedChangelog())
-                    ]),
-                    toList([text("fetch changes")])
-                  )
+                  })()
                 ]);
               }
             })()
@@ -9192,17 +10925,17 @@ function tags_select_section(tags, start_tag, end_tag, fetching_changelog, theme
 }
 function changes_error_section(error, theme) {
   let _block;
-  if (theme instanceof Dark) {
-    _block = "text-[#fb4934]";
-  } else {
+  if (theme instanceof Light) {
     _block = "text-[#cc241d]";
+  } else {
+    _block = "text-[#fb4934]";
   }
   let error_class = _block;
   let _block$1;
-  if (theme instanceof Dark) {
-    _block$1 = "border-[#fb4934]";
-  } else {
+  if (theme instanceof Light) {
     _block$1 = "border-[#cc241d]";
+  } else {
+    _block$1 = "border-[#fb4934]";
   }
   let div_class = _block$1;
   return div(
@@ -9217,14 +10950,14 @@ function changes_error_section(error, theme) {
         toList([
           (() => {
             let _pipe = "Error fetching changes between the tags:";
-            return text(_pipe);
+            return text2(_pipe);
           })()
         ])
       ),
       pre(
         toList([class$("mt-2 p-1 text-wrap")]),
         toList([
-          text(
+          text2(
             (() => {
               let _pipe = error;
               return http_error_to_string(_pipe);
@@ -9249,9 +10982,7 @@ function filter_commit_predicate(query) {
       );
     })() || (() => {
       let $ = commit.details.author;
-      if ($ instanceof None) {
-        return false;
-      } else {
+      if ($ instanceof Some) {
         let author = $[0];
         return (() => {
           let _pipe = author.name;
@@ -9274,14 +11005,14 @@ function filter_commit_predicate(query) {
             })()
           );
         })();
+      } else {
+        return false;
       }
     })();
   };
 }
 function author_color_class(maybe_author, colors, fallback) {
-  if (maybe_author instanceof None) {
-    return fallback;
-  } else {
+  if (maybe_author instanceof Some) {
     let author = maybe_author[0];
     let hash = simple_hash(author.name);
     let _block;
@@ -9296,6 +11027,8 @@ function author_color_class(maybe_author, colors, fallback) {
     let _pipe$3 = colors;
     let _pipe$4 = map_get(_pipe$3, index5);
     return unwrap2(_pipe$4, fallback);
+  } else {
+    return fallback;
   }
 }
 function get_commit_relative_time(ts, now) {
@@ -9306,20 +11039,7 @@ function get_commit_relative_time(ts, now) {
 }
 function commit_details(commit, author_color_class_store, theme) {
   let _block;
-  if (theme instanceof Dark) {
-    _block = [
-      "text-[#c77dff]",
-      (() => {
-        let _pipe2 = commit.details.author;
-        return author_color_class(
-          _pipe2,
-          author_color_class_store,
-          "text-[#ff9500]"
-        );
-      })(),
-      "text-[#ff6d44]"
-    ];
-  } else {
+  if (theme instanceof Light) {
     _block = [
       "text-[#995f6a]",
       (() => {
@@ -9332,18 +11052,34 @@ function commit_details(commit, author_color_class_store, theme) {
       })(),
       "text-[#2ec0f9]"
     ];
+  } else {
+    _block = [
+      "text-[#c77dff]",
+      (() => {
+        let _pipe2 = commit.details.author;
+        return author_color_class(
+          _pipe2,
+          author_color_class_store,
+          "text-[#ff9500]"
+        );
+      })(),
+      "text-[#ff6d44]"
+    ];
   }
   let $ = _block;
-  let sha_class = $[0];
-  let author_class = $[1];
-  let timestamp_class = $[2];
+  let sha_class;
+  let author_class;
+  let timestamp_class;
+  sha_class = $[0];
+  author_class = $[1];
+  timestamp_class = $[2];
   let _block$1;
   let $1 = (() => {
     let _pipe2 = commit.sha;
     return string_length(_pipe2);
   })();
-  if ($1 >= 8) {
-    let n = $1;
+  let n = $1;
+  if (n >= 8) {
     let _pipe2 = commit.sha;
     _block$1 = slice(_pipe2, 0, 8);
   } else {
@@ -9368,7 +11104,7 @@ function commit_details(commit, author_color_class_store, theme) {
             toList([
               (() => {
                 let _pipe$3 = commit_hash;
-                return text(_pipe$3);
+                return text2(_pipe$3);
               })()
             ])
           )
@@ -9379,7 +11115,7 @@ function commit_details(commit, author_color_class_store, theme) {
         toList([
           (() => {
             let _pipe$3 = commit_message_heading;
-            return text(_pipe$3);
+            return text2(_pipe$3);
           })()
         ])
       ),
@@ -9393,7 +11129,7 @@ function commit_details(commit, author_color_class_store, theme) {
               toList([
                 (() => {
                   let _pipe$42 = author.name;
-                  return text(_pipe$42);
+                  return text2(_pipe$42);
                 })()
               ])
             );
@@ -9416,7 +11152,7 @@ function commit_details(commit, author_color_class_store, theme) {
                     (() => {
                       let _pipe$5 = ts;
                       let _pipe$6 = get_commit_relative_time(_pipe$5, now);
-                      return text(_pipe$6);
+                      return text2(_pipe$6);
                     })()
                   ])
                 );
@@ -9437,14 +11173,6 @@ function commits_section(commits, commits_filter_query, start_tag, end_tag, auth
   if ($ === 0) {
     return none2();
   } else {
-    let _block;
-    if (commits_filter_query instanceof None) {
-      _block = commits;
-    } else {
-      let q = commits_filter_query[0];
-      let _pipe = commits;
-      _block = filter(_pipe, filter_commit_predicate(q));
-    }
     return div(
       toList([
         class$(
@@ -9471,7 +11199,7 @@ function commits_section(commits, commits_filter_query, start_tag, end_tag, auth
           toList([
             (() => {
               let _pipe = "commits " + start_tag + "..." + end_tag;
-              return text(_pipe);
+              return text2(_pipe);
             })()
           ])
         ),
@@ -9503,6 +11231,14 @@ function commits_section(commits, commits_filter_query, start_tag, end_tag, auth
         div(
           toList([class$("mt-4 overflow-x-auto max-sm:text-xs")]),
           (() => {
+            let _block;
+            if (commits_filter_query instanceof Some) {
+              let q = commits_filter_query[0];
+              let _pipe2 = commits;
+              _block = filter(_pipe2, filter_commit_predicate(q));
+            } else {
+              _block = commits;
+            }
             let _pipe = _block;
             return map2(
               _pipe,
@@ -9517,10 +11253,10 @@ function commits_section(commits, commits_filter_query, start_tag, end_tag, auth
   }
 }
 function scrollbar_color(theme) {
-  if (theme instanceof Dark) {
-    return "#a594f940 #282828";
-  } else {
+  if (theme instanceof Light) {
     return "#a594f940 #ffffff";
+  } else {
+    return "#a594f940 #282828";
   }
 }
 function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, theme) {
@@ -9528,27 +11264,6 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
   let _pipe = new ReposSection();
   _block = section_bg_class(_pipe, theme);
   let filter_class = _block;
-  let _block$1;
-  if (maybe_filter_query instanceof None) {
-    _block$1 = repos;
-  } else {
-    let filter_query = maybe_filter_query[0];
-    let _pipe$1 = repos;
-    _block$1 = filter(
-      _pipe$1,
-      (repo) => {
-        let _pipe$2 = repo.name;
-        let _pipe$3 = lowercase(_pipe$2);
-        return contains_string(
-          _pipe$3,
-          (() => {
-            let _pipe$4 = filter_query;
-            return lowercase(_pipe$4);
-          })()
-        );
-      }
-    );
-  }
   return div(
     toList([
       class$(
@@ -9575,7 +11290,7 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
         toList([
           (() => {
             let _pipe$1 = "repos";
-            return text(_pipe$1);
+            return text2(_pipe$1);
           })()
         ])
       ),
@@ -9604,7 +11319,7 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
       div(
         toList([
           class$("flex-wrap mt-2 overflow-y-scroll max-h-60"),
-          style(
+          styles(
             toList([
               [
                 "scrollbar-color",
@@ -9618,6 +11333,27 @@ function repo_selection_section(repos, maybe_filter_query, maybe_selected_repo, 
           )
         ]),
         (() => {
+          let _block$1;
+          if (maybe_filter_query instanceof Some) {
+            let filter_query = maybe_filter_query[0];
+            let _pipe$12 = repos;
+            _block$1 = filter(
+              _pipe$12,
+              (repo) => {
+                let _pipe$22 = repo.name;
+                let _pipe$3 = lowercase(_pipe$22);
+                return contains_string(
+                  _pipe$3,
+                  (() => {
+                    let _pipe$4 = filter_query;
+                    return lowercase(_pipe$4);
+                  })()
+                );
+              }
+            );
+          } else {
+            _block$1 = repos;
+          }
           let _pipe$1 = _block$1;
           let _pipe$2 = sort(
             _pipe$1,
@@ -9664,37 +11400,37 @@ function filter_file_predicate(query) {
 }
 function file_status(status, theme) {
   let _block;
-  if (theme instanceof Dark) {
+  if (theme instanceof Light) {
     if (status instanceof Added) {
-      _block = "bg-[#7cea9c]";
-    } else if (status instanceof Changed) {
-      _block = "bg-[#fdb3ae]";
-    } else if (status instanceof Copied) {
-      _block = "bg-[#d0f4de]";
-    } else if (status instanceof Modified) {
-      _block = "bg-[#ffc300]";
+      _block = "bg-[#a3f0b9]";
     } else if (status instanceof Removed) {
-      _block = "bg-[#ff4365]";
+      _block = "bg-[#ff8ea2]";
+    } else if (status instanceof Modified) {
+      _block = "bg-[#ffe17f]";
     } else if (status instanceof Renamed) {
-      _block = "bg-[#dfa8a9]";
+      _block = "bg-[#ebcacb]";
+    } else if (status instanceof Copied) {
+      _block = "bg-[#def7e7]";
+    } else if (status instanceof Changed) {
+      _block = "bg-[#fdc9c6]";
     } else {
-      _block = "bg-[#e5d9f2]";
+      _block = "bg-[#efe8f7]";
     }
   } else {
     if (status instanceof Added) {
-      _block = "bg-[#a3f0b9]";
-    } else if (status instanceof Changed) {
-      _block = "bg-[#fdc9c6]";
-    } else if (status instanceof Copied) {
-      _block = "bg-[#def7e7]";
-    } else if (status instanceof Modified) {
-      _block = "bg-[#ffe17f]";
+      _block = "bg-[#7cea9c]";
     } else if (status instanceof Removed) {
-      _block = "bg-[#ff8ea2]";
+      _block = "bg-[#ff4365]";
+    } else if (status instanceof Modified) {
+      _block = "bg-[#ffc300]";
     } else if (status instanceof Renamed) {
-      _block = "bg-[#ebcacb]";
+      _block = "bg-[#dfa8a9]";
+    } else if (status instanceof Copied) {
+      _block = "bg-[#d0f4de]";
+    } else if (status instanceof Changed) {
+      _block = "bg-[#fdb3ae]";
     } else {
-      _block = "bg-[#efe8f7]";
+      _block = "bg-[#e5d9f2]";
     }
   }
   let class$2 = _block;
@@ -9708,7 +11444,7 @@ function file_status(status, theme) {
       (() => {
         let _pipe = status;
         let _pipe$1 = file_status_to_string(_pipe);
-        return text(_pipe$1);
+        return text2(_pipe$1);
       })()
     ])
   );
@@ -9737,14 +11473,16 @@ function file_change_stats(additions, deletions, theme) {
   }
   let deletions_text = _block$1;
   let _block$2;
-  if (theme instanceof Dark) {
-    _block$2 = ["text-[#affc41]", "text-[#ff4365]"];
-  } else {
+  if (theme instanceof Light) {
     _block$2 = ["text-[#068360]", "text-[#cc3550]"];
+  } else {
+    _block$2 = ["text-[#affc41]", "text-[#ff4365]"];
   }
   let $ = _block$2;
-  let additions_class = $[0];
-  let deletions_class = $[1];
+  let additions_class;
+  let deletions_class;
+  additions_class = $[0];
+  deletions_class = $[1];
   return div(
     toList([class$("flex gap-2")]),
     toList([
@@ -9757,7 +11495,7 @@ function file_change_stats(additions, deletions, theme) {
         toList([
           (() => {
             let _pipe = additions_text;
-            return text(_pipe);
+            return text2(_pipe);
           })()
         ])
       ),
@@ -9770,7 +11508,7 @@ function file_change_stats(additions, deletions, theme) {
         toList([
           (() => {
             let _pipe = deletions_text;
-            return text(_pipe);
+            return text2(_pipe);
           })()
         ])
       )
@@ -9794,7 +11532,7 @@ function file_details(file, theme) {
             toList([
               (() => {
                 let _pipe = file.file_name;
-                return text(_pipe);
+                return text2(_pipe);
               })()
             ])
           )
@@ -9804,101 +11542,104 @@ function file_details(file, theme) {
   );
 }
 function files_section(maybe_files, files_filter_query, theme) {
-  if (maybe_files instanceof None) {
-    return none2();
-  } else if (maybe_files instanceof Some && maybe_files[0].hasLength(0)) {
-    return none2();
-  } else {
-    let files = maybe_files[0];
-    let _block;
-    if (files_filter_query instanceof None) {
-      _block = files;
+  if (maybe_files instanceof Some) {
+    let $ = maybe_files[0];
+    if ($ instanceof Empty) {
+      return none2();
     } else {
-      let q = files_filter_query[0];
-      let _pipe = files;
-      _block = filter(_pipe, filter_file_predicate(q));
-    }
-    return div(
-      toList([
-        class$(
-          "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted"
-        ),
-        style(
-          toList([
-            [
-              "scrollbar-color",
-              (() => {
-                let _pipe = theme;
-                return scrollbar_color(_pipe);
-              })()
-            ],
-            ["scrollbar-width", "thin"]
-          ])
-        ),
-        id(
-          (() => {
-            let _pipe = new FilesSection();
-            return section_id(_pipe);
-          })()
-        )
-      ]),
-      toList([
-        p(
-          toList([
-            class$("text-xl"),
-            id(
-              (() => {
-                let _pipe = new FilesSection();
-                return section_heading_id(_pipe);
-              })()
-            )
-          ]),
-          toList([
+      let files = $;
+      return div(
+        toList([
+          class$(
+            "mt-4 p-4 border-2 border-[#a594f9] border-opacity-50 border-dotted"
+          ),
+          styles(
+            toList([
+              [
+                "scrollbar-color",
+                (() => {
+                  let _pipe = theme;
+                  return scrollbar_color(_pipe);
+                })()
+              ],
+              ["scrollbar-width", "thin"]
+            ])
+          ),
+          id(
             (() => {
-              let _pipe = "files";
-              return text(_pipe);
+              let _pipe = new FilesSection();
+              return section_id(_pipe);
             })()
-          ])
-        ),
-        input(
-          toList([
-            class$(
-              "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 max-sm:w-full w-1/3 " + section_bg_class(
-                new FilesSection(),
-                theme
+          )
+        ]),
+        toList([
+          p(
+            toList([
+              class$("text-xl"),
+              id(
+                (() => {
+                  let _pipe = new FilesSection();
+                  return section_heading_id(_pipe);
+                })()
               )
-            ),
-            autocomplete("off"),
-            id("filter-files"),
-            type_("text"),
-            placeholder("filter files"),
-            value(
+            ]),
+            toList([
               (() => {
-                let _pipe = files_filter_query;
-                return unwrap(_pipe, "");
+                let _pipe = "files";
+                return text2(_pipe);
               })()
-            ),
-            on_input(
-              (var0) => {
-                return new UserEnteredFilesFilterQuery(var0);
+            ])
+          ),
+          input(
+            toList([
+              class$(
+                "mt-4 font-semibold h-8 text-[#282828] placeholder-[#3d3d3d] pl-2 max-sm:w-full w-1/3 " + section_bg_class(
+                  new FilesSection(),
+                  theme
+                )
+              ),
+              autocomplete("off"),
+              id("filter-files"),
+              type_("text"),
+              placeholder("filter files"),
+              value(
+                (() => {
+                  let _pipe = files_filter_query;
+                  return unwrap(_pipe, "");
+                })()
+              ),
+              on_input(
+                (var0) => {
+                  return new UserEnteredFilesFilterQuery(var0);
+                }
+              )
+            ])
+          ),
+          div(
+            toList([class$("mt-4 overflow-x-auto max-sm:text-xs")]),
+            (() => {
+              let _block;
+              if (files_filter_query instanceof Some) {
+                let q = files_filter_query[0];
+                let _pipe2 = files;
+                _block = filter(_pipe2, filter_file_predicate(q));
+              } else {
+                _block = files;
               }
-            )
-          ])
-        ),
-        div(
-          toList([class$("mt-4 overflow-x-auto max-sm:text-xs")]),
-          (() => {
-            let _pipe = _block;
-            return map2(
-              _pipe,
-              (file) => {
-                return file_details(file, theme);
-              }
-            );
-          })()
-        )
-      ])
-    );
+              let _pipe = _block;
+              return map2(
+                _pipe,
+                (file) => {
+                  return file_details(file, theme);
+                }
+              );
+            })()
+          )
+        ])
+      );
+    }
+  } else {
+    return none2();
   }
 }
 function main_section(model) {
@@ -9906,7 +11647,7 @@ function main_section(model) {
   return div(
     toList([
       class$("flex-1 overflow-y-scroll pt-8 px-4"),
-      style(
+      styles(
         toList([
           [
             "scrollbar-color",
@@ -10198,10 +11939,10 @@ function main_section(model) {
               start_tag,
               end_tag,
               (() => {
-                if (theme instanceof Dark) {
-                  return model.author_color_classes.dark;
-                } else {
+                if (theme instanceof Light) {
                   return model.author_color_classes.light;
+                } else {
+                  return model.author_color_classes.dark;
                 }
               })(),
               theme
@@ -10229,7 +11970,7 @@ function navigation_button(section, theme, enabled) {
       (() => {
         let _pipe = section;
         let _pipe$1 = section_to_string(_pipe);
-        return text(_pipe$1);
+        return text2(_pipe$1);
       })()
     ])
   );
@@ -10256,31 +11997,41 @@ function navigation_bar(state, theme) {
     let changes = state.changes;
     let $1 = changes.commits;
     let $2 = changes.files;
-    if ($1.hasLength(0) && $2 instanceof None) {
+    if ($2 instanceof Some) {
+      let $3 = $2[0];
+      if ($3 instanceof Empty) {
+        if ($1 instanceof Empty) {
+          _block = [true, true, true, false, false];
+        } else {
+          _block = [true, true, true, true, false];
+        }
+      } else if ($1 instanceof Empty) {
+        _block = [true, true, true, false, true];
+      } else {
+        _block = [true, true, true, true, true];
+      }
+    } else if ($1 instanceof Empty) {
       _block = [true, true, true, false, false];
-    } else if ($1.hasLength(0) && $2 instanceof Some && $2[0].hasLength(0)) {
-      _block = [true, true, true, false, false];
-    } else if ($1.hasLength(0) && $2 instanceof Some) {
-      _block = [true, true, true, false, true];
-    } else if ($2 instanceof None) {
-      _block = [true, true, true, true, false];
-    } else if ($2 instanceof Some && $2[0].hasLength(0)) {
-      _block = [true, true, true, true, false];
     } else {
-      _block = [true, true, true, true, true];
+      _block = [true, true, true, true, false];
     }
   }
   let $ = _block;
-  let o = $[0];
-  let r = $[1];
-  let t = $[2];
-  let c = $[3];
-  let f = $[4];
+  let o;
+  let r;
+  let t;
+  let c;
+  let f;
+  o = $[0];
+  r = $[1];
+  t = $[2];
+  c = $[3];
+  f = $[4];
   let _block$1;
-  if (theme instanceof Dark) {
-    _block$1 = "bg-[#282828]";
-  } else {
+  if (theme instanceof Light) {
     _block$1 = "bg-[#ffffff]";
+  } else {
+    _block$1 = "bg-[#282828]";
   }
   let footer_class = _block$1;
   return nav(
@@ -10303,8 +12054,10 @@ function navigation_bar(state, theme) {
           return map2(
             _pipe,
             (data) => {
-              let section = data[0];
-              let enabled = data[1];
+              let section;
+              let enabled;
+              section = data[0];
+              enabled = data[1];
               return navigation_button(section, theme, enabled);
             }
           );
@@ -10348,28 +12101,30 @@ function view(model) {
 }
 
 // build/dev/javascript/ghx/ghx.mjs
-function init2(_) {
+var FILEPATH = "src/ghx.gleam";
+function init(_) {
   let _block;
   let $ = public$;
-  if (!$) {
-    _block = fetch_initial_config();
-  } else {
+  if ($) {
     _block = none();
+  } else {
+    _block = fetch_initial_config();
   }
   let init_effect = _block;
   return [init_model(), init_effect];
 }
 function main() {
-  let app = application(init2, update, view);
-  let $ = start2(app, "#app", void 0);
-  if (!$.isOk()) {
+  let app = application(init, update2, view);
+  let $ = start3(app, "#app", void 0);
+  if (!($ instanceof Ok)) {
     throw makeError(
       "let_assert",
+      FILEPATH,
       "ghx",
       11,
       "main",
       "Pattern match failed, no pattern matched the value.",
-      { value: $ }
+      { value: $, start: 243, end: 292, pattern_start: 254, pattern_end: 259 }
     );
   }
   return $;
