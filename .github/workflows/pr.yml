@@ -118,7 +118,7 @@ jobs:
           fi
 
   preview:
-    needs: changes
+    needs: [changes, lint-gleam, build-gleam]
     if: ${{ needs.changes.outputs.gleam == 'true' }}
     runs-on: ubuntu-latest
     environment: preview

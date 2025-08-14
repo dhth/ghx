@@ -603,8 +603,7 @@ fn repo_select_button(
     [
       attribute.id("reset-filter"),
       attribute.class(
-        "max-sm:text-xs text-sm font-semibold mr-2 px-2 py-1 my-1 "
-        <> class,
+        "max-sm:text-xs text-sm font-semibold mr-2 px-2 py-1 my-1 " <> class,
       ),
       attribute.disabled(selected),
       event.on_click(types.RepoChosen(repo.name)),
