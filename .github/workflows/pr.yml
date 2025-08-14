@@ -5,7 +5,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  GLEAM_VERSION: '1.10.0'
+  GLEAM_VERSION: '1.12.0'
 
 jobs:
   changes:
@@ -108,6 +108,7 @@ jobs:
       - name: Compile gleam to js
         run: |
           cd src/server/client
+          gleam run -m lustre/dev add tailwind
           gleam run -m lustre/dev build app
       - name: Ensure compiled files haven't changed
         run: |
@@ -118,7 +119,7 @@ jobs:
           fi
 
   preview:
-    needs: changes
+    needs: [changes, lint-gleam, build-gleam]
     if: ${{ needs.changes.outputs.gleam == 'true' }}
     runs-on: ubuntu-latest
     environment: preview
