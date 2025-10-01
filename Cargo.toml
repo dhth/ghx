@@ -20,7 +20,7 @@ exclude = [
 
 [dependencies]
 anyhow = "1.0.99"
-axum = "0.8.4"
+axum = "0.8.6"
 clap = { version = "4.5.42", features = ["derive"] }
 hyper = "1.7.0"
 open = "5.3.2"
