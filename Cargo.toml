@@ -21,7 +21,7 @@ exclude = [
 [dependencies]
 anyhow = "1.0.100"
 axum = "0.8.7"
-clap = { version = "4.5.51", features = ["derive"] }
+clap = { version = "4.5.53", features = ["derive"] }
 hyper = "1.8.1"
 open = "5.3.3"
 reqwest = { version = "0.12.24", features = ["rustls-tls"] }
